@@ -183,9 +183,34 @@ DROP POLICY IF EXISTS "Hybrid Access sipps_notifikasi" ON public.sipps_notifikas
 CREATE POLICY "Hybrid Access sipps_notifikasi" ON public.sipps_notifikasi
 FOR ALL TO anon, authenticated USING (true) WITH CHECK (true);
 
--- AKTIFKAN SUPABASE REALTIME UNTUK SINKRONISASI LANGSUNG
-ALTER PUBLICATION supabase_realtime ADD TABLE public.sipps_settings;
-ALTER PUBLICATION supabase_realtime ADD TABLE public.sipps_siswa;
-ALTER PUBLICATION supabase_realtime ADD TABLE public.sipps_aturan;
-ALTER PUBLICATION supabase_realtime ADD TABLE public.sipps_pelanggaran;
-ALTER PUBLICATION supabase_realtime ADD TABLE public.sipps_notifikasi;
+-- AKUN AWAL DEFAULT PETUGAS BK & ADMIN FALLBACK (AGAR LANGSUNG BISA LOGIN)
+INSERT INTO public.sipps_staff (nip, nama, username, password, role, jabatan)
+VALUES
+  ('198001012005011001', 'Administrator Utama SIPPS', 'admin@smpn71.sch.id', 'admin123', 'admin', 'Administrator Sistem'),
+  ('198504112010012003', 'Dra. Rina Kartika, S.Pd., Kons.', 'bk71', 'bk123', 'bk', 'Koordinator Guru BK')
+ON CONFLICT (nip) DO NOTHING;
+
+-- AKTIFKAN SUPABASE REALTIME SECARA AMAN (TANPA ERROR JIKA DIJALANKAN ULANG)
+DO $$
+BEGIN
+  BEGIN
+    ALTER PUBLICATION supabase_realtime ADD TABLE public.sipps_settings;
+  EXCEPTION WHEN duplicate_object THEN NULL;
+  END;
+  BEGIN
+    ALTER PUBLICATION supabase_realtime ADD TABLE public.sipps_siswa;
+  EXCEPTION WHEN duplicate_object THEN NULL;
+  END;
+  BEGIN
+    ALTER PUBLICATION supabase_realtime ADD TABLE public.sipps_aturan;
+  EXCEPTION WHEN duplicate_object THEN NULL;
+  END;
+  BEGIN
+    ALTER PUBLICATION supabase_realtime ADD TABLE public.sipps_pelanggaran;
+  EXCEPTION WHEN duplicate_object THEN NULL;
+  END;
+  BEGIN
+    ALTER PUBLICATION supabase_realtime ADD TABLE public.sipps_notifikasi;
+  EXCEPTION WHEN duplicate_object THEN NULL;
+  END;
+END $$;
