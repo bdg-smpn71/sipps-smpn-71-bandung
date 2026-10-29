@@ -336,7 +336,10 @@
           <!-- Mandatory Login Footer Copyright -->
           <div class="mt-8 pt-4 border-t border-slate-200/80 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-500">
             <span class="font-semibold text-slate-600">© 2026 SMP Negeri 71. All rights reserved</span>
-            <span class="text-[11px] text-slate-400">Bandung, Jawa Barat • Terhubung Database</span>
+            <button type="button" onclick="window.app.openSupabaseConfigModal()" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 text-[11px] font-bold transition border border-slate-200">
+              <span id="db-conn-dot" class="w-2 h-2 rounded-full bg-emerald-500"></span>
+              <span id="db-conn-label">Konfigurasi Database Supabase</span>
+            </button>
           </div>
         </div>
 
@@ -562,15 +565,63 @@
     import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 
     // ====================================================================
-    // KONFIGURASI APLIKASI (SAKLAR DEPLOYMENT WAJIB)
+    // KONFIGURASI APLIKASI (SAKLAR DEPLOYMENT & PENYIMPANAN KREDENSIAL)
     // ====================================================================
-    const IS_PREVIEW = false; // Ubah menjadi false SAAT DEPLOY agar mode preview & data dummy hilang dan terhubung 100% ke Supabase
-    const SUPABASE_URL = "https://gekubioxgyqqzvswxujy.supabase.co";
-    const SUPABASE_ANON_KEY = "sb_publishable_17aStgaM9FI__bVC6A7bnQ_GUDkXjUN";
+    let IS_PREVIEW = false; // Ubah menjadi false SAAT DEPLOY atau atur langsung dari tombol "Konfigurasi Database Supabase" di layar Login
+    const SUPABASE_URL = "sb_publishable_17aStgaM9FI__bVC6A7bnQ_GUDkXjUN";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdla3ViaW94Z3lxcXp2c3d4dWp5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI4NDgzMzYsImV4cCI6MjEwODQyNDMzNn0.G_6Dph6TWtvllKc70DwWFlSyr68NN_E3TmRM3Wzzq3I";
 
     let supabase = null;
-    if (!IS_PREVIEW && SUPABASE_URL !== "https://gekubioxgyqqzvswxujy.supabase.co") {
-      supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    function getActiveSupabaseCredentials() {
+      let saved = null;
+      try {
+        saved = JSON.parse(localStorage.getItem('SIPPS_71_SUPABASE_CONFIG') || 'null');
+      } catch {
+        saved = null;
+      }
+      const url = (SUPABASE_URL && SUPABASE_URL !== "sb_publishable_17aStgaM9FI__bVC6A7bnQ_GUDkXjUN")
+        ? SUPABASE_URL.trim()
+        : (saved?.url || "").trim();
+      const key = (SUPABASE_ANON_KEY && SUPABASE_ANON_KEY !== "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdla3ViaW94Z3lxcXp2c3d4dWp5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI4NDgzMzYsImV4cCI6MjEwODQyNDMzNn0.G_6Dph6TWtvllKc70DwWFlSyr68NN_E3TmRM3Wzzq3I")
+        ? SUPABASE_ANON_KEY.trim()
+        : (saved?.anonKey || "").trim();
+      const hasValidCreds = url.startsWith('http') && key.length > 20;
+      const forceProduction = saved?.useProduction === true || (SUPABASE_URL !== "URL_SUPABASE_ANDA" && !IS_PREVIEW);
+      return { url, key, hasValidCreds, forceProduction };
+    }
+
+    function initSupabaseConnection() {
+      const { url, key, hasValidCreds, forceProduction } = getActiveSupabaseCredentials();
+      if (hasValidCreds) {
+        try {
+          supabase = createClient(url, key);
+          if (forceProduction) {
+            IS_PREVIEW = false;
+          }
+        } catch (err) {
+          supabase = null;
+        }
+      } else {
+        supabase = null;
+      }
+      updateDatabaseBadgeUI();
+    }
+
+    function updateDatabaseBadgeUI() {
+      const dot = document.getElementById('db-conn-dot');
+      const label = document.getElementById('db-conn-label');
+      if (!dot || !label) return;
+      if (supabase && !IS_PREVIEW) {
+        dot.className = "w-2 h-2 rounded-full bg-emerald-500";
+        label.textContent = "Terhubung ke Supabase (Produksi)";
+      } else if (supabase && IS_PREVIEW) {
+        dot.className = "w-2 h-2 rounded-full bg-sky-500";
+        label.textContent = "Supabase Siap (Mode Preview)";
+      } else {
+        dot.className = "w-2 h-2 rounded-full bg-amber-500";
+        label.textContent = "Atur Koneksi Supabase";
+      }
     }
 
     // ====================================================================
@@ -655,6 +706,7 @@
     // ====================================================================
     async function initApp() {
       registerSingleFilePWA();
+      initSupabaseConnection();
       setupPreviewOrProductionEnvironment();
       await loadAllDatabase();
       setupRealtimeSubscription();
@@ -684,8 +736,8 @@
       const previewBanner = document.getElementById('preview-banner');
       const previewHint = document.getElementById('login-preview-hint');
       if (IS_PREVIEW) {
-        previewBanner.classList.remove('hidden');
-        previewHint.classList.remove('hidden');
+        if (previewBanner) previewBanner.classList.remove('hidden');
+        if (previewHint) previewHint.classList.remove('hidden');
         const savedLocal = localStorage.getItem('SIPPS_71_PREVIEW_DB');
         if (savedLocal) {
           try {
@@ -699,8 +751,8 @@
         }
       } else {
         // PRODUCTION MODE: 100% HIDE PREVIEW ELEMENTS & CLEAR DUMMY DATA
-        previewBanner.remove();
-        previewHint.remove();
+        if (previewBanner) previewBanner.classList.add('hidden');
+        if (previewHint) previewHint.classList.add('hidden');
         state.db = {
           settings: { ...DEFAULT_SETTINGS },
           staff: [],
@@ -942,31 +994,66 @@
 
       try {
         if (role === 'admin') {
-          if (IS_PREVIEW) {
+          if (IS_PREVIEW && !supabase) {
             state.currentUser = {
               id: 'admin-preview',
               name: 'Administrator Utama',
               role: 'admin',
               identifier: idVal || 'admin@smpn71.sch.id'
             };
+          } else if (!supabase) {
+            openSupabaseConfigModal();
+            throw new Error("Silakan masukkan Project URL & Anon Key Supabase Anda pada jendela konfigurasi yang terbuka, atau aktifkan Mode Preview.");
           } else {
-            if (!supabase) throw new Error("Koneksi Supabase belum dikonfigurasi.");
+            // 1. Try Official Supabase Auth (Email & Password)
             const { data, error } = await supabase.auth.signInWithPassword({
               email: idVal,
               password: passVal
             });
-            if (error) throw error;
-            state.currentUser = {
-              id: data.user.id,
-              name: data.user.email.split('@')[0],
-              role: 'admin',
-              identifier: data.user.email
-            };
+
+            if (!error && data?.user) {
+              state.currentUser = {
+                id: data.user.id,
+                name: data.user.email.split('@')[0],
+                role: 'admin',
+                identifier: data.user.email
+              };
+            } else {
+              // 2. Hybrid Fallback: Check sipps_staff table for admin role so user is never locked out
+              const { data: staffAdmin, error: staffErr } = await supabase
+                .from('sipps_staff')
+                .select('*')
+                .or(`username.eq.${idVal},nip.eq.${idVal}`)
+                .eq('password', passVal)
+                .eq('role', 'admin')
+                .maybeSingle();
+
+              if (staffAdmin && !staffErr) {
+                state.currentUser = {
+                  id: staffAdmin.id,
+                  name: staffAdmin.nama,
+                  role: 'admin',
+                  identifier: staffAdmin.username
+                };
+              } else if (IS_PREVIEW) {
+                state.currentUser = {
+                  id: 'admin-preview',
+                  name: 'Administrator Utama',
+                  role: 'admin',
+                  identifier: idVal || 'admin@smpn71.sch.id'
+                };
+              } else {
+                throw new Error(error?.message || "Email atau Kata Sandi Admin tidak ditemukan di Supabase Auth maupun tabel sipps_staff.");
+              }
+            }
           }
         } else if (role === 'bk') {
           let staffUser = null;
-          if (IS_PREVIEW) {
+          if (IS_PREVIEW && !supabase) {
             staffUser = state.db.staff.find(s => (s.username === idVal || s.nip === idVal) && s.password === passVal);
+          } else if (!supabase) {
+            openSupabaseConfigModal();
+            throw new Error("Silakan atur koneksi Supabase terlebih dahulu atau gunakan Mode Preview.");
           } else {
             const { data, error } = await supabase
               .from('sipps_staff')
@@ -986,8 +1073,11 @@
           };
         } else if (role === 'siswa') {
           let siswaUser = null;
-          if (IS_PREVIEW) {
+          if (IS_PREVIEW && !supabase) {
             siswaUser = state.db.siswa.find(s => s.nisn === idVal && s.password_siswa === passVal);
+          } else if (!supabase) {
+            openSupabaseConfigModal();
+            throw new Error("Silakan atur koneksi Supabase terlebih dahulu atau gunakan Mode Preview.");
           } else {
             const { data, error } = await supabase
               .from('sipps_siswa')
@@ -1009,8 +1099,11 @@
           };
         } else if (role === 'wali') {
           let waliUser = null;
-          if (IS_PREVIEW) {
+          if (IS_PREVIEW && !supabase) {
             waliUser = state.db.siswa.find(s => s.nisn === idVal && s.password_wali === passVal);
+          } else if (!supabase) {
+            openSupabaseConfigModal();
+            throw new Error("Silakan atur koneksi Supabase terlebih dahulu atau gunakan Mode Preview.");
           } else {
             const { data, error } = await supabase
               .from('sipps_siswa')
@@ -2347,6 +2440,9 @@
             </div>
 
             <div class="space-y-2.5 pt-3 border-t border-slate-200">
+              <button type="button" onclick="window.app.openSupabaseConfigModal()" class="w-full py-2.5 rounded-xl bg-[#6B8E9B] hover:bg-[#587985] text-white text-xs font-extrabold transition flex items-center justify-center gap-2">
+                <i data-lucide="database" class="w-4 h-4"></i> Konfigurasi Koneksi Database Supabase
+              </button>
               <button type="button" onclick="window.app.previewMaintenanceScreenAsAdmin()" class="w-full py-2.5 rounded-xl bg-[#F5DFD3] hover:bg-[#ebd0c0] text-[#2A4756] text-xs font-extrabold transition flex items-center justify-center gap-2">
                 <i data-lucide="eye" class="w-4 h-4"></i> Lihat Tampilan Layar "Sistem Sedang Diperbaiki"
               </button>
@@ -3164,6 +3260,117 @@
     }
 
     // ====================================================================
+    // MODAL KONFIGURASI KONEKSI DATABASE SUPABASE (ANTI-ERROR CONFIG)
+    // ====================================================================
+    function openSupabaseConfigModal() {
+      const { url, key } = getActiveSupabaseCredentials();
+      document.getElementById('modal-title').textContent = 'Konfigurasi Koneksi Database Supabase';
+      document.getElementById('modal-body').innerHTML = `
+        <form onsubmit="window.app.saveSupabaseConfigFromModal(event)" class="space-y-4 text-xs">
+          <div class="p-3.5 rounded-2xl bg-sky-50 border border-sky-200 text-slate-700 leading-relaxed">
+            <div class="font-extrabold text-sky-900 mb-1 flex items-center gap-1.5">
+              <i data-lucide="database" class="w-4 h-4 text-sky-700"></i> Hubungkan ke Proyek Supabase Anda
+            </div>
+            Masukkan <b>Project URL</b> dan <b>Anon Public Key</b> dari menu <i>Project Settings &rarr; API</i> di dashboard Supabase Anda. Pastikan Anda sudah menjalankan file <code>supabase_setup.sql</code> di SQL Editor.
+          </div>
+
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Supabase Project URL</label>
+            <input type="url" id="cfg-sb-url" placeholder="https://xxxxxxxxxxxx.supabase.co" value="${url}" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 font-mono text-xs focus:outline-none focus:ring-2 focus:ring-[#6B8E9B]" />
+          </div>
+
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Supabase Anon Public Key</label>
+            <textarea id="cfg-sb-key" rows="3" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." class="w-full px-3.5 py-2 rounded-xl border border-slate-200 font-mono text-[11px] focus:outline-none focus:ring-2 focus:ring-[#6B8E9B]">${key}</textarea>
+          </div>
+
+          <div class="p-3 rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-between gap-3">
+            <div>
+              <div class="font-bold text-slate-800">Aktifkan Mode Produksi (100% Supabase Real-Time)</div>
+              <div class="text-[11px] text-slate-500">Matikan centang jika ingin kembali ke Mode Preview (Simulasi Lokal)</div>
+            </div>
+            <input type="checkbox" id="cfg-sb-prod" ${!IS_PREVIEW ? 'checked' : ''} class="w-5 h-5 accent-[#2A4756] cursor-pointer" />
+          </div>
+
+          <div id="cfg-sb-test-result" class="hidden p-3 rounded-xl text-xs font-bold"></div>
+
+          <div class="pt-2 flex flex-wrap items-center justify-between gap-2">
+            <button type="button" onclick="window.app.testSupabaseConnectionLive()" class="px-4 py-2 rounded-xl bg-[#6B8E9B] hover:bg-[#587985] text-white font-bold transition flex items-center gap-1.5">
+              <i data-lucide="zap" class="w-3.5 h-3.5"></i> Uji Koneksi
+            </button>
+            <div class="flex items-center gap-2">
+              <button type="button" onclick="window.app.resetToPreviewMode()" class="px-3.5 py-2 rounded-xl bg-amber-100 hover:bg-amber-200 text-amber-900 font-bold">Mode Preview</button>
+              <button type="submit" class="px-5 py-2 rounded-xl bg-[#2A4756] hover:bg-[#1E3542] text-white font-bold shadow-md">Simpan & Terapkan</button>
+            </div>
+          </div>
+        </form>
+      `;
+      document.getElementById('modal-overlay').classList.remove('hidden');
+      lucide.createIcons();
+    }
+
+    async function testSupabaseConnectionLive() {
+      const url = document.getElementById('cfg-sb-url').value.trim();
+      const key = document.getElementById('cfg-sb-key').value.trim();
+      const resBox = document.getElementById('cfg-sb-test-result');
+      resBox.classList.remove('hidden');
+
+      if (!url.startsWith('http') || key.length < 20) {
+        resBox.className = "p-3 rounded-xl text-xs font-bold bg-red-50 text-red-700 border border-red-200";
+        resBox.textContent = "URL harus diawali https:// dan Anon Key harus valid.";
+        return;
+      }
+
+      resBox.className = "p-3 rounded-xl text-xs font-bold bg-sky-50 text-sky-800 border border-sky-200";
+      resBox.textContent = "Sedang menguji koneksi ke server Supabase...";
+
+      try {
+        const tempClient = createClient(url, key);
+        const { error } = await tempClient.from('sipps_settings').select('id').limit(1);
+        if (error) {
+          resBox.className = "p-3 rounded-xl text-xs font-bold bg-amber-50 text-amber-800 border border-amber-200";
+          resBox.textContent = `Server terhubung, namun tabel belum ditemukan (${error.message}). Pastikan Anda telah menjalankan supabase_setup.sql di SQL Editor Supabase!`;
+        } else {
+          resBox.className = "p-3 rounded-xl text-xs font-bold bg-emerald-50 text-emerald-800 border border-emerald-200";
+          resBox.textContent = "Koneksi Berhasil 100%! Tabel database SIPPS siap digunakan.";
+        }
+      } catch (err) {
+        resBox.className = "p-3 rounded-xl text-xs font-bold bg-red-50 text-red-700 border border-red-200";
+        resBox.textContent = "Gagal menghubungi Supabase: " + (err.message || "Periksa URL & Anon Key");
+      }
+    }
+
+    async function saveSupabaseConfigFromModal(e) {
+      e.preventDefault();
+      const url = document.getElementById('cfg-sb-url').value.trim();
+      const anonKey = document.getElementById('cfg-sb-key').value.trim();
+      const useProduction = document.getElementById('cfg-sb-prod').checked;
+
+      if (useProduction && (!url.startsWith('http') || anonKey.length < 20)) {
+        return showToast("Untuk Mode Produksi, masukkan Supabase URL dan Anon Key yang valid terlebih dahulu.", "warning");
+      }
+
+      localStorage.setItem('SIPPS_71_SUPABASE_CONFIG', JSON.stringify({ url, anonKey, useProduction }));
+      IS_PREVIEW = !useProduction;
+      initSupabaseConnection();
+      setupPreviewOrProductionEnvironment();
+      closeModal();
+      await loadAllDatabase(true);
+      setupRealtimeSubscription();
+    }
+
+    async function resetToPreviewMode() {
+      localStorage.removeItem('SIPPS_71_SUPABASE_CONFIG');
+      IS_PREVIEW = true;
+      supabase = null;
+      updateDatabaseBadgeUI();
+      setupPreviewOrProductionEnvironment();
+      closeModal();
+      await loadAllDatabase(false);
+      showToast("Kembali ke Mode Preview (Simulasi Lokal Aktif).", "info");
+    }
+
+    // ====================================================================
     // NOTIFICATION DRAWER & UTILITIES
     // ====================================================================
     function renderNotificationDrawer() {
@@ -3313,6 +3520,10 @@
       checkMaintenanceStatus,
       backToAdminLoginFromMaintenance,
       previewMaintenanceScreenAsAdmin,
+      openSupabaseConfigModal,
+      testSupabaseConnectionLive,
+      saveSupabaseConfigFromModal,
+      resetToPreviewMode,
       toggleNotifDrawer,
       markAllNotifRead
     };
