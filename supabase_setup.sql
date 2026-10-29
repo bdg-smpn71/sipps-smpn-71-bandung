@@ -5,7 +5,7 @@
 
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
--- 1. TABEL PENGATURAN SISTEM & MODE MAINTENANCE
+-- 1. TABEL PENGATURAN SISTEM, FOTO PROFIL ADMIN & MODE MAINTENANCE
 CREATE TABLE IF NOT EXISTS public.sipps_settings (
   id int8 PRIMARY KEY DEFAULT 1,
   app_name text NOT NULL DEFAULT 'SIPPS SMP Negeri 71 Bandung',
@@ -16,11 +16,14 @@ CREATE TABLE IF NOT EXISTS public.sipps_settings (
   logo_url text DEFAULT '',
   bg_url text DEFAULT '',
   kop_surat_url text DEFAULT '',
+  admin_avatar_url text DEFAULT '',
   canvas_opacity numeric DEFAULT 0.88,
   is_maintenance boolean NOT NULL DEFAULT false,
   maintenance_message text DEFAULT 'Mohon maaf atas ketidaknyamanan ini, kami sedang melakukan peningkatan layanan untuk Anda.',
   updated_at timestamptz DEFAULT now()
 );
+
+ALTER TABLE public.sipps_settings ADD COLUMN IF NOT EXISTS admin_avatar_url text DEFAULT '';
 
 INSERT INTO public.sipps_settings (id, app_name, school_name, is_maintenance, maintenance_message)
 VALUES (1, 'SIPPS SMP Negeri 71 Bandung', 'SMP Negeri 71 Bandung', false, 'Mohon maaf atas ketidaknyamanan ini, kami sedang melakukan peningkatan layanan untuk Anda.')
@@ -38,11 +41,10 @@ CREATE TABLE IF NOT EXISTS public.sipps_staff (
   created_at timestamptz DEFAULT now()
 );
 
--- 3. TABEL MASTER IDENTITAS SISWA & AKSES WALI MURID / SISWA
+-- 3. TABEL MASTER IDENTITAS SISWA (HANYA NISN TANPA NIS) & AKSES WALI MURID / SISWA
 CREATE TABLE IF NOT EXISTS public.sipps_siswa (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   nisn text UNIQUE NOT NULL,
-  nis text,
   nama_siswa text NOT NULL,
   kelas text NOT NULL,
   jenis_kelamin text DEFAULT 'L',
@@ -54,6 +56,8 @@ CREATE TABLE IF NOT EXISTS public.sipps_siswa (
   status_pembinaan text DEFAULT 'Aman / Disiplin Baik',
   created_at timestamptz DEFAULT now()
 );
+
+ALTER TABLE public.sipps_siswa DROP COLUMN IF EXISTS nis;
 
 -- 4. TABEL KATALOG ATURAN & BUKU SAKU TATA TERTIB
 CREATE TABLE IF NOT EXISTS public.sipps_aturan (
@@ -85,7 +89,7 @@ CREATE TABLE IF NOT EXISTS public.sipps_pelanggaran (
   created_at timestamptz DEFAULT now()
 );
 
--- 6. TABEL PESAN & NOTIFIKASI REAL-TIME (DENGAN FILTER KELAS & NAMA)
+-- 6. TABEL PESAN, NOTIFIKASI & CHATTING REAL-TIME (DENGAN FILTER KELAS & NAMA)
 CREATE TABLE IF NOT EXISTS public.sipps_notifikasi (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   judul text NOT NULL,
@@ -96,9 +100,14 @@ CREATE TABLE IF NOT EXISTS public.sipps_notifikasi (
   target_nisn text DEFAULT '',
   target_nama text DEFAULT '',
   pengirim text DEFAULT 'Administrator',
+  pengirim_role text DEFAULT 'admin',
+  pengirim_id text DEFAULT '',
   is_read boolean DEFAULT false,
   created_at timestamptz DEFAULT now()
 );
+
+ALTER TABLE public.sipps_notifikasi ADD COLUMN IF NOT EXISTS pengirim_role text DEFAULT 'admin';
+ALTER TABLE public.sipps_notifikasi ADD COLUMN IF NOT EXISTS pengirim_id text DEFAULT '';
 
 -- 7. TABEL MASTER DATA KELAS (SINKRONISASI ROMBONGAN BELAJAR & WALI KELAS)
 CREATE TABLE IF NOT EXISTS public.sipps_kelas (
