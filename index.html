@@ -145,6 +145,10 @@
       0%, 100% { transform: translateY(0px); }
       50% { transform: translateY(-10px); }
     }
+    @keyframes shimmerMove {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(220%); }
+    }
     .animate-spin-slow {
       animation: spinSlow 12s linear infinite;
     }
@@ -153,6 +157,9 @@
     }
     .animate-float {
       animation: floatY 4s ease-in-out infinite;
+    }
+    .animate-shimmer-bar {
+      animation: shimmerMove 2.4s ease-in-out infinite;
     }
 
     /* A4 Print & PDF Sheet Styling */
@@ -201,218 +208,178 @@
     <div class="absolute -bottom-24 -right-24 w-96 h-96 rounded-full bg-[#EB8A5E]/25 blur-3xl pointer-events-none"></div>
 
     <!-- ================================================================= -->
-    <!-- 1. TOP PREVIEW BANNER (ONLY SHOWN WHEN IS_PREVIEW === true)       -->
+    <!-- 1. BANNER INDIKATOR MODE PREVIEW & QUICK LOGIN                    -->
     <!-- ================================================================= -->
-    <div id="preview-banner" class="hidden relative z-50 bg-amber-500/95 backdrop-blur-md text-slate-950 px-4 py-1.5 text-xs font-semibold flex flex-wrap items-center justify-between gap-2 border-b border-amber-300/50 shadow-sm">
+    <div id="preview-banner" class="relative z-50 bg-slate-900/90 backdrop-blur-md text-white px-3 py-1.5 text-[11px] flex flex-wrap items-center justify-between gap-2 border-b border-white/15">
       <div class="flex items-center gap-2">
-        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-slate-900 text-amber-300 text-[10px] font-bold uppercase tracking-wider">
-          <i data-lucide="sparkles" class="w-3 h-3"></i> Mode Preview Aktif
-        </span>
-        <span>Simulasi Memori Lokal Aktif. Ubah <code class="bg-amber-600/20 px-1 rounded">IS_PREVIEW = false</code> untuk koneksi 100% Supabase.</span>
+        <span class="px-2 py-0.5 rounded-full bg-amber-500 text-slate-950 font-extrabold uppercase tracking-wider text-[10px]">Mode Preview Aktif</span>
+        <span class="text-slate-300 hidden sm:inline">Pintasan Uji Coba Multi-Role & Maintenance:</span>
       </div>
-      <div class="flex items-center gap-1.5 flex-wrap">
-        <span class="text-[11px] opacity-80 mr-1">Pintas Peran:</span>
-        <button onclick="window.app.quickLogin('admin')" class="px-2.5 py-0.5 rounded-full bg-slate-900 text-white hover:bg-slate-800 transition text-[11px]">Admin</button>
-        <button onclick="window.app.quickLogin('bk')" class="px-2.5 py-0.5 rounded-full bg-white/90 text-slate-900 hover:bg-white transition text-[11px]">Guru BK</button>
-        <button onclick="window.app.quickLogin('wali')" class="px-2.5 py-0.5 rounded-full bg-white/90 text-slate-900 hover:bg-white transition text-[11px]">Wali Murid</button>
-        <button onclick="window.app.quickLogin('siswa')" class="px-2.5 py-0.5 rounded-full bg-white/90 text-slate-900 hover:bg-white transition text-[11px]">Siswa</button>
-        <button onclick="window.app.toggleMaintenanceQuick()" id="btn-preview-maint" class="px-2.5 py-0.5 rounded-full bg-red-700 text-white hover:bg-red-800 transition text-[11px] flex items-center gap-1">
+      <div class="flex flex-wrap items-center gap-1.5">
+        <button onclick="window.app.quickLogin('siswa')" class="px-2.5 py-0.5 rounded-full bg-white/15 hover:bg-white/25 transition font-semibold">Login Siswa</button>
+        <button onclick="window.app.quickLogin('wali')" class="px-2.5 py-0.5 rounded-full bg-white/15 hover:bg-white/25 transition font-semibold">Login Wali Murid</button>
+        <button onclick="window.app.quickLogin('bk')" class="px-2.5 py-0.5 rounded-full bg-white/15 hover:bg-white/25 transition font-semibold">Login Guru BK</button>
+        <button onclick="window.app.quickLogin('admin')" class="px-2.5 py-0.5 rounded-full bg-[#EB8A5E] hover:bg-[#d97548] text-white transition font-bold">Login Admin</button>
+        <button id="btn-preview-maint" onclick="window.app.toggleMaintenanceQuick()" class="px-2.5 py-0.5 rounded-full bg-red-700 text-white hover:bg-red-800 transition text-[11px] flex items-center gap-1">
           <i data-lucide="wrench" class="w-3 h-3"></i> Uji Maintenance
         </button>
       </div>
     </div>
 
     <!-- ================================================================= -->
-    <!-- 2. HALAMAN LOGIN MODERN TRANSPARAN                                -->
+    <!-- 2. HALAMAN AWAL LOGIN (GLASSMORPHISM TRANSPARAN MODERN)           -->
     <!-- ================================================================= -->
-    <div id="login-screen" class="relative z-20 w-full h-full flex flex-col items-center justify-center p-4 overflow-y-auto">
-      <div class="w-full max-w-4xl grid grid-cols-1 lg:grid-cols-12 rounded-[32px] overflow-hidden glass-login-card my-auto">
-        
-        <!-- Left Hero Panel (Bento Visual Showcase) -->
-        <div class="lg:col-span-5 bg-gradient-to-br from-[#3E5463] via-[#4D6879] to-[#2A4756] text-white p-8 flex flex-col justify-between relative overflow-hidden">
-          <div class="absolute -right-12 -bottom-12 w-56 h-56 rounded-full bg-[#EB8A5E]/20 blur-2xl pointer-events-none"></div>
-          
-          <div class="relative z-10">
-            <div class="flex items-center gap-3 mb-6">
-              <img id="login-app-logo" src="https://placehold.co/96x96/F5DFD3/2A4756?text=71" alt="Logo SMPN 71" class="w-12 h-12 rounded-2xl object-cover shadow-md border border-white/30" />
-              <div>
-                <span class="text-[11px] uppercase tracking-widest text-sky-200 font-semibold block">Sistem Informasi</span>
-                <h1 id="login-app-title" class="text-lg font-extrabold tracking-tight leading-tight">SIPPS SMPN 71 Bandung</h1>
-              </div>
-            </div>
-
-            <h2 class="text-2xl font-bold leading-snug mb-3">Monitoring Kedisiplinan & Pembinaan Siswa Terpadu</h2>
-            <p class="text-xs text-slate-200/90 leading-relaxed">
-              Platform kolaboratif antara Sekolah, Guru BK, Wali Murid, dan Siswa dengan notifikasi otomatis real-time serta pelaporan berstandar kedinasan.
-            </p>
+    <div id="login-screen" class="relative z-20 w-full h-[calc(100%-36px)] flex items-center justify-center p-4 overflow-y-auto">
+      <div class="w-full max-w-md rounded-[32px] glass-login-card p-6 sm:p-8 relative overflow-hidden my-auto">
+        <!-- Header Logo & Instansi -->
+        <div class="text-center mb-5">
+          <div class="relative inline-block mb-3">
+            <img id="login-app-logo" src="https://placehold.co/120x120/F5DFD3/2A4756?text=SMPN+71" alt="Logo SMPN 71 Bandung" class="w-16 h-16 rounded-2xl object-cover mx-auto shadow-md border-2 border-white" />
+            <span id="login-maint-badge" class="hidden absolute -top-2 -right-12 px-2 py-0.5 rounded-full bg-amber-500 text-white text-[9px] font-extrabold uppercase shadow">Maint ON</span>
           </div>
-
-          <!-- Mini Bento Preview Stat inside Login -->
-          <div class="relative z-10 mt-8 space-y-3">
-            <div class="glass-subcard rounded-2xl p-3.5 flex items-center gap-3">
-              <div class="w-10 h-10 rounded-xl bg-[#F5DFD3] text-[#2A4756] flex items-center justify-center font-bold">
-                <i data-lucide="shield-check" class="w-5 h-5"></i>
-              </div>
-              <div>
-                <div class="text-xs font-bold text-white">Sinkronisasi Real-Time</div>
-                <div class="text-[11px] text-slate-200">Notifikasi poin, buku saku & cetak laporan A4</div>
-              </div>
-            </div>
-
-            <!-- Maintenance Alert Badge on Login if active -->
-            <div id="login-maint-badge" class="hidden rounded-2xl bg-amber-500/25 border border-amber-300/40 p-3 text-xs text-amber-100 flex items-center gap-2.5">
-              <i data-lucide="alert-triangle" class="w-5 h-5 text-amber-300 shrink-0"></i>
-              <div>
-                <span class="font-bold block text-amber-200">Mode Pemeliharaan Aktif</span>
-                <span>Saat ini hanya Admin yang dapat mengelola sistem.</span>
-              </div>
-            </div>
-          </div>
+          <h1 id="login-app-title" class="text-xl sm:text-2xl font-extrabold text-slate-800 tracking-tight">SIPPS SMP Negeri 71 Bandung</h1>
+          <p class="text-xs text-slate-500 mt-1 font-medium">Sistem Informasi Poin Pelanggaran & Pembinaan Siswa</p>
         </div>
 
-        <!-- Right Login Form Panel -->
-        <div class="lg:col-span-7 p-7 sm:p-10 flex flex-col justify-between bg-white/75 backdrop-blur-xl">
+        <!-- Pemilih Peran Login (Multi-Role Tabs) -->
+        <div class="grid grid-cols-4 gap-1 p-1 rounded-2xl bg-slate-200/75 mb-5">
+          <button type="button" data-role="siswa" onclick="window.app.setLoginRole('siswa')" class="role-tab py-2 px-2 rounded-xl text-xs font-bold transition-all bg-[#3E5463] text-white shadow">Siswa</button>
+          <button type="button" data-role="wali" onclick="window.app.setLoginRole('wali')" class="role-tab py-2 px-2 rounded-xl text-xs font-bold transition-all text-slate-600 hover:text-slate-900">Wali</button>
+          <button type="button" data-role="bk" onclick="window.app.setLoginRole('bk')" class="role-tab py-2 px-2 rounded-xl text-xs font-bold transition-all text-slate-600 hover:text-slate-900">Guru BK</button>
+          <button type="button" data-role="admin" onclick="window.app.setLoginRole('admin')" class="role-tab py-2 px-2 rounded-xl text-xs font-bold transition-all text-slate-600 hover:text-slate-900">Admin</button>
+        </div>
+
+        <!-- Form Kredensial Login -->
+        <form onsubmit="window.app.handleLoginSubmit(event)" class="space-y-4">
           <div>
-            <div class="flex items-center justify-between mb-6">
-              <div>
-                <h3 class="text-xl font-extrabold text-slate-800">Selamat Datang Kembali</h3>
-                <p class="text-xs text-slate-500 mt-0.5">Silakan pilih peran akses Anda untuk masuk ke dasbor SIPPS</p>
-              </div>
-              <span class="px-3 py-1 rounded-full bg-slate-100 text-slate-600 text-[11px] font-semibold border border-slate-200">Multi-Role v2.6</span>
+            <label id="label-login-id" class="block text-xs font-bold text-slate-700 mb-1.5">NISN Siswa</label>
+            <div class="relative">
+              <i data-lucide="user" class="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
+              <input type="text" id="input-login-id" required placeholder="Masukkan NISN Siswa (Contoh: 0091234561)" class="w-full pl-10 pr-4 py-2.5 rounded-2xl bg-white/90 border border-slate-200 text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#6B8E9B]" />
             </div>
-
-            <!-- Role Tabs -->
-            <div class="grid grid-cols-4 gap-1.5 p-1.5 rounded-2xl bg-slate-200/70 mb-6" id="login-role-tabs">
-              <button type="button" onclick="window.app.setLoginRole('siswa')" data-role="siswa" class="role-tab py-2 px-2 rounded-xl text-xs font-bold transition-all bg-[#3E5463] text-white shadow">
-                Siswa
-              </button>
-              <button type="button" onclick="window.app.setLoginRole('wali')" data-role="wali" class="role-tab py-2 px-2 rounded-xl text-xs font-bold transition-all text-slate-600 hover:text-slate-900">
-                Wali Murid
-              </button>
-              <button type="button" onclick="window.app.setLoginRole('bk')" data-role="bk" class="role-tab py-2 px-2 rounded-xl text-xs font-bold transition-all text-slate-600 hover:text-slate-900">
-                Guru BK
-              </button>
-              <button type="button" onclick="window.app.setLoginRole('admin')" data-role="admin" class="role-tab py-2 px-2 rounded-xl text-xs font-bold transition-all text-slate-600 hover:text-slate-900">
-                Admin
-              </button>
-            </div>
-
-            <!-- Login Form -->
-            <form id="form-login" onsubmit="window.app.handleLoginSubmit(event)" class="space-y-4">
-              <div>
-                <label id="label-login-id" class="block text-xs font-bold text-slate-700 mb-1.5">NISN Siswa</label>
-                <div class="relative">
-                  <i data-lucide="user" class="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
-                  <input type="text" id="input-login-id" required placeholder="Masukkan NISN (Contoh: 0091234561)" class="w-full pl-10 pr-4 py-2.5 rounded-2xl bg-white/90 border border-slate-200 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#6B8E9B] transition" />
-                </div>
-              </div>
-
-              <div>
-                <label id="label-login-pass" class="block text-xs font-bold text-slate-700 mb-1.5">Kata Sandi</label>
-                <div class="relative">
-                  <i data-lucide="lock" class="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
-                  <input type="password" id="input-login-pass" required placeholder="Masukkan kata sandi" class="w-full pl-10 pr-10 py-2.5 rounded-2xl bg-white/90 border border-slate-200 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#6B8E9B] transition" />
-                  <button type="button" onclick="window.app.togglePasswordVisibility()" class="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
-                    <i data-lucide="eye" class="w-4 h-4"></i>
-                  </button>
-                </div>
-              </div>
-
-              <!-- Quick Demo Hint (Only visible in Preview Mode) -->
-              <div id="login-preview-hint" class="hidden rounded-2xl bg-sky-50/90 border border-sky-200/80 p-3 text-[11px] text-slate-600">
-                <div class="font-bold text-sky-900 mb-1 flex items-center gap-1.5">
-                  <i data-lucide="info" class="w-3.5 h-3.5 text-sky-600"></i> Kredensial Uji Coba ( atau klik tombol Pintas di atas ):
-                </div>
-                <div id="login-hint-text">NISN Siswa: <b>0091234561</b> | Sandi: <b>siswa123</b></div>
-              </div>
-
-              <button type="submit" id="btn-login-submit" class="w-full py-3 rounded-2xl bg-[#2A4756] hover:bg-[#1E3542] text-white font-bold text-sm shadow-lg shadow-[#2A4756]/25 transition flex items-center justify-center gap-2">
-                <span>Masuk ke Aplikasi</span>
-                <i data-lucide="arrow-right" class="w-4 h-4"></i>
-              </button>
-            </form>
           </div>
 
-          <!-- Mandatory Login Footer Copyright -->
-          <div class="mt-8 pt-4 border-t border-slate-200/80 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-500">
-            <span class="font-semibold text-slate-600">© 2026 SMP Negeri 71. All rights reserved</span>
-            <button type="button" onclick="window.app.openSupabaseConfigModal()" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 text-[11px] font-bold transition border border-slate-200">
-              <span id="db-conn-dot" class="w-2 h-2 rounded-full bg-emerald-500"></span>
-              <span id="db-conn-label">Konfigurasi Database Supabase</span>
-            </button>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1.5">Kata Sandi</label>
+            <div class="relative">
+              <i data-lucide="lock" class="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
+              <input type="password" id="input-login-pass" required placeholder="Masukkan kata sandi akun" class="w-full pl-10 pr-10 py-2.5 rounded-2xl bg-white/90 border border-slate-200 text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#6B8E9B]" />
+              <button type="button" onclick="window.app.togglePasswordVisibility()" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
+                <i data-lucide="eye" class="w-4 h-4"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Petunjuk Kredensial Mode Preview -->
+          <div id="login-preview-hint" class="p-2.5 rounded-xl bg-sky-50/90 border border-sky-200/80 text-[11px] text-slate-600 flex items-center gap-2">
+            <i data-lucide="info" class="w-4 h-4 text-[#6B8E9B] shrink-0"></i>
+            <span id="login-hint-text">NISN Siswa: <b>0091234561</b> | Kata Sandi: <b>siswa123</b></span>
+          </div>
+
+          <button type="submit" class="w-full py-3 rounded-2xl bg-[#2A4756] hover:bg-[#1E3542] text-white text-xs font-extrabold tracking-wide uppercase shadow-lg transition flex items-center justify-center gap-2">
+            <i data-lucide="log-in" class="w-4 h-4"></i>
+            <span>Masuk ke Aplikasi SIPPS</span>
+          </button>
+        </form>
+
+        <!-- Footer Status Database & Hak Cipta Resmi -->
+        <div class="mt-6 pt-4 border-t border-slate-200/80 flex flex-col items-center gap-2">
+          <button type="button" onclick="window.app.openSupabaseConfigModal()" class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/80 hover:bg-white border border-slate-200 text-[11px] font-bold text-slate-600 shadow-2xs transition">
+            <span id="db-conn-dot" class="w-2 h-2 rounded-full bg-amber-500"></span>
+            <span id="db-conn-label">Atur Koneksi Supabase</span>
+            <i data-lucide="settings-2" class="w-3 h-3 text-slate-400"></i>
+          </button>
+          <div class="text-[11px] font-bold text-slate-500 text-center">
+            © 2026 SMP Negeri 71. All rights reserved
           </div>
         </div>
-
       </div>
     </div>
 
     <!-- ================================================================= -->
-    <!-- 3. HALAMAN KHUSUS MODE MAINTENANCE ("SISTEM SEDANG DIPERBAIKI")    -->
+    <!-- 3. HALAMAN KHUSUS MODE MAINTENANCE ("SEDANG PERBAIKAN SISTEM")     -->
     <!-- ================================================================= -->
     <div id="maintenance-screen" class="hidden relative z-30 w-full h-full flex items-center justify-center p-4 overflow-y-auto">
       <div class="max-w-xl w-full rounded-[32px] glass-login-card p-8 sm:p-10 text-center relative overflow-hidden">
-        <div class="absolute -top-20 -right-20 w-48 h-48 rounded-full bg-[#EB8A5E]/20 blur-2xl pointer-events-none"></div>
-        <div class="absolute -bottom-20 -left-20 w-48 h-48 rounded-full bg-[#6B8E9B]/25 blur-2xl pointer-events-none"></div>
+        <!-- Animated Ambient Glow Orbs -->
+        <div class="absolute -top-20 -right-20 w-56 h-56 rounded-full bg-[#EB8A5E]/25 blur-2xl animate-pulse pointer-events-none"></div>
+        <div class="absolute -bottom-20 -left-20 w-56 h-56 rounded-full bg-[#6B8E9B]/30 blur-2xl animate-pulse pointer-events-none"></div>
 
-        <!-- Interactive Animated SVG Illustration -->
-        <div class="relative w-44 h-44 mx-auto mb-6 flex items-center justify-center animate-float">
-          <svg viewBox="0 0 200 200" class="w-full h-full">
-            <!-- Outer Glow Circle -->
-            <circle cx="100" cy="100" r="82" fill="#F5DFD3" opacity="0.65" />
-            <!-- Big Animated Gear -->
-            <g class="animate-spin-slow" style="transform-origin: 82px 95px;">
-              <circle cx="82" cy="95" r="32" fill="#6B8E9B" />
-              <circle cx="82" cy="95" r="14" fill="#F7F6F2" />
-              <rect x="77" y="55" width="10" height="14" rx="3" fill="#6B8E9B" />
-              <rect x="77" y="121" width="10" height="14" rx="3" fill="#6B8E9B" />
-              <rect x="42" y="90" width="14" height="10" rx="3" fill="#6B8E9B" />
-              <rect x="108" y="90" width="14" height="10" rx="3" fill="#6B8E9B" />
+        <!-- Interactive Modern Moving SVG Illustration -->
+        <div class="relative w-52 h-48 mx-auto mb-5 flex items-center justify-center animate-float">
+          <svg viewBox="0 0 240 210" class="w-full h-full">
+            <!-- Pulsing Outer Radar Rings -->
+            <circle cx="120" cy="105" r="88" fill="none" stroke="#6B8E9B" stroke-width="1.5" stroke-dasharray="6 6" class="animate-spin-slow" style="transform-origin: 120px 105px;" opacity="0.45" />
+            <circle cx="120" cy="105" r="74" fill="#F5DFD3" opacity="0.7" />
+            
+            <!-- Big Animated Gear Left -->
+            <g class="animate-spin-slow" style="transform-origin: 96px 96px;">
+              <circle cx="96" cy="96" r="32" fill="#6B8E9B" />
+              <circle cx="96" cy="96" r="14" fill="#F7F6F2" />
+              <rect x="91" y="56" width="10" height="14" rx="3" fill="#6B8E9B" />
+              <rect x="91" y="122" width="10" height="14" rx="3" fill="#6B8E9B" />
+              <rect x="56" y="91" width="14" height="10" rx="3" fill="#6B8E9B" />
+              <rect x="122" y="91" width="14" height="10" rx="3" fill="#6B8E9B" />
+              <rect x="65" y="65" width="11" height="11" rx="3" transform="rotate(45 70 70)" fill="#6B8E9B" />
+              <rect x="116" y="116" width="11" height="11" rx="3" transform="rotate(45 121 121)" fill="#6B8E9B" />
             </g>
-            <!-- Small Reverse Animated Gear -->
-            <g class="animate-spin-reverse" style="transform-origin: 132px 122px;">
-              <circle cx="132" cy="122" r="22" fill="#EB8A5E" />
-              <circle cx="132" cy="122" r="9" fill="#F7F6F2" />
-              <rect x="128" y="94" width="8" height="10" rx="2" fill="#EB8A5E" />
-              <rect x="128" y="140" width="8" height="10" rx="2" fill="#EB8A5E" />
-              <rect x="104" y="118" width="10" height="8" rx="2" fill="#EB8A5E" />
-              <rect x="150" y="118" width="10" height="8" rx="2" fill="#EB8A5E" />
+
+            <!-- Small Reverse Animated Gear Right -->
+            <g class="animate-spin-reverse" style="transform-origin: 148px 120px;">
+              <circle cx="148" cy="120" r="23" fill="#EB8A5E" />
+              <circle cx="148" cy="120" r="9" fill="#F7F6F2" />
+              <rect x="144" y="91" width="8" height="10" rx="2" fill="#EB8A5E" />
+              <rect x="144" y="139" width="8" height="10" rx="2" fill="#EB8A5E" />
+              <rect x="119" y="116" width="10" height="8" rx="2" fill="#EB8A5E" />
+              <rect x="167" y="116" width="10" height="8" rx="2" fill="#EB8A5E" />
             </g>
-            <!-- Floating Shield Badge -->
-            <rect x="58" y="132" width="84" height="28" rx="14" fill="#2A4756" />
-            <text x="100" y="150" text-anchor="middle" fill="#FFFFFF" font-size="10" font-weight="bold">SIPPS 71</text>
+
+            <!-- Top Right Orbiting Wrench / Server Node -->
+            <g class="animate-spin-slow" style="transform-origin: 152px 66px;">
+              <circle cx="152" cy="66" r="13" fill="#2A4756" />
+              <circle cx="152" cy="66" r="5" fill="#7DD3FC" />
+            </g>
+
+            <!-- Floating Modern Server Status Pill -->
+            <rect x="62" y="142" width="116" height="30" rx="15" fill="#2A4756" />
+            <circle cx="80" cy="157" r="4.5" fill="#10B981" />
+            <text x="126" y="161" text-anchor="middle" fill="#FFFFFF" font-size="10" font-weight="bold" letter-spacing="0.8">SIPPS SMPN 71</text>
           </svg>
         </div>
 
-        <span class="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-amber-100 text-amber-800 text-xs font-extrabold uppercase tracking-wider mb-3 border border-amber-300">
-          <span class="w-2 h-2 rounded-full bg-amber-500 animate-ping"></span> Mode Pemeliharaan Aktif
+        <span class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-100 text-amber-800 text-xs font-extrabold uppercase tracking-wider mb-3 border border-amber-300 shadow-xs">
+          <span class="w-2.5 h-2.5 rounded-full bg-amber-500 animate-ping"></span> Mode Pemeliharaan Sistem Aktif
         </span>
 
-        <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-800 mb-2">Sistem Sedang Diperbaiki</h1>
-        <p id="maint-custom-message" class="text-sm text-slate-600 leading-relaxed mb-6">
-          Tim Administrator SIPPS SMP Negeri 71 Bandung sedang melakukan pembaruan data induk dan optimalisasi layanan. Akses untuk Siswa, Guru BK, dan Wali Murid ditutup sementara.
+        <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-800 tracking-tight mb-2.5">Sedang Perbaikan Sistem</h1>
+        <p id="maint-custom-message" class="text-sm text-slate-600 leading-relaxed mb-6 max-w-md mx-auto font-medium">
+          Mohon maaf atas ketidaknyamanan ini, kami sedang melakukan peningkatan layanan untuk Anda.
         </p>
 
-        <!-- Interactive Status Progress Box -->
-        <div class="rounded-2xl bg-white/80 border border-slate-200/80 p-4 mb-6 text-left">
+        <!-- Interactive Moving Progress Box -->
+        <div class="rounded-2xl bg-white/85 border border-slate-200/80 p-4 mb-6 text-left shadow-xs">
           <div class="flex items-center justify-between text-xs font-bold text-slate-700 mb-2">
-            <span class="flex items-center gap-1.5"><i data-lucide="refresh-cw" class="w-3.5 h-3.5 text-[#6B8E9B] animate-spin"></i> Sinkronisasi Basis Data</span>
-            <span id="maint-time-badge" class="text-[#EB8A5E]">Estimasi: Segera Kembali</span>
+            <span class="flex items-center gap-1.5">
+              <i data-lucide="cpu" class="w-4 h-4 text-[#6B8E9B] animate-spin"></i>
+              Optimalisasi Layanan & Sinkronisasi Database
+            </span>
+            <span id="maint-time-badge" class="text-[#EB8A5E] font-extrabold">Sedang Berlangsung...</span>
           </div>
-          <div class="w-full h-2.5 rounded-full bg-slate-200 overflow-hidden">
-            <div class="h-full bg-gradient-to-r from-[#6B8E9B] to-[#EB8A5E] rounded-full w-4/5 animate-pulse"></div>
+          <div class="w-full h-2.5 rounded-full bg-slate-200 overflow-hidden relative">
+            <div class="h-full w-1/2 bg-gradient-to-r from-[#6B8E9B] via-[#EB8A5E] to-[#2A4756] rounded-full animate-shimmer-bar"></div>
           </div>
         </div>
 
         <div class="flex flex-col sm:flex-row items-center justify-center gap-3">
-          <button onclick="window.app.checkMaintenanceStatus()" class="w-full sm:w-auto px-5 py-2.5 rounded-full bg-[#6B8E9B] hover:bg-[#597A87] text-white text-xs font-bold transition flex items-center justify-center gap-2">
-            <i data-lucide="rotate-cw" class="w-4 h-4"></i> Cek Status Sistem
+          <button onclick="window.app.checkMaintenanceStatus()" class="w-full sm:w-auto px-5 py-2.5 rounded-full bg-[#6B8E9B] hover:bg-[#597A87] text-white text-xs font-bold transition flex items-center justify-center gap-2 shadow-sm">
+            <i data-lucide="rotate-cw" class="w-4 h-4"></i> Muat Ulang Status
           </button>
-          <button onclick="window.app.backToAdminLoginFromMaintenance()" class="w-full sm:w-auto px-5 py-2.5 rounded-full bg-[#2A4756] hover:bg-slate-800 text-white text-xs font-bold transition flex items-center justify-center gap-2">
-            <i data-lucide="shield" class="w-4 h-4"></i> Login khusus Admin
+          <button onclick="window.app.backToAdminLoginFromMaintenance()" class="w-full sm:w-auto px-5 py-2.5 rounded-full bg-[#2A4756] hover:bg-slate-800 text-white text-xs font-bold transition flex items-center justify-center gap-2 shadow-sm">
+            <i data-lucide="shield" class="w-4 h-4"></i> Login Khusus Admin
           </button>
         </div>
 
-        <div class="mt-6 pt-4 border-t border-slate-200/70 text-[11px] text-slate-500 font-medium">
+        <div class="mt-6 pt-4 border-t border-slate-200/70 text-[11px] text-slate-500 font-semibold">
           © 2026 SMP Negeri 71. All rights reserved
         </div>
       </div>
@@ -568,7 +535,7 @@
     // KONFIGURASI APLIKASI (SAKLAR DEPLOYMENT & PENYIMPANAN KREDENSIAL)
     // ====================================================================
     let IS_PREVIEW = false; // Ubah menjadi false SAAT DEPLOY atau atur langsung dari tombol "Konfigurasi Database Supabase" di layar Login
-    const SUPABASE_URL = "sb_publishable_17aStgaM9FI__bVC6A7bnQ_GUDkXjUN";
+    const SUPABASE_URL = "https://gekubioxgyqqzvswxujy.supabase.co";
     const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdla3ViaW94Z3lxcXp2c3d4dWp5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI4NDgzMzYsImV4cCI6MjEwODQyNDMzNn0.G_6Dph6TWtvllKc70DwWFlSyr68NN_E3TmRM3Wzzq3I";
 
     let supabase = null;
@@ -580,14 +547,14 @@
       } catch {
         saved = null;
       }
-      const url = (SUPABASE_URL && SUPABASE_URL !== "sb_publishable_17aStgaM9FI__bVC6A7bnQ_GUDkXjUN")
+      const url = (SUPABASE_URL && SUPABASE_URL !== "https://gekubioxgyqqzvswxujy.supabase.co")
         ? SUPABASE_URL.trim()
         : (saved?.url || "").trim();
       const key = (SUPABASE_ANON_KEY && SUPABASE_ANON_KEY !== "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdla3ViaW94Z3lxcXp2c3d4dWp5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI4NDgzMzYsImV4cCI6MjEwODQyNDMzNn0.G_6Dph6TWtvllKc70DwWFlSyr68NN_E3TmRM3Wzzq3I")
         ? SUPABASE_ANON_KEY.trim()
         : (saved?.anonKey || "").trim();
       const hasValidCreds = url.startsWith('http') && key.length > 20;
-      const forceProduction = saved?.useProduction === true || (SUPABASE_URL !== "URL_SUPABASE_ANDA" && !IS_PREVIEW);
+      const forceProduction = saved?.useProduction === true || (SUPABASE_URL !== "https://gekubioxgyqqzvswxujy.supabase.co" && !IS_PREVIEW);
       return { url, key, hasValidCreds, forceProduction };
     }
 
@@ -639,12 +606,16 @@
       kop_surat_url: "",
       canvas_opacity: 0.88,
       is_maintenance: false,
-      maintenance_message: "Sistem Informasi Poin Pelanggaran Siswa (SIPPS) SMP Negeri 71 Bandung sedang menjalani pemeliharaan berkala dan sinkronisasi data semester. Silakan akses kembali beberapa saat lagi."
+      maintenance_message: "Mohon maaf atas ketidaknyamanan ini, kami sedang melakukan peningkatan layanan untuk Anda."
     };
 
     // Minimalist Dummy Data (Max 2 rows per table as strictly required for IS_PREVIEW = true)
     const PREVIEW_INITIAL_DB = {
       settings: { ...DEFAULT_SETTINGS },
+      kelas: [
+        { id: "kl-1", kode_kelas: "VIII-A", nama_kelas: "Kelas VIII-A", tingkat: "VIII", wali_kelas: "Hj. Dewi Sartika, S.Pd.", nip_wali_kelas: "198203142008012004", kapasitas: 36 },
+        { id: "kl-2", kode_kelas: "IX-B", nama_kelas: "Kelas IX-B", tingkat: "IX", wali_kelas: "Drs. Bambang Hermawan", nip_wali_kelas: "197911022006041002", kapasitas: 36 }
+      ],
       staff: [
         { id: "st-1", nip: "198504112010012003", nama: "Dra. Rina Kartika, S.Pd., Kons.", username: "bk71", password: "bk123", role: "bk", jabatan: "Koordinator Guru BK" },
         { id: "st-2", nip: "199008212015021001", nama: "Budi Santoso, S.Pd.", username: "budi_bk", password: "bk123", role: "bk", jabatan: "Guru BK Kelas VIII & IX" }
@@ -670,6 +641,7 @@
     const state = {
       loginRole: 'siswa',
       currentUser: null, // { id, name, role: 'admin'|'bk'|'wali'|'siswa', nisn?, kelas?, identifier }
+      adminLoginBypass: false,
       activeMenu: 'beranda',
       globalSearch: '',
       // Filters for various pages
@@ -679,6 +651,9 @@
         pelanggaranSearch: '',
         siswaKelas: 'SEMUA',
         siswaSearch: '',
+        kelasTingkat: 'SEMUA',
+        kelasSearch: '',
+        staffSearch: '',
         aturanKategori: 'SEMUA',
         aturanSearch: '',
         notifKelas: 'SEMUA',
@@ -693,6 +668,7 @@
       // Live Data Store
       db: {
         settings: { ...DEFAULT_SETTINGS },
+        kelas: [],
         staff: [],
         siswa: [],
         aturan: [],
@@ -741,7 +717,14 @@
         const savedLocal = localStorage.getItem('SIPPS_71_PREVIEW_DB');
         if (savedLocal) {
           try {
-            state.db = JSON.parse(savedLocal);
+            const parsed = JSON.parse(savedLocal);
+            state.db = {
+              ...JSON.parse(JSON.stringify(PREVIEW_INITIAL_DB)),
+              ...parsed,
+              settings: { ...DEFAULT_SETTINGS, ...(parsed.settings || {}) },
+              kelas: Array.isArray(parsed.kelas) && parsed.kelas.length ? parsed.kelas : JSON.parse(JSON.stringify(PREVIEW_INITIAL_DB.kelas)),
+              staff: Array.isArray(parsed.staff) && parsed.staff.length ? parsed.staff : JSON.parse(JSON.stringify(PREVIEW_INITIAL_DB.staff))
+            };
           } catch {
             state.db = JSON.parse(JSON.stringify(PREVIEW_INITIAL_DB));
           }
@@ -755,6 +738,7 @@
         if (previewHint) previewHint.classList.add('hidden');
         state.db = {
           settings: { ...DEFAULT_SETTINGS },
+          kelas: [],
           staff: [],
           siswa: [],
           aturan: [],
@@ -782,8 +766,9 @@
           recalculateAllStudentPointsLocal();
           savePreviewLocal();
         } else if (supabase) {
-          const [resSet, resStaff, resSiswa, resAturan, resPel, resNotif] = await Promise.all([
+          const [resSet, resKelas, resStaff, resSiswa, resAturan, resPel, resNotif] = await Promise.all([
             supabase.from('sipps_settings').select('*').eq('id', 1).maybeSingle(),
+            supabase.from('sipps_kelas').select('*').order('kode_kelas', { ascending: true }),
             supabase.from('sipps_staff').select('*').order('nama', { ascending: true }),
             supabase.from('sipps_siswa').select('*').order('kelas', { ascending: true }),
             supabase.from('sipps_aturan').select('*').order('kode_aturan', { ascending: true }),
@@ -792,6 +777,7 @@
           ]);
 
           if (resSet.data) state.db.settings = { ...DEFAULT_SETTINGS, ...resSet.data };
+          state.db.kelas = resKelas.data || [];
           state.db.staff = resStaff.data || [];
           state.db.siswa = resSiswa.data || [];
           state.db.aturan = resAturan.data || [];
@@ -832,6 +818,8 @@
       supabase
         .channel('sipps-realtime-channel')
         .on('postgres_changes', { event: '*', schema: 'public', table: 'sipps_settings' }, () => loadAllDatabase(false))
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'sipps_kelas' }, () => loadAllDatabase(false))
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'sipps_staff' }, () => loadAllDatabase(false))
         .on('postgres_changes', { event: '*', schema: 'public', table: 'sipps_pelanggaran' }, () => loadAllDatabase(false))
         .on('postgres_changes', { event: '*', schema: 'public', table: 'sipps_siswa' }, () => loadAllDatabase(false))
         .on('postgres_changes', { event: '*', schema: 'public', table: 'sipps_aturan' }, () => loadAllDatabase(false))
@@ -919,20 +907,30 @@
       const maintScreen = document.getElementById('maintenance-screen');
       const appShell = document.getElementById('app-shell');
 
-      // If a non-admin is logged in OR trying to access while Maintenance is ON -> redirect to Maintenance Screen
-      if (isMaint && state.currentUser && state.currentUser.role !== 'admin') {
-        loginScreen.classList.add('hidden');
-        appShell.classList.add('hidden');
-        maintScreen.classList.remove('hidden');
-        return true;
-      }
-
-      if (!isMaint && !maintScreen.classList.contains('hidden')) {
-        maintScreen.classList.add('hidden');
-        if (state.currentUser) {
-          appShell.classList.remove('hidden');
-        } else {
-          loginScreen.classList.remove('hidden');
+      if (isMaint) {
+        // 1. Jika pengguna sedang login sebagai non-admin -> langsung arahkan ke layar "Sedang Perbaikan Sistem"
+        if (state.currentUser && state.currentUser.role !== 'admin') {
+          loginScreen.classList.add('hidden');
+          appShell.classList.add('hidden');
+          maintScreen.classList.remove('hidden');
+          return true;
+        }
+        // 2. Pada tampilan awal (belum login), otomatis tampilkan layar "Sedang Perbaikan Sistem" kecuali Admin menekan tombol "Login Khusus Admin"
+        if (!state.currentUser && !state.adminLoginBypass) {
+          loginScreen.classList.add('hidden');
+          appShell.classList.add('hidden');
+          maintScreen.classList.remove('hidden');
+          return true;
+        }
+      } else {
+        state.adminLoginBypass = false;
+        if (!maintScreen.classList.contains('hidden')) {
+          maintScreen.classList.add('hidden');
+          if (state.currentUser) {
+            appShell.classList.remove('hidden');
+          } else {
+            loginScreen.classList.remove('hidden');
+          }
         }
       }
       return false;
@@ -942,6 +940,14 @@
     // AUTHENTICATION & MULTI-ROLE LOGIN (HYBRID SUPABASE AUTH + TABLE)
     // ====================================================================
     function setLoginRole(role) {
+      // Jika Mode Maintenance aktif dan pengguna memilih tab selain Admin, langsung arahkan ke halaman Maintenance Awal
+      if (state.db.settings?.is_maintenance && role !== 'admin') {
+        state.adminLoginBypass = false;
+        enforceMaintenanceGuard();
+        showToast("Sedang Perbaikan Sistem. Saat ini hanya Admin yang dapat masuk.", "warning");
+        return;
+      }
+
       state.loginRole = role;
       document.querySelectorAll('.role-tab').forEach(btn => {
         if (btn.dataset.role === role) {
@@ -1195,9 +1201,11 @@
 
     function backToAdminLoginFromMaintenance() {
       state.currentUser = null;
+      state.adminLoginBypass = true;
       document.getElementById('maintenance-screen').classList.add('hidden');
       document.getElementById('login-screen').classList.remove('hidden');
       setLoginRole('admin');
+      showToast("Mode Login Khusus Administrator diaktifkan.", "info");
     }
 
     async function checkMaintenanceStatus() {
@@ -1207,25 +1215,26 @@
         document.getElementById('maintenance-screen').classList.add('hidden');
         document.getElementById('login-screen').classList.remove('hidden');
       } else {
-        showToast("Sistem masih dalam proses pemeliharaan oleh Administrator.", "warning");
+        showToast("Mohon maaf, saat ini masih sedang perbaikan sistem.", "warning");
       }
     }
 
     function toggleMaintenanceQuick() {
       if (!IS_PREVIEW) return;
       state.db.settings.is_maintenance = !state.db.settings.is_maintenance;
+      if (!state.db.settings.maintenance_message) {
+        state.db.settings.maintenance_message = DEFAULT_SETTINGS.maintenance_message;
+      }
       savePreviewLocal();
       updateGlobalVisualSettings();
       if (state.db.settings.is_maintenance) {
-        if (!state.currentUser || state.currentUser.role === 'admin') {
-          // Simulate non-admin view so user immediately sees the interactive maintenance screen
-          state.currentUser = { id: 'sim-siswa', name: 'Aditya Pratama Putra', role: 'siswa', nisn: '0091234561', kelas: 'VIII-A' };
-        }
+        state.currentUser = null;
+        state.adminLoginBypass = false;
         enforceMaintenanceGuard();
-        showToast("Mode Maintenance Diaktifkan! Pengguna diarahkan ke layar perbaikan.", "warning");
+        showToast("Maintenance Diaktifkan! Tampilan awal otomatis menampilkan layar 'Sedang Perbaikan Sistem'.", "warning");
       } else {
         enforceMaintenanceGuard();
-        showToast("Mode Maintenance Dinonaktifkan! Akses kembali normal.", "success");
+        showToast("Maintenance Dinonaktifkan! Tampilan awal login kembali normal.", "success");
       }
     }
 
@@ -1237,6 +1246,8 @@
         { id: 'beranda', label: 'Beranda', icon: 'home', roles: ['admin', 'bk', 'wali', 'siswa'] },
         { id: 'pelanggaran', label: role === 'wali' || role === 'siswa' ? 'Riwayat Poin' : 'Poin & Riwayat', icon: 'bar-chart-2', roles: ['admin', 'bk', 'wali', 'siswa'] },
         { id: 'siswa', label: 'Identitas Siswa', icon: 'users', roles: ['admin', 'bk'] },
+        { id: 'kelas', label: 'Master Kelas', icon: 'layers', roles: ['admin'] },
+        { id: 'guru_bk', label: 'Data Guru BK', icon: 'user-check', roles: ['admin'] },
         { id: 'aturan', label: 'Katalog Aturan', icon: 'book-open', roles: ['admin', 'bk', 'wali', 'siswa'] },
         { id: 'rekap', label: 'Rekap & Laporan', icon: 'file-text', roles: ['admin', 'bk'] },
         { id: 'notifikasi', label: 'Pesan & Notif', icon: 'message-square', roles: ['admin', 'bk', 'wali', 'siswa'] },
@@ -1309,6 +1320,14 @@
           title: 'Data Identitas Siswa',
           sub: 'Manajemen data induk siswa, akun akses Wali Murid/Siswa & Import/Export Excel massal'
         },
+        kelas: {
+          title: 'Master Data Kelas',
+          sub: 'Manajemen rombongan belajar, tingkat kelas, wali kelas & kapasitas siswa tersinkronisasi database'
+        },
+        guru_bk: {
+          title: 'Manajemen Pengguna Guru BK',
+          sub: 'Input, kelola & sinkronkan akun akses Guru Bimbingan dan Konseling (BK) ke database'
+        },
         aturan: {
           title: 'Katalog Aturan & Buku Saku',
           sub: 'Master poin tata tertib SMP Negeri 71 Bandung beserta pedoman sanksi pembinaan'
@@ -1334,6 +1353,8 @@
       if (state.activeMenu === 'beranda') renderBerandaView(container);
       else if (state.activeMenu === 'pelanggaran') renderPelanggaranView(container);
       else if (state.activeMenu === 'siswa') renderSiswaView(container);
+      else if (state.activeMenu === 'kelas') renderKelasView(container);
+      else if (state.activeMenu === 'guru_bk') renderGuruBKView(container);
       else if (state.activeMenu === 'aturan') renderAturanView(container);
       else if (state.activeMenu === 'notifikasi') renderNotifikasiView(container);
       else if (state.activeMenu === 'rekap') renderRekapView(container);
@@ -1682,9 +1703,10 @@
     // VIEW 2: POIN & RIWAYAT PELANGGARAN (+ EXCEL IMPORT/EXPORT & SYNC)
     // ====================================================================
     function getUniqueClasses() {
-      const defaults = ['VII-A', 'VII-B', 'VIII-A', 'VIII-B', 'IX-A', 'IX-B'];
-      const fromData = state.db.siswa.map(s => s.kelas).filter(Boolean);
-      return [...new Set([...defaults, ...fromData])].sort();
+      const fromMasterKelas = (state.db.kelas || []).map(k => k.kode_kelas).filter(Boolean);
+      const fromSiswa = (state.db.siswa || []).map(s => s.kelas).filter(Boolean);
+      const defaults = fromMasterKelas.length > 0 ? [] : ['VII-A', 'VII-B', 'VIII-A', 'VIII-B', 'IX-A', 'IX-B'];
+      return [...new Set([...fromMasterKelas, ...fromSiswa, ...defaults])].sort();
     }
 
     function renderPelanggaranView(container) {
@@ -1827,12 +1849,13 @@
     }
 
     // ====================================================================
-    // VIEW 3: DATA IDENTITAS SISWA (MASS EXCEL IMPORT/EXPORT & SYNC)
+    // VIEW 3A: DATA IDENTITAS SISWA (+ MASS EXCEL IMPORT/EXPORT & SYNC)
     // ====================================================================
     function renderSiswaView(container) {
+      const canManage = state.currentUser.role === 'admin';
       const classes = getUniqueClasses();
-      let list = [...state.db.siswa];
 
+      let list = [...state.db.siswa];
       if (state.filters.siswaKelas !== 'SEMUA') {
         list = list.filter(s => s.kelas === state.filters.siswaKelas);
       }
@@ -1841,6 +1864,7 @@
         list = list.filter(s =>
           (s.nama_siswa || '').toLowerCase().includes(q) ||
           (s.nisn || '').toLowerCase().includes(q) ||
+          (s.nis || '').toLowerCase().includes(q) ||
           (s.nama_wali || '').toLowerCase().includes(q)
         );
       }
@@ -1851,7 +1875,7 @@
             <div class="flex flex-wrap items-center gap-2">
               <div class="relative">
                 <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2"></i>
-                <input type="text" value="${state.filters.siswaSearch}" oninput="window.app.setFilter('siswaSearch', this.value)" placeholder="Cari nama siswa / NISN / wali..." class="pl-9 pr-3 py-2 rounded-xl bg-white border border-slate-200 text-xs w-56 focus:outline-none focus:ring-2 focus:ring-[#6B8E9B]" />
+                <input type="text" value="${state.filters.siswaSearch}" oninput="window.app.setFilter('siswaSearch', this.value)" placeholder="Cari nama siswa / NISN / nama wali..." class="pl-9 pr-3 py-2 rounded-xl bg-white border border-slate-200 text-xs w-60 focus:outline-none focus:ring-2 focus:ring-[#6B8E9B]" />
               </div>
 
               <select onchange="window.app.setFilter('siswaKelas', this.value)" class="px-3 py-2 rounded-xl bg-white border border-slate-200 text-xs font-semibold text-slate-700">
@@ -1861,19 +1885,23 @@
             </div>
 
             <div class="flex flex-wrap items-center gap-2">
-              <input type="file" id="excel-input-siswa" accept=".xlsx,.xls,.csv" class="hidden" onchange="window.app.importExcelSiswa(event)" />
-              <button onclick="document.getElementById('excel-input-siswa').click()" class="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition flex items-center gap-1.5 shadow-sm">
-                <i data-lucide="upload" class="w-3.5 h-3.5"></i> Import Massal Excel
-              </button>
+              ${canManage ? `
+                <input type="file" id="excel-input-siswa" accept=".xlsx,.xls,.csv" class="hidden" onchange="window.app.importExcelSiswa(event)" />
+                <button onclick="document.getElementById('excel-input-siswa').click()" class="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition flex items-center gap-1.5 shadow-sm">
+                  <i data-lucide="upload" class="w-3.5 h-3.5"></i> Import Massal (Excel)
+                </button>
+              ` : ''}
               <button onclick="window.app.exportExcelSiswa()" class="px-3.5 py-2 rounded-xl bg-[#6B8E9B] hover:bg-[#587985] text-white text-xs font-bold transition flex items-center gap-1.5 shadow-sm">
                 <i data-lucide="download" class="w-3.5 h-3.5"></i> Export Excel
               </button>
               <button onclick="window.app.syncAllData(true)" class="px-3.5 py-2 rounded-xl bg-slate-700 hover:bg-slate-800 text-white text-xs font-bold transition flex items-center gap-1.5">
                 <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Sinkronkan
               </button>
-              <button onclick="window.app.openModalSiswa()" class="px-4 py-2 rounded-xl bg-[#2A4756] hover:bg-[#1E3542] text-white text-xs font-bold transition flex items-center gap-1.5 shadow-md">
-                <i data-lucide="user-plus" class="w-4 h-4"></i> Tambah Siswa
-              </button>
+              ${canManage ? `
+                <button onclick="window.app.openModalSiswa()" class="px-4 py-2 rounded-xl bg-[#2A4756] hover:bg-[#1E3542] text-white text-xs font-bold transition flex items-center gap-1.5 shadow-md">
+                  <i data-lucide="user-plus" class="w-4 h-4"></i> Tambah Siswa
+                </button>
+              ` : ''}
             </div>
           </div>
 
@@ -1884,39 +1912,235 @@
                   <tr class="bg-slate-100/90 text-slate-600 text-[11px] font-extrabold uppercase tracking-wider border-b border-slate-200">
                     <th class="py-3.5 px-4">NISN / NIS</th>
                     <th class="py-3.5 px-4">Nama Lengkap Siswa</th>
-                    <th class="py-3.5 px-4">Kelas</th>
+                    <th class="py-3.5 px-4 text-center">Kelas</th>
                     <th class="py-3.5 px-4">Wali Murid & Kontak</th>
-                    <th class="py-3.5 px-4 text-center">Total Poin</th>
+                    <th class="py-3.5 px-4 text-center">Akumulasi Poin</th>
                     <th class="py-3.5 px-4">Status Pembinaan</th>
+                    ${canManage ? `<th class="py-3.5 px-4 text-right">Aksi</th>` : ''}
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-200/60 text-xs">
+                  ${list.length === 0 ? `
+                    <tr>
+                      <td colspan="${canManage ? 7 : 6}" class="py-12 text-center text-slate-400">Belum ada data identitas siswa terdaftar.</td>
+                    </tr>
+                  ` : list.map(s => `
+                    <tr class="hover:bg-white/90 transition">
+                      <td class="py-3.5 px-4 whitespace-nowrap">
+                        <div class="font-extrabold text-slate-800">${s.nisn}</div>
+                        <div class="text-[11px] text-slate-500">NIS: ${s.nis || '-'}</div>
+                      </td>
+                      <td class="py-3.5 px-4">
+                        <div class="font-extrabold text-slate-800">${s.nama_siswa}</div>
+                        <div class="text-[11px] text-slate-500">JK: ${s.jenis_kelamin || 'L'} • Sandi Siswa: <span class="font-mono">${s.password_siswa || 'siswa123'}</span></div>
+                      </td>
+                      <td class="py-3.5 px-4 text-center">
+                        <span class="px-2.5 py-1 rounded-xl bg-slate-200/80 text-slate-800 font-extrabold">${s.kelas}</span>
+                      </td>
+                      <td class="py-3.5 px-4">
+                        <div class="font-bold text-slate-700">${s.nama_wali || '-'}</div>
+                        <div class="text-[11px] text-slate-500">${s.no_hp_wali || '-'} • Sandi Wali: <span class="font-mono">${s.password_wali || 'wali123'}</span></div>
+                      </td>
+                      <td class="py-3.5 px-4 text-center">
+                        <span class="px-3 py-1 rounded-xl font-extrabold ${s.total_poin >= 30 ? 'bg-red-100 text-red-700' : s.total_poin > 0 ? 'bg-amber-100 text-amber-800' : 'bg-emerald-100 text-emerald-700'}">
+                          ${s.total_poin || 0} Poin
+                        </span>
+                      </td>
+                      <td class="py-3.5 px-4 font-semibold text-slate-700">${s.status_pembinaan || 'Aman / Disiplin Baik'}</td>
+                      ${canManage ? `
+                        <td class="py-3.5 px-4 text-right whitespace-nowrap">
+                          <button onclick="window.app.openModalSiswa('${s.id}')" class="p-1.5 rounded-lg hover:bg-slate-200 text-slate-600" title="Edit Siswa">
+                            <i data-lucide="edit-3" class="w-4 h-4"></i>
+                          </button>
+                          <button onclick="window.app.confirmDelete('siswa', '${s.id}', '${s.nama_siswa}')" class="p-1.5 rounded-lg hover:bg-red-100 text-red-600" title="Hapus Siswa">
+                            <i data-lucide="trash-2" class="w-4 h-4"></i>
+                          </button>
+                        </td>
+                      ` : ''}
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    // ====================================================================
+    // VIEW 3B: MASTER DATA KELAS (ADMIN CRUD & DATABASE SYNC)
+    // ====================================================================
+    function renderKelasView(container) {
+      let list = [...(state.db.kelas || [])];
+      if (state.filters.kelasTingkat !== 'SEMUA') {
+        list = list.filter(k => k.tingkat === state.filters.kelasTingkat);
+      }
+      if (state.filters.kelasSearch.trim() !== '') {
+        const q = state.filters.kelasSearch.toLowerCase();
+        list = list.filter(k =>
+          (k.kode_kelas || '').toLowerCase().includes(q) ||
+          (k.nama_kelas || '').toLowerCase().includes(q) ||
+          (k.wali_kelas || '').toLowerCase().includes(q)
+        );
+      }
+
+      container.innerHTML = `
+        <div class="space-y-4">
+          <div class="rounded-[24px] glass-card p-4 flex flex-wrap items-center justify-between gap-3">
+            <div class="flex flex-wrap items-center gap-2">
+              <div class="relative">
+                <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2"></i>
+                <input type="text" value="${state.filters.kelasSearch}" oninput="window.app.setFilter('kelasSearch', this.value)" placeholder="Cari kode kelas / nama wali kelas..." class="pl-9 pr-3 py-2 rounded-xl bg-white border border-slate-200 text-xs w-60 focus:outline-none focus:ring-2 focus:ring-[#6B8E9B]" />
+              </div>
+
+              <select onchange="window.app.setFilter('kelasTingkat', this.value)" class="px-3 py-2 rounded-xl bg-white border border-slate-200 text-xs font-semibold text-slate-700">
+                <option value="SEMUA">Semua Tingkat</option>
+                <option value="VII" ${state.filters.kelasTingkat === 'VII' ? 'selected' : ''}>Tingkat VII</option>
+                <option value="VIII" ${state.filters.kelasTingkat === 'VIII' ? 'selected' : ''}>Tingkat VIII</option>
+                <option value="IX" ${state.filters.kelasTingkat === 'IX' ? 'selected' : ''}>Tingkat IX</option>
+              </select>
+            </div>
+
+            <div class="flex flex-wrap items-center gap-2">
+              <button onclick="window.app.syncAllData(true)" class="px-3.5 py-2 rounded-xl bg-slate-700 hover:bg-slate-800 text-white text-xs font-bold transition flex items-center gap-1.5">
+                <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Sinkronkan Database
+              </button>
+              <button onclick="window.app.openModalKelas()" class="px-4 py-2 rounded-xl bg-[#2A4756] hover:bg-[#1E3542] text-white text-xs font-bold transition flex items-center gap-1.5 shadow-md">
+                <i data-lucide="plus-circle" class="w-4 h-4"></i> Tambah Master Kelas
+              </button>
+            </div>
+          </div>
+
+          <div class="rounded-[24px] glass-card overflow-hidden">
+            <div class="overflow-x-auto">
+              <table class="w-full text-left border-collapse">
+                <thead>
+                  <tr class="bg-slate-100/90 text-slate-600 text-[11px] font-extrabold uppercase tracking-wider border-b border-slate-200">
+                    <th class="py-3.5 px-4">Kode Kelas</th>
+                    <th class="py-3.5 px-4">Nama Rombongan Belajar</th>
+                    <th class="py-3.5 px-4 text-center">Tingkat</th>
+                    <th class="py-3.5 px-4">Wali Kelas & NIP</th>
+                    <th class="py-3.5 px-4 text-center">Jumlah Siswa Terdaftar</th>
                     <th class="py-3.5 px-4 text-right">Aksi</th>
                   </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-200/60 text-xs">
                   ${list.length === 0 ? `
                     <tr>
-                      <td colspan="7" class="py-12 text-center text-slate-400">Belum ada data identitas siswa.</td>
+                      <td colspan="6" class="py-12 text-center text-slate-400">Belum ada data master kelas. Klik "Tambah Master Kelas" untuk menambahkan.</td>
                     </tr>
-                  ` : list.map(s => `
+                  ` : list.map(k => {
+                    const countSiswa = state.db.siswa.filter(s => s.kelas === k.kode_kelas).length;
+                    return `
+                      <tr class="hover:bg-white/90 transition">
+                        <td class="py-3.5 px-4">
+                          <span class="px-3 py-1 rounded-xl bg-[#3E5463] text-white font-extrabold text-xs">${k.kode_kelas}</span>
+                        </td>
+                        <td class="py-3.5 px-4 font-bold text-slate-800">${k.nama_kelas}</td>
+                        <td class="py-3.5 px-4 text-center">
+                          <span class="px-2.5 py-0.5 rounded-full bg-sky-100 text-sky-800 font-extrabold text-[11px]">Kelas ${k.tingkat}</span>
+                        </td>
+                        <td class="py-3.5 px-4">
+                          <div class="font-bold text-slate-800">${k.wali_kelas || '-'}</div>
+                          <div class="text-[11px] text-slate-500">NIP: ${k.nip_wali_kelas || '-'}</div>
+                        </td>
+                        <td class="py-3.5 px-4 text-center">
+                          <span class="px-2.5 py-1 rounded-xl bg-slate-100 text-slate-800 font-bold">${countSiswa} / ${k.kapasitas || 36} Siswa</span>
+                        </td>
+                        <td class="py-3.5 px-4 text-right whitespace-nowrap">
+                          <button onclick="window.app.openModalKelas('${k.id}')" class="p-1.5 rounded-lg hover:bg-slate-200 text-slate-600" title="Edit Kelas">
+                            <i data-lucide="edit-3" class="w-4 h-4"></i>
+                          </button>
+                          <button onclick="window.app.confirmDelete('kelas', '${k.id}', '${k.nama_kelas}')" class="p-1.5 rounded-lg hover:bg-red-100 text-red-600" title="Hapus Kelas">
+                            <i data-lucide="trash-2" class="w-4 h-4"></i>
+                          </button>
+                        </td>
+                      </tr>
+                    `;
+                  }).join('')}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    // ====================================================================
+    // VIEW 3C: MANAJEMEN PENGGUNA GURU BK (ADMIN CRUD & DATABASE SYNC)
+    // ====================================================================
+    function renderGuruBKView(container) {
+      let list = [...(state.db.staff || [])];
+      if (state.filters.staffSearch.trim() !== '') {
+        const q = state.filters.staffSearch.toLowerCase();
+        list = list.filter(st =>
+          (st.nama || '').toLowerCase().includes(q) ||
+          (st.nip || '').toLowerCase().includes(q) ||
+          (st.username || '').toLowerCase().includes(q) ||
+          (st.jabatan || '').toLowerCase().includes(q)
+        );
+      }
+
+      container.innerHTML = `
+        <div class="space-y-4">
+          <div class="rounded-[24px] glass-card p-4 flex flex-wrap items-center justify-between gap-3">
+            <div class="flex flex-wrap items-center gap-2">
+              <div class="relative">
+                <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2"></i>
+                <input type="text" value="${state.filters.staffSearch}" oninput="window.app.setFilter('staffSearch', this.value)" placeholder="Cari nama Guru BK / NIP / username..." class="pl-9 pr-3 py-2 rounded-xl bg-white border border-slate-200 text-xs w-64 focus:outline-none focus:ring-2 focus:ring-[#6B8E9B]" />
+              </div>
+            </div>
+
+            <div class="flex flex-wrap items-center gap-2">
+              <button onclick="window.app.syncAllData(true)" class="px-3.5 py-2 rounded-xl bg-slate-700 hover:bg-slate-800 text-white text-xs font-bold transition flex items-center gap-1.5">
+                <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Sinkronkan Database
+              </button>
+              <button onclick="window.app.openModalStaff()" class="px-4 py-2 rounded-xl bg-[#2A4756] hover:bg-[#1E3542] text-white text-xs font-bold transition flex items-center gap-1.5 shadow-md">
+                <i data-lucide="user-plus" class="w-4 h-4"></i> Tambah Pengguna Guru BK
+              </button>
+            </div>
+          </div>
+
+          <div class="rounded-[24px] glass-card overflow-hidden">
+            <div class="overflow-x-auto">
+              <table class="w-full text-left border-collapse">
+                <thead>
+                  <tr class="bg-slate-100/90 text-slate-600 text-[11px] font-extrabold uppercase tracking-wider border-b border-slate-200">
+                    <th class="py-3.5 px-4">NIP Petugas</th>
+                    <th class="py-3.5 px-4">Nama Lengkap Guru BK</th>
+                    <th class="py-3.5 px-4">Jabatan / Penugasan</th>
+                    <th class="py-3.5 px-4">Username Login</th>
+                    <th class="py-3.5 px-4">Kata Sandi Akses</th>
+                    <th class="py-3.5 px-4 text-center">Hak Akses</th>
+                    <th class="py-3.5 px-4 text-right">Aksi</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-200/60 text-xs">
+                  ${list.length === 0 ? `
+                    <tr>
+                      <td colspan="7" class="py-12 text-center text-slate-400">Belum ada data pengguna Guru BK terdaftar.</td>
+                    </tr>
+                  ` : list.map(st => `
                     <tr class="hover:bg-white/90 transition">
+                      <td class="py-3.5 px-4 font-extrabold text-slate-800 whitespace-nowrap">${st.nip}</td>
+                      <td class="py-3.5 px-4 font-bold text-slate-800">${st.nama}</td>
+                      <td class="py-3.5 px-4 text-slate-600 font-medium">${st.jabatan || 'Guru BK'}</td>
                       <td class="py-3.5 px-4">
-                        <div class="font-extrabold text-slate-800">${s.nisn}</div>
-                        <div class="text-[11px] text-slate-400">NIS: ${s.nis || '-'}</div>
+                        <span class="px-2.5 py-1 rounded-lg bg-slate-100 border border-slate-200 font-mono text-xs font-bold text-slate-800">${st.username}</span>
                       </td>
-                      <td class="py-3.5 px-4 font-bold text-slate-800">${s.nama_siswa} <span class="text-[11px] font-normal text-slate-400">(${s.jenis_kelamin || 'L'})</span></td>
-                      <td class="py-3.5 px-4"><span class="px-2.5 py-1 rounded-lg bg-slate-200/80 text-slate-800 font-bold">${s.kelas}</span></td>
                       <td class="py-3.5 px-4">
-                        <div class="font-semibold text-slate-700">${s.nama_wali || '-'}</div>
-                        <div class="text-[11px] text-slate-500">${s.no_hp_wali || '-'}</div>
+                        <span class="px-2.5 py-1 rounded-lg bg-amber-50 text-amber-800 font-mono text-xs font-semibold">${st.password}</span>
                       </td>
                       <td class="py-3.5 px-4 text-center">
-                        <span class="px-3 py-1 rounded-xl font-extrabold ${s.total_poin >= 30 ? 'bg-red-100 text-red-700' : 'bg-emerald-100 text-emerald-800'}">${s.total_poin || 0}</span>
+                        <span class="px-3 py-1 rounded-full text-[10px] font-extrabold uppercase ${st.role === 'admin' ? 'bg-purple-100 text-purple-800' : 'bg-[#F5DFD3] text-[#2A4756]'}">
+                          ${st.role === 'admin' ? 'Admin' : 'Guru BK'}
+                        </span>
                       </td>
-                      <td class="py-3.5 px-4 font-semibold text-slate-700">${s.status_pembinaan || 'Aman'}</td>
                       <td class="py-3.5 px-4 text-right whitespace-nowrap">
-                        <button onclick="window.app.openModalSiswa('${s.id}')" class="p-1.5 rounded-lg hover:bg-slate-200 text-slate-600" title="Edit">
+                        <button onclick="window.app.openModalStaff('${st.id}')" class="p-1.5 rounded-lg hover:bg-slate-200 text-slate-600" title="Edit Akun Guru BK">
                           <i data-lucide="edit-3" class="w-4 h-4"></i>
                         </button>
-                        <button onclick="window.app.confirmDelete('siswa', '${s.id}', '${s.nama_siswa}')" class="p-1.5 rounded-lg hover:bg-red-100 text-red-600" title="Hapus">
+                        <button onclick="window.app.confirmDelete('staff', '${st.id}', '${st.nama}')" class="p-1.5 rounded-lg hover:bg-red-100 text-red-600" title="Hapus Akun">
                           <i data-lucide="trash-2" class="w-4 h-4"></i>
                         </button>
                       </td>
@@ -2421,11 +2645,11 @@
                 <div class="flex items-center justify-between">
                   <div>
                     <div class="text-xs font-extrabold ${cfg.is_maintenance ? 'text-amber-900' : 'text-emerald-900'}">
-                      Status Saat Ini: ${cfg.is_maintenance ? 'MAINTENANCE AKTIF' : 'SISTEM ONLINE NORMAL'}
+                      Status Saat Ini: ${cfg.is_maintenance ? 'SEDANG PERBAIKAN SISTEM (AKTIF)' : 'SISTEM ONLINE NORMAL'}
                     </div>
                     <div class="text-[11px] ${cfg.is_maintenance ? 'text-amber-700' : 'text-emerald-700'} mt-0.5">
                       ${cfg.is_maintenance
-                        ? 'Semua pengguna non-admin langsung diarahkan ke layar "Sistem Sedang Diperbaiki".'
+                        ? 'Tampilan awal otomatis menampilkan animasi "Sedang Perbaikan Sistem" bagi semua pengunjung.'
                         : 'Seluruh peran (Admin, Guru BK, Wali Murid, Siswa) dapat mengakses SIPPS.'}
                     </div>
                   </div>
@@ -2434,7 +2658,7 @@
               </div>
 
               <div>
-                <label class="block text-xs font-bold text-slate-700 mb-1.5">Pesan Informasi pada Halaman "Sistem Sedang Diperbaiki"</label>
+                <label class="block text-xs font-bold text-slate-700 mb-1.5">Pesan Informasi pada Halaman "Sedang Perbaikan Sistem"</label>
                 <textarea id="set-maint-message" rows="4" class="w-full p-3 rounded-2xl bg-white border border-slate-200 text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#6B8E9B]">${cfg.maintenance_message || DEFAULT_SETTINGS.maintenance_message}</textarea>
               </div>
             </div>
@@ -2444,7 +2668,7 @@
                 <i data-lucide="database" class="w-4 h-4"></i> Konfigurasi Koneksi Database Supabase
               </button>
               <button type="button" onclick="window.app.previewMaintenanceScreenAsAdmin()" class="w-full py-2.5 rounded-xl bg-[#F5DFD3] hover:bg-[#ebd0c0] text-[#2A4756] text-xs font-extrabold transition flex items-center justify-center gap-2">
-                <i data-lucide="eye" class="w-4 h-4"></i> Lihat Tampilan Layar "Sistem Sedang Diperbaiki"
+                <i data-lucide="eye" class="w-4 h-4"></i> Lihat Tampilan Awal "Sedang Perbaikan Sistem"
               </button>
             </div>
           </div>
@@ -2598,6 +2822,7 @@
 
     function openModalSiswa(editId = null) {
       const s = editId ? state.db.siswa.find(x => x.id === editId) : null;
+      const classes = getUniqueClasses();
       document.getElementById('modal-title').textContent = s ? 'Edit Identitas Siswa' : 'Tambah Identitas Siswa Baru';
       document.getElementById('modal-body').innerHTML = `
         <form onsubmit="window.app.saveSiswaForm(event, '${editId || ''}')" class="space-y-3 text-xs">
@@ -2617,8 +2842,10 @@
               <input type="text" id="form-sw-nama" required value="${s?.nama_siswa || ''}" class="w-full px-3 py-2 rounded-xl border border-slate-200" />
             </div>
             <div>
-              <label class="block font-bold text-slate-700 mb-1">Kelas</label>
-              <input type="text" id="form-sw-kelas" required placeholder="VIII-A" value="${s?.kelas || 'VII-A'}" class="w-full px-3 py-2 rounded-xl border border-slate-200" />
+              <label class="block font-bold text-slate-700 mb-1">Kelas (Master Kelas)</label>
+              <select id="form-sw-kelas" required class="w-full px-3 py-2 rounded-xl border border-slate-200 font-semibold">
+                ${classes.map(c => `<option value="${c}" ${s?.kelas === c ? 'selected' : ''}>${c}</option>`).join('')}
+              </select>
             </div>
           </div>
           <div class="grid grid-cols-3 gap-3">
@@ -2696,6 +2923,175 @@
         showToast("Data identitas siswa berhasil disimpan.", "success");
       } catch (err) {
         showToast("Gagal menyimpan siswa: " + err.message, "error");
+      }
+    }
+
+    // CRUD Master Data Kelas
+    function openModalKelas(editId = null) {
+      const k = editId ? (state.db.kelas || []).find(x => x.id === editId) : null;
+      document.getElementById('modal-title').textContent = k ? 'Edit Master Data Kelas' : 'Tambah Master Data Kelas Baru';
+      document.getElementById('modal-body').innerHTML = `
+        <form onsubmit="window.app.saveKelasForm(event, '${editId || ''}')" class="space-y-3.5 text-xs">
+          <div class="grid grid-cols-3 gap-3">
+            <div>
+              <label class="block font-bold text-slate-700 mb-1">Kode Kelas</label>
+              <input type="text" id="form-kl-kode" required placeholder="VII-A" value="${k?.kode_kelas || ''}" class="w-full px-3 py-2 rounded-xl border border-slate-200 font-bold uppercase" />
+            </div>
+            <div>
+              <label class="block font-bold text-slate-700 mb-1">Tingkat</label>
+              <select id="form-kl-tingkat" class="w-full px-3 py-2 rounded-xl border border-slate-200 font-semibold">
+                <option value="VII" ${k?.tingkat === 'VII' ? 'selected' : ''}>Kelas VII</option>
+                <option value="VIII" ${k?.tingkat === 'VIII' ? 'selected' : ''}>Kelas VIII</option>
+                <option value="IX" ${k?.tingkat === 'IX' ? 'selected' : ''}>Kelas IX</option>
+              </select>
+            </div>
+            <div>
+              <label class="block font-bold text-slate-700 mb-1">Kapasitas Siswa</label>
+              <input type="number" id="form-kl-kapasitas" required min="1" max="60" value="${k?.kapasitas || 36}" class="w-full px-3 py-2 rounded-xl border border-slate-200" />
+            </div>
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Nama Rombongan Belajar</label>
+            <input type="text" id="form-kl-nama" required placeholder="Contoh: Kelas VII-A Unggulan" value="${k?.nama_kelas || ''}" class="w-full px-3 py-2 rounded-xl border border-slate-200" />
+          </div>
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block font-bold text-slate-700 mb-1">Nama Wali Kelas</label>
+              <input type="text" id="form-kl-wali" placeholder="Nama lengkap & gelar" value="${k?.wali_kelas || ''}" class="w-full px-3 py-2 rounded-xl border border-slate-200" />
+            </div>
+            <div>
+              <label class="block font-bold text-slate-700 mb-1">NIP Wali Kelas</label>
+              <input type="text" id="form-kl-nip" placeholder="1982..." value="${k?.nip_wali_kelas || ''}" class="w-full px-3 py-2 rounded-xl border border-slate-200" />
+            </div>
+          </div>
+          <div class="pt-3 flex justify-end gap-2">
+            <button type="button" onclick="window.app.closeModal()" class="px-4 py-2 rounded-xl bg-slate-100 text-slate-600 font-bold">Batal</button>
+            <button type="submit" class="px-5 py-2 rounded-xl bg-[#2A4756] text-white font-bold">Simpan & Sinkronkan Kelas</button>
+          </div>
+        </form>
+      `;
+      document.getElementById('modal-overlay').classList.remove('hidden');
+    }
+
+    async function saveKelasForm(e, editId) {
+      e.preventDefault();
+      const payload = {
+        kode_kelas: document.getElementById('form-kl-kode').value.trim().toUpperCase(),
+        tingkat: document.getElementById('form-kl-tingkat').value,
+        kapasitas: Number(document.getElementById('form-kl-kapasitas').value) || 36,
+        nama_kelas: document.getElementById('form-kl-nama').value.trim(),
+        wali_kelas: document.getElementById('form-kl-wali').value.trim(),
+        nip_wali_kelas: document.getElementById('form-kl-nip').value.trim()
+      };
+
+      try {
+        if (IS_PREVIEW) {
+          if (editId) {
+            const idx = state.db.kelas.findIndex(x => x.id === editId);
+            if (idx > -1) state.db.kelas[idx] = { ...state.db.kelas[idx], ...payload };
+          } else {
+            state.db.kelas.push({ id: 'kl-' + Date.now(), ...payload });
+          }
+          savePreviewLocal();
+        } else {
+          if (editId) {
+            const { error } = await supabase.from('sipps_kelas').update(payload).eq('id', editId);
+            if (error) throw error;
+          } else {
+            const { error } = await supabase.from('sipps_kelas').insert([payload]);
+            if (error) throw error;
+          }
+          await loadAllDatabase(false);
+        }
+        closeModal();
+        renderActiveView();
+        showToast("Master Data Kelas berhasil disimpan & disinkronkan ke database!", "success");
+      } catch (err) {
+        showToast("Gagal menyimpan kelas: " + err.message, "error");
+      }
+    }
+
+    // CRUD Pengguna Guru BK (sipps_staff)
+    function openModalStaff(editId = null) {
+      const st = editId ? (state.db.staff || []).find(x => x.id === editId) : null;
+      document.getElementById('modal-title').textContent = st ? 'Edit Pengguna Guru BK' : 'Tambah Pengguna Guru BK Baru';
+      document.getElementById('modal-body').innerHTML = `
+        <form onsubmit="window.app.saveStaffForm(event, '${editId || ''}')" class="space-y-3.5 text-xs">
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block font-bold text-slate-700 mb-1">NIP Guru BK</label>
+              <input type="text" id="form-st-nip" required placeholder="19850411..." value="${st?.nip || ''}" class="w-full px-3 py-2 rounded-xl border border-slate-200 font-semibold" />
+            </div>
+            <div>
+              <label class="block font-bold text-slate-700 mb-1">Peran Sistem</label>
+              <select id="form-st-role" class="w-full px-3 py-2 rounded-xl border border-slate-200 font-semibold">
+                <option value="bk" ${st?.role === 'bk' ? 'selected' : ''}>Guru BK (Bimbingan Konseling)</option>
+                <option value="admin" ${st?.role === 'admin' ? 'selected' : ''}>Administrator Sistem</option>
+              </select>
+            </div>
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Nama Lengkap & Gelar Guru BK</label>
+            <input type="text" id="form-st-nama" required placeholder="Contoh: Dra. Rina Kartika, S.Pd., Kons." value="${st?.nama || ''}" class="w-full px-3 py-2 rounded-xl border border-slate-200 font-semibold" />
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Jabatan / Penugasan Kelas</label>
+            <input type="text" id="form-st-jabatan" required placeholder="Contoh: Koordinator Guru BK / Guru BK Kelas VII" value="${st?.jabatan || 'Guru BK'}" class="w-full px-3 py-2 rounded-xl border border-slate-200" />
+          </div>
+          <div class="grid grid-cols-2 gap-3 p-3 rounded-2xl bg-slate-50 border border-slate-200">
+            <div>
+              <label class="block font-bold text-slate-700 mb-1">Username Login</label>
+              <input type="text" id="form-st-username" required placeholder="bk_smpn71" value="${st?.username || ''}" class="w-full px-3 py-2 rounded-xl bg-white border border-slate-200 font-mono" />
+            </div>
+            <div>
+              <label class="block font-bold text-slate-700 mb-1">Kata Sandi Login</label>
+              <input type="text" id="form-st-password" required placeholder="bk123" value="${st?.password || 'bk123'}" class="w-full px-3 py-2 rounded-xl bg-white border border-slate-200 font-mono" />
+            </div>
+          </div>
+          <div class="pt-3 flex justify-end gap-2">
+            <button type="button" onclick="window.app.closeModal()" class="px-4 py-2 rounded-xl bg-slate-100 text-slate-600 font-bold">Batal</button>
+            <button type="submit" class="px-5 py-2 rounded-xl bg-[#2A4756] text-white font-bold">Simpan & Sinkronkan Guru BK</button>
+          </div>
+        </form>
+      `;
+      document.getElementById('modal-overlay').classList.remove('hidden');
+    }
+
+    async function saveStaffForm(e, editId) {
+      e.preventDefault();
+      const payload = {
+        nip: document.getElementById('form-st-nip').value.trim(),
+        role: document.getElementById('form-st-role').value,
+        nama: document.getElementById('form-st-nama').value.trim(),
+        jabatan: document.getElementById('form-st-jabatan').value.trim(),
+        username: document.getElementById('form-st-username').value.trim(),
+        password: document.getElementById('form-st-password').value.trim()
+      };
+
+      try {
+        if (IS_PREVIEW) {
+          if (editId) {
+            const idx = state.db.staff.findIndex(x => x.id === editId);
+            if (idx > -1) state.db.staff[idx] = { ...state.db.staff[idx], ...payload };
+          } else {
+            state.db.staff.push({ id: 'st-' + Date.now(), ...payload });
+          }
+          savePreviewLocal();
+        } else {
+          if (editId) {
+            const { error } = await supabase.from('sipps_staff').update(payload).eq('id', editId);
+            if (error) throw error;
+          } else {
+            const { error } = await supabase.from('sipps_staff').insert([payload]);
+            if (error) throw error;
+          }
+          await loadAllDatabase(false);
+        }
+        closeModal();
+        renderActiveView();
+        showToast("Akun Pengguna Guru BK berhasil disimpan & disinkronkan ke database!", "success");
+      } catch (err) {
+        showToast("Gagal menyimpan pengguna Guru BK: " + err.message, "error");
       }
     }
 
@@ -2927,12 +3323,14 @@
       const tableMap = {
         pelanggaran: 'sipps_pelanggaran',
         siswa: 'sipps_siswa',
+        kelas: 'sipps_kelas',
+        staff: 'sipps_staff',
         aturan: 'sipps_aturan',
         notifikasi: 'sipps_notifikasi'
       };
       try {
         if (IS_PREVIEW) {
-          state.db[type] = state.db[type].filter(x => x.id !== id);
+          state.db[type] = (state.db[type] || []).filter(x => x.id !== id);
           recalculateAllStudentPointsLocal();
           savePreviewLocal();
         } else {
@@ -3232,7 +3630,11 @@
     async function toggleMaintenanceModeSetting(checked) {
       state.db.settings.is_maintenance = checked;
       const maintMsgEl = document.getElementById('set-maint-message');
-      if (maintMsgEl) state.db.settings.maintenance_message = maintMsgEl.value.trim();
+      if (maintMsgEl && maintMsgEl.value.trim() !== '') {
+        state.db.settings.maintenance_message = maintMsgEl.value.trim();
+      } else {
+        state.db.settings.maintenance_message = DEFAULT_SETTINGS.maintenance_message;
+      }
 
       try {
         if (IS_PREVIEW) {
@@ -3245,7 +3647,7 @@
         renderActiveView();
         showToast(
           checked
-            ? "Mode Maintenance AKTIF: Siswa, Guru BK & Wali Murid dialihkan ke layar perbaikan."
+            ? "Mode Maintenance AKTIF: Tampilan awal otomatis menampilkan animasi 'Sedang Perbaikan Sistem'."
             : "Mode Maintenance NONAKTIF: Seluruh pengguna dapat mengakses aplikasi kembali.",
           checked ? "warning" : "success"
         );
@@ -3256,6 +3658,7 @@
 
     function previewMaintenanceScreenAsAdmin() {
       document.getElementById('app-shell').classList.add('hidden');
+      document.getElementById('login-screen').classList.add('hidden');
       document.getElementById('maintenance-screen').classList.remove('hidden');
     }
 
@@ -3498,6 +3901,10 @@
       savePelanggaranForm,
       openModalSiswa,
       saveSiswaForm,
+      openModalKelas,
+      saveKelasForm,
+      openModalStaff,
+      saveStaffForm,
       openModalAturan,
       saveAturanForm,
       openModalNotifikasi,
