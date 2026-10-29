@@ -1,0 +1,76 @@
+Panduan Implementasi Aplikasi SIPPS — SMP Negeri 71 Bandung
+
+Dokumen ini berisi langkah-langkah lengkap untuk menghubungkan aplikasi Sistem Informasi Poin Pelanggaran Siswa (SIPPS) SMP Negeri 71 Bandung ke database Supabase serta memasangnya ke produksi (termasuk Widget HTML/JavaScript Blogger atau hosting mandiri).
+
+Langkah 1: Menjalankan Query SQL di Supabase
+
+Buka dashboard proyek Anda di Supabase.
+
+Masuk ke menu SQL Editor di bilah kiri, lalu klik New Query.
+
+Salin seluruh isi file supabase_setup.sql (Canvas Kedua) dan tempelkan ke dalam editor SQL.
+
+Klik tombol Run (atau tekan Ctrl + Enter).
+
+Skrip tersebut akan secara otomatis:
+
+Membuat 6 tabel utama (sipps_settings, sipps_staff, sipps_siswa, sipps_aturan, sipps_pelanggaran, sipps_notifikasi).
+
+Memasang Database Trigger yang otomatis menghitung ulang total_poin dan status_pembinaan siswa setiap kali ada pelanggaran yang ditambah, diubah, atau dihapus.
+
+Mengatur kebijakan Row Level Security (RLS) untuk mendukung Hybrid Login (authenticated & anon).
+
+Mengaktifkan fitur Supabase Realtime untuk notifikasi otomatis.
+
+Langkah 2: Mendaftarkan Akun Admin di Supabase Authentication
+
+Karena sistem menggunakan arsitektur Hybrid Login:
+
+Pada dashboard Supabase, buka menu Authentication -> Users.
+
+Klik tombol Add User -> Create New User.
+
+Masukkan Email (contoh: admin@smpn71bandung.sch.id) dan Password Admin Anda, centang Auto Confirm User, lalu klik Create User.
+
+Untuk akun Guru BK, Anda dapat menambahkannya melalui tabel sipps_staff di menu Table Editor Supabase, sedangkan akun Siswa dan Wali Murid otomatis dibuat saat Admin mengimpor data identitas siswa via file Excel (.xlsx).
+
+Langkah 3: Mengaktifkan Mode Produksi (IS_PREVIEW = false)
+
+Buka kode aplikasi pada file index.html (Canvas Pertama), lalu gulir ke bagian bawah pada blok <script type="module">.
+
+Temukan bagian konfigurasi berikut:
+
+// KONFIGURASI APLIKASI (SAKLAR DEPLOYMENT WAJIB)
+const IS_PREVIEW = true; // Ubah menjadi false SAAT DEPLOY
+const SUPABASE_URL = "URL_SUPABASE_ANDA";
+const SUPABASE_ANON_KEY = "ANON_KEY_ANDA";
+
+
+Ubah nilai const IS_PREVIEW = true; menjadi:
+
+const IS_PREVIEW = false;
+
+
+Ambil Project URL dan Anon Public Key dari menu Project Settings -> API di Supabase Anda, lalu masukkan ke dalam variabel SUPABASE_URL dan SUPABASE_ANON_KEY.
+
+Efek Otomatis Mode Produksi: Begitu IS_PREVIEW diubah menjadi false, seluruh banner mode preview, tombol pintas login uji coba, dan data dummy memori lokal akan hilang 100% secara otomatis, serta seluruh transaksi aplikasi langsung terhubung secara real-time ke database dan autentikasi Supabase Anda.
+
+Langkah 4: Menyematkan Kode ke Blogger / Web Hosting
+
+Masuk ke dashboard Blogger Anda, lalu buka menu Tata Letak (Layout).
+
+Klik Tambahkan Gadget (Add a Gadget) -> pilih HTML/JavaScript.
+
+Kosongkan bagian judul gadget, lalu salin dan tempelkan seluruh kode dari file index.html ke dalam kolom konten, kemudian klik Simpan.
+
+Karena aplikasi telah dilengkapi CSS position: fixed; inset: 0; z-index: 999999;, tampilan aplikasi akan langsung menutupi seluruh halaman bawaan Blogger secara full-screen responsif (Sidebar di Desktop dan Floating Bottom Navigation Bar di HP) tanpa perlu mengedit template XML.
+
+Panduan Format Kolom Import Excel (.xlsx)
+
+Saat Admin menggunakan fitur Import Excel pada menu Poin & Riwayat, Identitas Siswa, atau Katalog Aturan, Anda dapat mengekspor terlebih dahulu file Excel melalui tombol Export Excel sebagai template, atau menggunakan nama kolom berikut:
+
+Import Identitas Siswa: NISN, NIS, Nama_Siswa, Kelas, Jenis_Kelamin, Nama_Wali, No_HP_Wali, Password_Siswa, Password_Wali
+
+Import Katalog Aturan & Buku Saku: Kode_Aturan, Kategori, Nama_Pelanggaran, Poin, Sanksi_Tindak_Lanjut
+
+Import Data Pelanggaran: Tanggal, NISN, Nama_Siswa, Kelas, Kode_Aturan, Nama_Pelanggaran, Kategori, Poin, Pelapor, Catatan_Tindak_Lanjut, Status_Penanganan
