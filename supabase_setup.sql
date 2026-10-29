@@ -18,12 +18,12 @@ CREATE TABLE IF NOT EXISTS public.sipps_settings (
   kop_surat_url text DEFAULT '',
   canvas_opacity numeric DEFAULT 0.88,
   is_maintenance boolean NOT NULL DEFAULT false,
-  maintenance_message text DEFAULT 'Sistem Sedang Diperbaiki. Kami sedang melakukan pemeliharaan berkala dan sinkronisasi data.',
+  maintenance_message text DEFAULT 'Mohon maaf atas ketidaknyamanan ini, kami sedang melakukan peningkatan layanan untuk Anda.',
   updated_at timestamptz DEFAULT now()
 );
 
-INSERT INTO public.sipps_settings (id, app_name, school_name, is_maintenance)
-VALUES (1, 'SIPPS SMP Negeri 71 Bandung', 'SMP Negeri 71 Bandung', false)
+INSERT INTO public.sipps_settings (id, app_name, school_name, is_maintenance, maintenance_message)
+VALUES (1, 'SIPPS SMP Negeri 71 Bandung', 'SMP Negeri 71 Bandung', false, 'Mohon maaf atas ketidaknyamanan ini, kami sedang melakukan peningkatan layanan untuk Anda.')
 ON CONFLICT (id) DO NOTHING;
 
 -- 2. TABEL AKUN PETUGAS / GURU BK (LOGIN NON-ADMIN HYBRID)
@@ -100,6 +100,18 @@ CREATE TABLE IF NOT EXISTS public.sipps_notifikasi (
   created_at timestamptz DEFAULT now()
 );
 
+-- 7. TABEL MASTER DATA KELAS (SINKRONISASI ROMBONGAN BELAJAR & WALI KELAS)
+CREATE TABLE IF NOT EXISTS public.sipps_kelas (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  kode_kelas text UNIQUE NOT NULL,
+  nama_kelas text NOT NULL,
+  tingkat text NOT NULL DEFAULT 'VII',
+  wali_kelas text DEFAULT '',
+  nip_wali_kelas text DEFAULT '',
+  kapasitas int4 DEFAULT 36,
+  created_at timestamptz DEFAULT now()
+);
+
 -- ============================================================================
 -- TRIGGER OTOMATIS HITUNG AKUMULASI POIN & STATUS PEMBINAAN SISWA
 -- ============================================================================
@@ -148,9 +160,6 @@ FOR EACH ROW EXECUTE FUNCTION public.fn_recalculate_poin_siswa();
 
 -- ============================================================================
 -- KONFIGURASI ROW LEVEL SECURITY (RLS) UNTUK ARSITEKTUR HYBRID LOGIN
--- Mengizinkan role `authenticated` (Admin via Supabase Auth) dan `anon`
--- (Guru BK, Wali Murid, Siswa yang divalidasi via Tabel Database) beroperasi
--- tanpa kendala permission denied.
 -- ============================================================================
 ALTER TABLE public.sipps_settings ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.sipps_staff ENABLE ROW LEVEL SECURITY;
@@ -158,6 +167,7 @@ ALTER TABLE public.sipps_siswa ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.sipps_aturan ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.sipps_pelanggaran ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.sipps_notifikasi ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.sipps_kelas ENABLE ROW LEVEL SECURITY;
 
 DROP POLICY IF EXISTS "Hybrid Access sipps_settings" ON public.sipps_settings;
 CREATE POLICY "Hybrid Access sipps_settings" ON public.sipps_settings
@@ -183,18 +193,37 @@ DROP POLICY IF EXISTS "Hybrid Access sipps_notifikasi" ON public.sipps_notifikas
 CREATE POLICY "Hybrid Access sipps_notifikasi" ON public.sipps_notifikasi
 FOR ALL TO anon, authenticated USING (true) WITH CHECK (true);
 
--- AKUN AWAL DEFAULT PETUGAS BK & ADMIN FALLBACK (AGAR LANGSUNG BISA LOGIN)
+DROP POLICY IF EXISTS "Hybrid Access sipps_kelas" ON public.sipps_kelas;
+CREATE POLICY "Hybrid Access sipps_kelas" ON public.sipps_kelas
+FOR ALL TO anon, authenticated USING (true) WITH CHECK (true);
+
+-- AKUN AWAL DEFAULT PETUGAS BK & ADMIN FALLBACK
 INSERT INTO public.sipps_staff (nip, nama, username, password, role, jabatan)
 VALUES
   ('198001012005011001', 'Administrator Utama SIPPS', 'admin@smpn71.sch.id', 'admin123', 'admin', 'Administrator Sistem'),
   ('198504112010012003', 'Dra. Rina Kartika, S.Pd., Kons.', 'bk71', 'bk123', 'bk', 'Koordinator Guru BK')
 ON CONFLICT (nip) DO NOTHING;
 
--- AKTIFKAN SUPABASE REALTIME SECARA AMAN (TANPA ERROR JIKA DIJALANKAN ULANG)
+-- DATA AWAL MASTER KELAS DEFAULT
+INSERT INTO public.sipps_kelas (kode_kelas, nama_kelas, tingkat, wali_kelas, nip_wali_kelas, kapasitas)
+VALUES
+  ('VIII-A', 'Kelas VIII-A', 'VIII', 'Hj. Dewi Sartika, S.Pd.', '198203142008012004', 36),
+  ('IX-B', 'Kelas IX-B', 'IX', 'Drs. Bambang Hermawan', '197911022006041002', 36)
+ON CONFLICT (kode_kelas) DO NOTHING;
+
+-- AKTIFKAN SUPABASE REALTIME SECARA AMAN
 DO $$
 BEGIN
   BEGIN
     ALTER PUBLICATION supabase_realtime ADD TABLE public.sipps_settings;
+  EXCEPTION WHEN duplicate_object THEN NULL;
+  END;
+  BEGIN
+    ALTER PUBLICATION supabase_realtime ADD TABLE public.sipps_staff;
+  EXCEPTION WHEN duplicate_object THEN NULL;
+  END;
+  BEGIN
+    ALTER PUBLICATION supabase_realtime ADD TABLE public.sipps_kelas;
   EXCEPTION WHEN duplicate_object THEN NULL;
   END;
   BEGIN
