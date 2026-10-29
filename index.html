@@ -1,0 +1,3323 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>SIPPS — SMP Negeri 71 Bandung</title>
+
+  <!-- PWA Manifest Data URI (1-File Single Bundle) -->
+  <link rel="manifest" href="data:application/manifest+json;utf8,%7B%22name%22%3A%22SIPPS%20SMP%20Negeri%2071%20Bandung%22%2C%22short_name%22%3A%22SIPPS%2071%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%233E5463%22%2C%22theme_color%22%3A%22%233E5463%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22https%3A%2F%2Fplacehold.co%2F192x192%2F3E5463%2FFFFFFF%3Ftext%3DSIPPS%22%2C%22sizes%22%3A%22192x192%22%2C%22type%22%3A%22image%2Fpng%22%7D%5D%7D" />
+  <meta name="theme-color" content="#3E5463" />
+
+  <!-- Google Fonts: Plus Jakarta Sans & Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'Inter', 'sans-serif'],
+          },
+          colors: {
+            slateFrame: '#3E5463',
+            slateSidebar: '#465B69',
+            canvasCream: '#F7F6F2',
+            heroBlue: '#6B8E9B',
+            heroBlueDark: '#2A4756',
+            heroPeach: '#F5DFD3',
+            accentCoral: '#EB8A5E',
+          }
+        }
+      }
+    };
+  </script>
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- SheetJS for Real Excel (.xlsx / .csv) Import & Export -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <!-- html2pdf.js for Real-time A4 PDF Download -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+  <style>
+    /* Full-Page Wrapper covering Blogger template without XML edit */
+    #sipps-root-wrapper {
+      position: fixed;
+      inset: 0;
+      z-index: 999999;
+      overflow: hidden;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      color: #1E293B;
+      background-color: #2B3B47;
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      transition: background-image 0.5s ease;
+    }
+
+    /* Modern Transparent Glassmorphism Utilities */
+    .glass-frame {
+      background: rgba(62, 84, 99, 0.82);
+      backdrop-filter: blur(22px);
+      -webkit-backdrop-filter: blur(22px);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+    }
+
+    .glass-canvas {
+      background: rgba(247, 246, 242, var(--canvas-opacity, 0.86));
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border: 1px solid rgba(255, 255, 255, 0.55);
+    }
+
+    .glass-card {
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.65);
+      box-shadow: 0 12px 32px -8px rgba(30, 41, 59, 0.07);
+    }
+
+    .glass-subcard {
+      background: rgba(255, 255, 255, 0.18);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+    }
+
+    .glass-login-card {
+      background: rgba(255, 255, 255, 0.82);
+      backdrop-filter: blur(28px);
+      -webkit-backdrop-filter: blur(28px);
+      border: 1px solid rgba(255, 255, 255, 0.65);
+      box-shadow: 0 25px 60px -15px rgba(15, 23, 42, 0.35);
+    }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(100, 116, 139, 0.3);
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(100, 116, 139, 0.5);
+    }
+
+    /* Responsive Navigation Media Queries (Mandatory Rule) */
+    @media (min-width: 1024px) {
+      .desktop-sidebar {
+        display: flex !important;
+      }
+      .mobile-bottom-nav {
+        display: none !important;
+      }
+    }
+    @media (max-width: 1023px) {
+      .desktop-sidebar {
+        display: none !important;
+      }
+      .mobile-bottom-nav {
+        display: flex !important;
+      }
+    }
+
+    /* Maintenance Gear & Pulse Animations */
+    @keyframes spinSlow {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    @keyframes spinReverse {
+      from { transform: rotate(360deg); }
+      to { transform: rotate(0deg); }
+    }
+    @keyframes floatY {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-10px); }
+    }
+    .animate-spin-slow {
+      animation: spinSlow 12s linear infinite;
+    }
+    .animate-spin-reverse {
+      animation: spinReverse 9s linear infinite;
+    }
+    .animate-float {
+      animation: floatY 4s ease-in-out infinite;
+    }
+
+    /* A4 Print & PDF Sheet Styling */
+    .a4-sheet {
+      width: 210mm;
+      min-height: 297mm;
+      padding: 15mm 18mm;
+      margin: 0 auto;
+      background: #ffffff;
+      color: #000000;
+      box-shadow: 0 10px 35px rgba(0, 0, 0, 0.12);
+      font-family: 'Times New Roman', Times, serif;
+    }
+
+    @media print {
+      body * {
+        visibility: hidden;
+      }
+      #printable-a4-area, #printable-a4-area * {
+        visibility: visible;
+      }
+      #printable-a4-area {
+        position: fixed;
+        left: 0;
+        top: 0;
+        width: 210mm;
+        min-height: 297mm;
+        margin: 0;
+        padding: 12mm 15mm;
+        box-shadow: none !important;
+        background: #fff !important;
+        z-index: 99999999;
+      }
+    }
+  </style>
+</head>
+<body class="m-0 p-0 select-none">
+
+  <!-- ROOT FULLSCREEN CONTAINER -->
+  <div id="sipps-root-wrapper" style="--canvas-opacity: 0.88;">
+    <!-- Ambient Transparent Background Overlay -->
+    <div class="absolute inset-0 bg-gradient-to-br from-[#2C3E4C]/75 via-[#3E5463]/60 to-[#1E293B]/80 pointer-events-none"></div>
+
+    <!-- Decorative Floating Orbs for Modern Transparent Glass Effect -->
+    <div class="absolute -top-24 -left-24 w-96 h-96 rounded-full bg-[#6B8E9B]/30 blur-3xl pointer-events-none"></div>
+    <div class="absolute -bottom-24 -right-24 w-96 h-96 rounded-full bg-[#EB8A5E]/25 blur-3xl pointer-events-none"></div>
+
+    <!-- ================================================================= -->
+    <!-- 1. TOP PREVIEW BANNER (ONLY SHOWN WHEN IS_PREVIEW === true)       -->
+    <!-- ================================================================= -->
+    <div id="preview-banner" class="hidden relative z-50 bg-amber-500/95 backdrop-blur-md text-slate-950 px-4 py-1.5 text-xs font-semibold flex flex-wrap items-center justify-between gap-2 border-b border-amber-300/50 shadow-sm">
+      <div class="flex items-center gap-2">
+        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-slate-900 text-amber-300 text-[10px] font-bold uppercase tracking-wider">
+          <i data-lucide="sparkles" class="w-3 h-3"></i> Mode Preview Aktif
+        </span>
+        <span>Simulasi Memori Lokal Aktif. Ubah <code class="bg-amber-600/20 px-1 rounded">IS_PREVIEW = false</code> untuk koneksi 100% Supabase.</span>
+      </div>
+      <div class="flex items-center gap-1.5 flex-wrap">
+        <span class="text-[11px] opacity-80 mr-1">Pintas Peran:</span>
+        <button onclick="window.app.quickLogin('admin')" class="px-2.5 py-0.5 rounded-full bg-slate-900 text-white hover:bg-slate-800 transition text-[11px]">Admin</button>
+        <button onclick="window.app.quickLogin('bk')" class="px-2.5 py-0.5 rounded-full bg-white/90 text-slate-900 hover:bg-white transition text-[11px]">Guru BK</button>
+        <button onclick="window.app.quickLogin('wali')" class="px-2.5 py-0.5 rounded-full bg-white/90 text-slate-900 hover:bg-white transition text-[11px]">Wali Murid</button>
+        <button onclick="window.app.quickLogin('siswa')" class="px-2.5 py-0.5 rounded-full bg-white/90 text-slate-900 hover:bg-white transition text-[11px]">Siswa</button>
+        <button onclick="window.app.toggleMaintenanceQuick()" id="btn-preview-maint" class="px-2.5 py-0.5 rounded-full bg-red-700 text-white hover:bg-red-800 transition text-[11px] flex items-center gap-1">
+          <i data-lucide="wrench" class="w-3 h-3"></i> Uji Maintenance
+        </button>
+      </div>
+    </div>
+
+    <!-- ================================================================= -->
+    <!-- 2. HALAMAN LOGIN MODERN TRANSPARAN                                -->
+    <!-- ================================================================= -->
+    <div id="login-screen" class="relative z-20 w-full h-full flex flex-col items-center justify-center p-4 overflow-y-auto">
+      <div class="w-full max-w-4xl grid grid-cols-1 lg:grid-cols-12 rounded-[32px] overflow-hidden glass-login-card my-auto">
+        
+        <!-- Left Hero Panel (Bento Visual Showcase) -->
+        <div class="lg:col-span-5 bg-gradient-to-br from-[#3E5463] via-[#4D6879] to-[#2A4756] text-white p-8 flex flex-col justify-between relative overflow-hidden">
+          <div class="absolute -right-12 -bottom-12 w-56 h-56 rounded-full bg-[#EB8A5E]/20 blur-2xl pointer-events-none"></div>
+          
+          <div class="relative z-10">
+            <div class="flex items-center gap-3 mb-6">
+              <img id="login-app-logo" src="https://placehold.co/96x96/F5DFD3/2A4756?text=71" alt="Logo SMPN 71" class="w-12 h-12 rounded-2xl object-cover shadow-md border border-white/30" />
+              <div>
+                <span class="text-[11px] uppercase tracking-widest text-sky-200 font-semibold block">Sistem Informasi</span>
+                <h1 id="login-app-title" class="text-lg font-extrabold tracking-tight leading-tight">SIPPS SMPN 71 Bandung</h1>
+              </div>
+            </div>
+
+            <h2 class="text-2xl font-bold leading-snug mb-3">Monitoring Kedisiplinan & Pembinaan Siswa Terpadu</h2>
+            <p class="text-xs text-slate-200/90 leading-relaxed">
+              Platform kolaboratif antara Sekolah, Guru BK, Wali Murid, dan Siswa dengan notifikasi otomatis real-time serta pelaporan berstandar kedinasan.
+            </p>
+          </div>
+
+          <!-- Mini Bento Preview Stat inside Login -->
+          <div class="relative z-10 mt-8 space-y-3">
+            <div class="glass-subcard rounded-2xl p-3.5 flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-[#F5DFD3] text-[#2A4756] flex items-center justify-center font-bold">
+                <i data-lucide="shield-check" class="w-5 h-5"></i>
+              </div>
+              <div>
+                <div class="text-xs font-bold text-white">Sinkronisasi Real-Time</div>
+                <div class="text-[11px] text-slate-200">Notifikasi poin, buku saku & cetak laporan A4</div>
+              </div>
+            </div>
+
+            <!-- Maintenance Alert Badge on Login if active -->
+            <div id="login-maint-badge" class="hidden rounded-2xl bg-amber-500/25 border border-amber-300/40 p-3 text-xs text-amber-100 flex items-center gap-2.5">
+              <i data-lucide="alert-triangle" class="w-5 h-5 text-amber-300 shrink-0"></i>
+              <div>
+                <span class="font-bold block text-amber-200">Mode Pemeliharaan Aktif</span>
+                <span>Saat ini hanya Admin yang dapat mengelola sistem.</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Login Form Panel -->
+        <div class="lg:col-span-7 p-7 sm:p-10 flex flex-col justify-between bg-white/75 backdrop-blur-xl">
+          <div>
+            <div class="flex items-center justify-between mb-6">
+              <div>
+                <h3 class="text-xl font-extrabold text-slate-800">Selamat Datang Kembali</h3>
+                <p class="text-xs text-slate-500 mt-0.5">Silakan pilih peran akses Anda untuk masuk ke dasbor SIPPS</p>
+              </div>
+              <span class="px-3 py-1 rounded-full bg-slate-100 text-slate-600 text-[11px] font-semibold border border-slate-200">Multi-Role v2.6</span>
+            </div>
+
+            <!-- Role Tabs -->
+            <div class="grid grid-cols-4 gap-1.5 p-1.5 rounded-2xl bg-slate-200/70 mb-6" id="login-role-tabs">
+              <button type="button" onclick="window.app.setLoginRole('siswa')" data-role="siswa" class="role-tab py-2 px-2 rounded-xl text-xs font-bold transition-all bg-[#3E5463] text-white shadow">
+                Siswa
+              </button>
+              <button type="button" onclick="window.app.setLoginRole('wali')" data-role="wali" class="role-tab py-2 px-2 rounded-xl text-xs font-bold transition-all text-slate-600 hover:text-slate-900">
+                Wali Murid
+              </button>
+              <button type="button" onclick="window.app.setLoginRole('bk')" data-role="bk" class="role-tab py-2 px-2 rounded-xl text-xs font-bold transition-all text-slate-600 hover:text-slate-900">
+                Guru BK
+              </button>
+              <button type="button" onclick="window.app.setLoginRole('admin')" data-role="admin" class="role-tab py-2 px-2 rounded-xl text-xs font-bold transition-all text-slate-600 hover:text-slate-900">
+                Admin
+              </button>
+            </div>
+
+            <!-- Login Form -->
+            <form id="form-login" onsubmit="window.app.handleLoginSubmit(event)" class="space-y-4">
+              <div>
+                <label id="label-login-id" class="block text-xs font-bold text-slate-700 mb-1.5">NISN Siswa</label>
+                <div class="relative">
+                  <i data-lucide="user" class="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
+                  <input type="text" id="input-login-id" required placeholder="Masukkan NISN (Contoh: 0091234561)" class="w-full pl-10 pr-4 py-2.5 rounded-2xl bg-white/90 border border-slate-200 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#6B8E9B] transition" />
+                </div>
+              </div>
+
+              <div>
+                <label id="label-login-pass" class="block text-xs font-bold text-slate-700 mb-1.5">Kata Sandi</label>
+                <div class="relative">
+                  <i data-lucide="lock" class="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
+                  <input type="password" id="input-login-pass" required placeholder="Masukkan kata sandi" class="w-full pl-10 pr-10 py-2.5 rounded-2xl bg-white/90 border border-slate-200 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#6B8E9B] transition" />
+                  <button type="button" onclick="window.app.togglePasswordVisibility()" class="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
+                    <i data-lucide="eye" class="w-4 h-4"></i>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Quick Demo Hint (Only visible in Preview Mode) -->
+              <div id="login-preview-hint" class="hidden rounded-2xl bg-sky-50/90 border border-sky-200/80 p-3 text-[11px] text-slate-600">
+                <div class="font-bold text-sky-900 mb-1 flex items-center gap-1.5">
+                  <i data-lucide="info" class="w-3.5 h-3.5 text-sky-600"></i> Kredensial Uji Coba ( atau klik tombol Pintas di atas ):
+                </div>
+                <div id="login-hint-text">NISN Siswa: <b>0091234561</b> | Sandi: <b>siswa123</b></div>
+              </div>
+
+              <button type="submit" id="btn-login-submit" class="w-full py-3 rounded-2xl bg-[#2A4756] hover:bg-[#1E3542] text-white font-bold text-sm shadow-lg shadow-[#2A4756]/25 transition flex items-center justify-center gap-2">
+                <span>Masuk ke Aplikasi</span>
+                <i data-lucide="arrow-right" class="w-4 h-4"></i>
+              </button>
+            </form>
+          </div>
+
+          <!-- Mandatory Login Footer Copyright -->
+          <div class="mt-8 pt-4 border-t border-slate-200/80 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-500">
+            <span class="font-semibold text-slate-600">© 2026 SMP Negeri 71. All rights reserved</span>
+            <span class="text-[11px] text-slate-400">Bandung, Jawa Barat • Terhubung Database</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ================================================================= -->
+    <!-- 3. HALAMAN KHUSUS MODE MAINTENANCE ("SISTEM SEDANG DIPERBAIKI")    -->
+    <!-- ================================================================= -->
+    <div id="maintenance-screen" class="hidden relative z-30 w-full h-full flex items-center justify-center p-4 overflow-y-auto">
+      <div class="max-w-xl w-full rounded-[32px] glass-login-card p-8 sm:p-10 text-center relative overflow-hidden">
+        <div class="absolute -top-20 -right-20 w-48 h-48 rounded-full bg-[#EB8A5E]/20 blur-2xl pointer-events-none"></div>
+        <div class="absolute -bottom-20 -left-20 w-48 h-48 rounded-full bg-[#6B8E9B]/25 blur-2xl pointer-events-none"></div>
+
+        <!-- Interactive Animated SVG Illustration -->
+        <div class="relative w-44 h-44 mx-auto mb-6 flex items-center justify-center animate-float">
+          <svg viewBox="0 0 200 200" class="w-full h-full">
+            <!-- Outer Glow Circle -->
+            <circle cx="100" cy="100" r="82" fill="#F5DFD3" opacity="0.65" />
+            <!-- Big Animated Gear -->
+            <g class="animate-spin-slow" style="transform-origin: 82px 95px;">
+              <circle cx="82" cy="95" r="32" fill="#6B8E9B" />
+              <circle cx="82" cy="95" r="14" fill="#F7F6F2" />
+              <rect x="77" y="55" width="10" height="14" rx="3" fill="#6B8E9B" />
+              <rect x="77" y="121" width="10" height="14" rx="3" fill="#6B8E9B" />
+              <rect x="42" y="90" width="14" height="10" rx="3" fill="#6B8E9B" />
+              <rect x="108" y="90" width="14" height="10" rx="3" fill="#6B8E9B" />
+            </g>
+            <!-- Small Reverse Animated Gear -->
+            <g class="animate-spin-reverse" style="transform-origin: 132px 122px;">
+              <circle cx="132" cy="122" r="22" fill="#EB8A5E" />
+              <circle cx="132" cy="122" r="9" fill="#F7F6F2" />
+              <rect x="128" y="94" width="8" height="10" rx="2" fill="#EB8A5E" />
+              <rect x="128" y="140" width="8" height="10" rx="2" fill="#EB8A5E" />
+              <rect x="104" y="118" width="10" height="8" rx="2" fill="#EB8A5E" />
+              <rect x="150" y="118" width="10" height="8" rx="2" fill="#EB8A5E" />
+            </g>
+            <!-- Floating Shield Badge -->
+            <rect x="58" y="132" width="84" height="28" rx="14" fill="#2A4756" />
+            <text x="100" y="150" text-anchor="middle" fill="#FFFFFF" font-size="10" font-weight="bold">SIPPS 71</text>
+          </svg>
+        </div>
+
+        <span class="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-amber-100 text-amber-800 text-xs font-extrabold uppercase tracking-wider mb-3 border border-amber-300">
+          <span class="w-2 h-2 rounded-full bg-amber-500 animate-ping"></span> Mode Pemeliharaan Aktif
+        </span>
+
+        <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-800 mb-2">Sistem Sedang Diperbaiki</h1>
+        <p id="maint-custom-message" class="text-sm text-slate-600 leading-relaxed mb-6">
+          Tim Administrator SIPPS SMP Negeri 71 Bandung sedang melakukan pembaruan data induk dan optimalisasi layanan. Akses untuk Siswa, Guru BK, dan Wali Murid ditutup sementara.
+        </p>
+
+        <!-- Interactive Status Progress Box -->
+        <div class="rounded-2xl bg-white/80 border border-slate-200/80 p-4 mb-6 text-left">
+          <div class="flex items-center justify-between text-xs font-bold text-slate-700 mb-2">
+            <span class="flex items-center gap-1.5"><i data-lucide="refresh-cw" class="w-3.5 h-3.5 text-[#6B8E9B] animate-spin"></i> Sinkronisasi Basis Data</span>
+            <span id="maint-time-badge" class="text-[#EB8A5E]">Estimasi: Segera Kembali</span>
+          </div>
+          <div class="w-full h-2.5 rounded-full bg-slate-200 overflow-hidden">
+            <div class="h-full bg-gradient-to-r from-[#6B8E9B] to-[#EB8A5E] rounded-full w-4/5 animate-pulse"></div>
+          </div>
+        </div>
+
+        <div class="flex flex-col sm:flex-row items-center justify-center gap-3">
+          <button onclick="window.app.checkMaintenanceStatus()" class="w-full sm:w-auto px-5 py-2.5 rounded-full bg-[#6B8E9B] hover:bg-[#597A87] text-white text-xs font-bold transition flex items-center justify-center gap-2">
+            <i data-lucide="rotate-cw" class="w-4 h-4"></i> Cek Status Sistem
+          </button>
+          <button onclick="window.app.backToAdminLoginFromMaintenance()" class="w-full sm:w-auto px-5 py-2.5 rounded-full bg-[#2A4756] hover:bg-slate-800 text-white text-xs font-bold transition flex items-center justify-center gap-2">
+            <i data-lucide="shield" class="w-4 h-4"></i> Login khusus Admin
+          </button>
+        </div>
+
+        <div class="mt-6 pt-4 border-t border-slate-200/70 text-[11px] text-slate-500 font-medium">
+          © 2026 SMP Negeri 71. All rights reserved
+        </div>
+      </div>
+    </div>
+
+    <!-- ================================================================= -->
+    <!-- 4. DASHBOARD UTAMA (BENTO GLASSMORPHISM SHELL)                     -->
+    <!-- ================================================================= -->
+    <div id="app-shell" class="hidden relative z-10 w-full h-full flex flex-col p-0 sm:p-3 lg:p-5 overflow-hidden">
+      <!-- Outer Frame matching Reference UI (`#3E5463` + Rounded Container) -->
+      <div class="w-full h-full flex rounded-none sm:rounded-[32px] glass-frame overflow-hidden shadow-2xl relative">
+
+        <!-- A. DESKTOP FIXED SIDEBAR (Left Slate Sidebar matching image_c8929d.jpg) -->
+        <aside class="desktop-sidebar w-24 xl:w-56 shrink-0 flex-col justify-between py-6 px-3 text-slate-100 select-none">
+          <!-- Top Brand / 4-Dots Icon + App Name -->
+          <div class="flex flex-col xl:flex-row items-center gap-3 px-2 mb-4">
+            <div class="w-11 h-11 rounded-2xl bg-white/15 border border-white/20 flex items-center justify-center shrink-0 shadow-inner">
+              <img id="sidebar-app-logo" src="https://placehold.co/80x80/F5DFD3/2A4756?text=71" alt="Logo" class="w-8 h-8 rounded-xl object-cover" />
+            </div>
+            <div class="hidden xl:block overflow-hidden">
+              <div id="sidebar-app-name" class="text-sm font-extrabold tracking-tight text-white truncate">SIPPS SMPN 71</div>
+              <div id="sidebar-role-badge" class="text-[11px] text-sky-200 font-medium truncate">Administrator</div>
+            </div>
+          </div>
+
+          <!-- Center Dynamic Menu Items -->
+          <nav id="desktop-nav-list" class="flex-1 space-y-1.5 overflow-y-auto px-1 py-2"></nav>
+
+          <!-- Bottom User Profile & Logout (Bonjour, Thomas style) -->
+          <div class="pt-4 border-t border-white/15 flex flex-col items-center xl:items-stretch gap-2 px-1">
+            <div class="flex flex-col xl:flex-row items-center gap-2.5 p-2 rounded-2xl bg-white/10">
+              <div id="sidebar-user-avatar" class="w-10 h-10 rounded-full bg-[#F5DFD3] text-[#2A4756] font-extrabold text-sm flex items-center justify-center shrink-0 border-2 border-white/60">
+                AD
+              </div>
+              <div class="text-center xl:text-left overflow-hidden flex-1">
+                <div class="text-[10px] text-slate-300">Halo,</div>
+                <div id="sidebar-user-name" class="text-xs font-bold text-white truncate">Admin Utama</div>
+              </div>
+            </div>
+            <button onclick="window.app.handleLogout()" class="w-full py-2 px-3 rounded-xl bg-red-500/20 hover:bg-red-500/35 text-red-200 text-xs font-bold transition flex items-center justify-center gap-2">
+              <i data-lucide="log-out" class="w-4 h-4"></i>
+              <span class="hidden xl:inline">Keluar Sesi</span>
+            </button>
+          </div>
+        </aside>
+
+        <!-- B. MAIN INNER ROUNDED SURFACE (`#F7F6F2` Glass Canvas) -->
+        <main class="flex-1 h-full glass-canvas rounded-none sm:rounded-[28px] flex flex-col overflow-hidden relative">
+          
+          <!-- Top Header Bar (Title on Left, Search + Real-Time Notification Bell + Profile on Right) -->
+          <header class="px-5 sm:px-8 pt-5 pb-4 flex flex-wrap items-center justify-between gap-4 border-b border-slate-200/60 shrink-0">
+            <div>
+              <div class="flex items-center gap-2.5">
+                <h1 id="header-page-title" class="text-xl sm:text-2xl font-extrabold text-slate-800 tracking-tight">Beranda Analitik</h1>
+                <span id="header-maint-indicator" class="hidden px-2.5 py-0.5 rounded-full bg-amber-500 text-white text-[10px] font-extrabold uppercase tracking-wider">Maintenance ON</span>
+              </div>
+              <p id="header-page-subtitle" class="text-xs sm:text-sm text-slate-500">Ringkasan analitik kedisiplinan & poin pelanggaran siswa secara real-time</p>
+            </div>
+
+            <!-- Right Action Icons -->
+            <div class="flex items-center gap-2.5">
+              <!-- Global Quick Search -->
+              <div class="relative hidden md:block">
+                <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
+                <input type="text" id="global-search-input" oninput="window.app.handleGlobalSearch(this.value)" placeholder="Cari siswa / NISN / kelas..." class="pl-9 pr-4 py-2 rounded-full bg-white/85 border border-slate-200/80 text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#6B8E9B] w-52 transition" />
+              </div>
+
+              <!-- Sync Database Button -->
+              <button onclick="window.app.syncAllData(true)" title="Sinkronkan Database Sekarang" class="w-10 h-10 rounded-full bg-white/85 hover:bg-white border border-slate-200/80 flex items-center justify-center text-slate-700 transition shadow-sm">
+                <i data-lucide="refresh-cw" id="icon-sync-header" class="w-4 h-4"></i>
+              </button>
+
+              <!-- Real-time Notification Bell Dropdown Trigger -->
+              <div class="relative">
+                <button onclick="window.app.toggleNotifDrawer()" class="w-10 h-10 rounded-full bg-white/85 hover:bg-white border border-slate-200/80 flex items-center justify-center text-slate-700 transition shadow-sm relative">
+                  <i data-lucide="bell" class="w-4 h-4"></i>
+                  <span id="notif-unread-badge" class="hidden absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-[#EB8A5E] text-white text-[10px] font-extrabold flex items-center justify-center">0</span>
+                </button>
+              </div>
+
+              <!-- User Role Pill / Mobile Logout -->
+              <button onclick="window.app.handleLogout()" title="Keluar" class="lg:hidden w-10 h-10 rounded-full bg-red-50 border border-red-200 text-red-600 flex items-center justify-center">
+                <i data-lucide="log-out" class="w-4 h-4"></i>
+              </button>
+            </div>
+          </header>
+
+          <!-- Dynamic View Content Area -->
+          <div id="main-view-container" class="flex-1 overflow-y-auto px-5 sm:px-8 py-5 pb-24 lg:pb-6"></div>
+
+        </main>
+      </div>
+
+      <!-- C. MOBILE FLOATING BOTTOM NAVIGATION BAR -->
+      <nav id="mobile-nav-list" class="mobile-bottom-nav fixed bottom-3 left-3 right-3 z-40 h-16 rounded-2xl glass-frame text-white items-center justify-around px-2 shadow-2xl"></nav>
+    </div>
+
+    <!-- ================================================================= -->
+    <!-- 5. REAL-TIME NOTIFICATION SLIDE DRAWER                             -->
+    <!-- ================================================================= -->
+    <div id="notif-drawer-backdrop" onclick="window.app.toggleNotifDrawer(false)" class="hidden fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-xs"></div>
+    <aside id="notif-drawer" class="fixed top-0 right-0 bottom-0 z-50 w-full max-w-md bg-white/95 backdrop-blur-2xl shadow-2xl border-l border-slate-200 transform translate-x-full transition-transform duration-300 flex flex-col">
+      <div class="p-5 border-b border-slate-200 flex items-center justify-between">
+        <div class="flex items-center gap-2.5">
+          <div class="w-9 h-9 rounded-xl bg-[#F5DFD3] text-[#EB8A5E] flex items-center justify-center">
+            <i data-lucide="bell-ring" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <h3 class="text-sm font-extrabold text-slate-800">Notifikasi Otomatis Real-Time</h3>
+            <p class="text-[11px] text-slate-500">Pemberitahuan pelanggaran & panggilan BK</p>
+          </div>
+        </div>
+        <button onclick="window.app.toggleNotifDrawer(false)" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-600">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+      <div id="notif-drawer-items" class="flex-1 overflow-y-auto p-4 space-y-3"></div>
+      <div class="p-4 border-t border-slate-200 bg-slate-50 flex items-center justify-between">
+        <button onclick="window.app.markAllNotifRead()" class="text-xs font-bold text-[#6B8E9B] hover:underline">Tandai Semua Dibaca</button>
+        <button onclick="window.app.navigate('notifikasi'); window.app.toggleNotifDrawer(false);" class="px-4 py-1.5 rounded-full bg-[#2A4756] text-white text-xs font-bold">Buka Menu Pesan</button>
+      </div>
+    </aside>
+
+    <!-- ================================================================= -->
+    <!-- 6. UNIVERSAL MODAL DIALOG (CRUD FORMS & CONFIRMATION)              -->
+    <!-- ================================================================= -->
+    <div id="modal-overlay" class="hidden fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+      <div class="w-full max-w-lg rounded-[28px] bg-white shadow-2xl border border-slate-100 overflow-hidden my-auto">
+        <div class="px-6 py-4 bg-slate-50 border-b border-slate-200/80 flex items-center justify-between">
+          <h3 id="modal-title" class="text-base font-extrabold text-slate-800">Formulir Data</h3>
+          <button onclick="window.app.closeModal()" class="w-8 h-8 rounded-full hover:bg-slate-200/70 flex items-center justify-center text-slate-500">
+            <i data-lucide="x" class="w-4 h-4"></i>
+          </button>
+        </div>
+        <div id="modal-body" class="p-6 max-h-[78vh] overflow-y-auto"></div>
+      </div>
+    </div>
+
+    <!-- ================================================================= -->
+    <!-- 7. TOAST NOTIFICATION CONTAINER                                    -->
+    <!-- ================================================================= -->
+    <div id="toast-container" class="fixed bottom-20 lg:bottom-6 right-5 z-[60] flex flex-col gap-2 max-w-sm w-full pointer-events-none"></div>
+
+  </div>
+
+  <!-- ================================================================= -->
+  <!-- APPLICATION JAVASCRIPT MODULE (SUPABASE + HYBRID AUTH + EXCEL/PDF)-->
+  <!-- ================================================================= -->
+  <script type="module">
+    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+
+    // ====================================================================
+    // KONFIGURASI APLIKASI (SAKLAR DEPLOYMENT WAJIB)
+    // ====================================================================
+    const IS_PREVIEW = false; // Ubah menjadi false SAAT DEPLOY agar mode preview & data dummy hilang dan terhubung 100% ke Supabase
+    const SUPABASE_URL = "https://gekubioxgyqqzvswxujy.supabase.co";
+    const SUPABASE_ANON_KEY = "sb_publishable_17aStgaM9FI__bVC6A7bnQ_GUDkXjUN";
+
+    let supabase = null;
+    if (!IS_PREVIEW && SUPABASE_URL !== "https://gekubioxgyqqzvswxujy.supabase.co") {
+      supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    }
+
+    // ====================================================================
+    // STATE & MINIMALIST PREVIEW DATA (MAX 2 ROWS PER TABLE WHEN PREVIEW)
+    // ====================================================================
+    const DEFAULT_SETTINGS = {
+      id: 1,
+      app_name: "SIPPS SMP Negeri 71 Bandung",
+      school_name: "SMP Negeri 71 Bandung",
+      school_address: "Jl. Pendidikan Raya No. 71, Kota Bandung, Jawa Barat 40111 • Telp. (022) 7100071",
+      kepsek_name: "Drs. H. Ahmad Suryana, M.Pd.",
+      kepsek_nip: "19680512 199403 1 005",
+      logo_url: "https://placehold.co/120x120/F5DFD3/2A4756?text=SMPN+71",
+      bg_url: "",
+      kop_surat_url: "",
+      canvas_opacity: 0.88,
+      is_maintenance: false,
+      maintenance_message: "Sistem Informasi Poin Pelanggaran Siswa (SIPPS) SMP Negeri 71 Bandung sedang menjalani pemeliharaan berkala dan sinkronisasi data semester. Silakan akses kembali beberapa saat lagi."
+    };
+
+    // Minimalist Dummy Data (Max 2 rows per table as strictly required for IS_PREVIEW = true)
+    const PREVIEW_INITIAL_DB = {
+      settings: { ...DEFAULT_SETTINGS },
+      staff: [
+        { id: "st-1", nip: "198504112010012003", nama: "Dra. Rina Kartika, S.Pd., Kons.", username: "bk71", password: "bk123", role: "bk", jabatan: "Koordinator Guru BK" },
+        { id: "st-2", nip: "199008212015021001", nama: "Budi Santoso, S.Pd.", username: "budi_bk", password: "bk123", role: "bk", jabatan: "Guru BK Kelas VIII & IX" }
+      ],
+      siswa: [
+        { id: "sw-1", nisn: "0091234561", nis: "242507001", nama_siswa: "Aditya Pratama Putra", kelas: "VIII-A", jenis_kelamin: "L", nama_wali: "H. Hendra Pratama", no_hp_wali: "081223344556", password_siswa: "siswa123", password_wali: "wali123", total_poin: 15, status_pembinaan: "Pembinaan Wali Kelas" },
+        { id: "sw-2", nisn: "0091234562", nis: "242507002", nama_siswa: "Nabila Putri Maharani", kelas: "IX-B", jenis_kelamin: "P", nama_wali: "Hj. Siti Aminah", no_hp_wali: "081334455667", password_siswa: "siswa123", password_wali: "wali123", total_poin: 35, status_pembinaan: "Peringatan BK I" }
+      ],
+      aturan: [
+        { id: "at-1", kode_aturan: "KR-01", kategori: "Ringan", nama_pelanggaran: "Terlambat hadir di sekolah lebih dari 15 menit tanpa keterangan", poin: 15, sanksi_tindak_lanjut: "Teguran lisan dan pembinaan disiplin pagi oleh piket/wali kelas" },
+        { id: "at-2", kode_aturan: "KS-01", kategori: "Sedang", nama_pelanggaran: "Tidak mengenakan atribut seragam sekolah lengkap sesuai jadwal", poin: 35, sanksi_tindak_lanjut: "Pemanggilan pembinaan oleh Guru BK dan pencatatan di Buku Saku" }
+      ],
+      pelanggaran: [
+        { id: "pl-1", tanggal: "2026-10-28", siswa_id: "sw-1", nisn: "0091234561", nama_siswa: "Aditya Pratama Putra", kelas: "VIII-A", aturan_id: "at-1", kode_aturan: "KR-01", nama_pelanggaran: "Terlambat hadir di sekolah lebih dari 15 menit tanpa keterangan", kategori: "Ringan", poin: 15, pelapor: "Dra. Rina Kartika, S.Pd., Kons.", catatan_tindak_lanjut: "Siswa telah diberikan pembinaan disiplin pagi", status_penanganan: "Selesai" },
+        { id: "pl-2", tanggal: "2026-10-29", siswa_id: "sw-2", nisn: "0091234562", nama_siswa: "Nabila Putri Maharani", kelas: "IX-B", aturan_id: "at-2", kode_aturan: "KS-01", nama_pelanggaran: "Tidak mengenakan atribut seragam sekolah lengkap sesuai jadwal", kategori: "Sedang", poin: 35, pelapor: "Dra. Rina Kartika, S.Pd., Kons.", catatan_tindak_lanjut: "Menunggu konfirmasi kehadiran orang tua/wali", status_penanganan: "Dalam Pembinaan" }
+      ],
+      notifikasi: [
+        { id: "nt-1", judul: "Pencatatan Poin Pelanggaran Baru (KR-01)", isi_pesan: "Ananda Aditya Pratama Putra (VIII-A) tercatat melakukan pelanggaran KR-01 (+15 Poin). Mohon kerja sama pemantauan kedisiplinan.", tipe: "Pelanggaran Otomatis", target_role: "Wali Murid", target_kelas: "VIII-A", target_nisn: "0091234561", target_nama: "Aditya Pratama Putra", pengirim: "Sistem Otomatis SIPPS", is_read: false, created_at: "2026-10-28T07:45:00Z" },
+        { id: "nt-2", judul: "Undangan Konseling & Pembinaan BK", isi_pesan: "Mengharap kehadiran Wali Murid dari Nabila Putri Maharani (IX-B) untuk koordinasi pembinaan tata tertib di Ruang BK SMPN 71 Bandung.", tipe: "Panggilan BK", target_role: "Semua", target_kelas: "IX-B", target_nisn: "0091234562", target_nama: "Nabila Putri Maharani", pengirim: "Dra. Rina Kartika, S.Pd., Kons.", is_read: false, created_at: "2026-10-29T09:15:00Z" }
+      ]
+    };
+
+    const state = {
+      loginRole: 'siswa',
+      currentUser: null, // { id, name, role: 'admin'|'bk'|'wali'|'siswa', nisn?, kelas?, identifier }
+      activeMenu: 'beranda',
+      globalSearch: '',
+      // Filters for various pages
+      filters: {
+        pelanggaranKelas: 'SEMUA',
+        pelanggaranKategori: 'SEMUA',
+        pelanggaranSearch: '',
+        siswaKelas: 'SEMUA',
+        siswaSearch: '',
+        aturanKategori: 'SEMUA',
+        aturanSearch: '',
+        notifKelas: 'SEMUA',
+        notifRole: 'SEMUA',
+        notifNamaSearch: '',
+        rekapKelas: 'SEMUA',
+        rekapKategori: 'SEMUA',
+        rekapStartDate: '',
+        rekapEndDate: '',
+        rekapSiswaNisn: 'SEMUA'
+      },
+      // Live Data Store
+      db: {
+        settings: { ...DEFAULT_SETTINGS },
+        staff: [],
+        siswa: [],
+        aturan: [],
+        pelanggaran: [],
+        notifikasi: []
+      }
+    };
+
+    // ====================================================================
+    // INITIALIZATION & PWA REGISTRATION
+    // ====================================================================
+    async function initApp() {
+      registerSingleFilePWA();
+      setupPreviewOrProductionEnvironment();
+      await loadAllDatabase();
+      setupRealtimeSubscription();
+      updateGlobalVisualSettings();
+      setLoginRole('siswa');
+      lucide.createIcons();
+    }
+
+    function registerSingleFilePWA() {
+      if ('serviceWorker' in navigator) {
+        try {
+          const swCode = `
+            self.addEventListener('install', (e) => self.skipWaiting());
+            self.addEventListener('activate', (e) => e.waitUntil(self.clients.claim()));
+            self.addEventListener('fetch', () => {});
+          `;
+          const blob = new Blob([swCode], { type: 'application/javascript' });
+          const swUrl = URL.createObjectURL(blob);
+          navigator.serviceWorker.register(swUrl).catch(() => {});
+        } catch (err) {
+          // Ignore SW restriction in sandboxed iframe
+        }
+      }
+    }
+
+    function setupPreviewOrProductionEnvironment() {
+      const previewBanner = document.getElementById('preview-banner');
+      const previewHint = document.getElementById('login-preview-hint');
+      if (IS_PREVIEW) {
+        previewBanner.classList.remove('hidden');
+        previewHint.classList.remove('hidden');
+        const savedLocal = localStorage.getItem('SIPPS_71_PREVIEW_DB');
+        if (savedLocal) {
+          try {
+            state.db = JSON.parse(savedLocal);
+          } catch {
+            state.db = JSON.parse(JSON.stringify(PREVIEW_INITIAL_DB));
+          }
+        } else {
+          state.db = JSON.parse(JSON.stringify(PREVIEW_INITIAL_DB));
+          savePreviewLocal();
+        }
+      } else {
+        // PRODUCTION MODE: 100% HIDE PREVIEW ELEMENTS & CLEAR DUMMY DATA
+        previewBanner.remove();
+        previewHint.remove();
+        state.db = {
+          settings: { ...DEFAULT_SETTINGS },
+          staff: [],
+          siswa: [],
+          aturan: [],
+          pelanggaran: [],
+          notifikasi: []
+        };
+      }
+    }
+
+    function savePreviewLocal() {
+      if (IS_PREVIEW) {
+        localStorage.setItem('SIPPS_71_PREVIEW_DB', JSON.stringify(state.db));
+      }
+    }
+
+    // ====================================================================
+    // DATABASE SYNCHRONIZATION (SUPABASE OR LOCAL PREVIEW)
+    // ====================================================================
+    async function loadAllDatabase(showToastNotice = false) {
+      const syncIcon = document.getElementById('icon-sync-header');
+      if (syncIcon) syncIcon.classList.add('animate-spin');
+
+      try {
+        if (IS_PREVIEW) {
+          recalculateAllStudentPointsLocal();
+          savePreviewLocal();
+        } else if (supabase) {
+          const [resSet, resStaff, resSiswa, resAturan, resPel, resNotif] = await Promise.all([
+            supabase.from('sipps_settings').select('*').eq('id', 1).maybeSingle(),
+            supabase.from('sipps_staff').select('*').order('nama', { ascending: true }),
+            supabase.from('sipps_siswa').select('*').order('kelas', { ascending: true }),
+            supabase.from('sipps_aturan').select('*').order('kode_aturan', { ascending: true }),
+            supabase.from('sipps_pelanggaran').select('*').order('tanggal', { ascending: false }),
+            supabase.from('sipps_notifikasi').select('*').order('created_at', { ascending: false })
+          ]);
+
+          if (resSet.data) state.db.settings = { ...DEFAULT_SETTINGS, ...resSet.data };
+          state.db.staff = resStaff.data || [];
+          state.db.siswa = resSiswa.data || [];
+          state.db.aturan = resAturan.data || [];
+          state.db.pelanggaran = resPel.data || [];
+          state.db.notifikasi = resNotif.data || [];
+
+          // Check active Supabase Auth session for Admin
+          const { data: sessionData } = await supabase.auth.getSession();
+          if (sessionData?.session?.user && !state.currentUser) {
+            state.currentUser = {
+              id: sessionData.session.user.id,
+              name: sessionData.session.user.email.split('@')[0],
+              role: 'admin',
+              identifier: sessionData.session.user.email
+            };
+            enterAuthenticatedShell();
+          }
+        }
+
+        updateGlobalVisualSettings();
+        enforceMaintenanceGuard();
+        if (state.currentUser) {
+          renderNotificationDrawer();
+          renderActiveView();
+        }
+        if (showToastNotice) {
+          showToast("Data berhasil disinkronkan secara real-time.", "success");
+        }
+      } catch (err) {
+        showToast("Gagal menyinkronkan data: " + (err.message || "Periksa koneksi"), "error");
+      } finally {
+        if (syncIcon) setTimeout(() => syncIcon.classList.remove('animate-spin'), 400);
+      }
+    }
+
+    function setupRealtimeSubscription() {
+      if (IS_PREVIEW || !supabase) return;
+      supabase
+        .channel('sipps-realtime-channel')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'sipps_settings' }, () => loadAllDatabase(false))
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'sipps_pelanggaran' }, () => loadAllDatabase(false))
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'sipps_siswa' }, () => loadAllDatabase(false))
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'sipps_aturan' }, () => loadAllDatabase(false))
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'sipps_notifikasi' }, (payload) => {
+          loadAllDatabase(false);
+          if (payload.eventType === 'INSERT') {
+            showToast(`Notifikasi Baru: ${payload.new.judul}`, 'info');
+          }
+        })
+        .subscribe();
+    }
+
+    function determineStatusPembinaan(totalPoin) {
+      if (totalPoin >= 75) return "Panggilan Orang Tua / Skorsing";
+      if (totalPoin >= 50) return "Peringatan BK II";
+      if (totalPoin >= 30) return "Peringatan BK I";
+      if (totalPoin >= 10) return "Pembinaan Wali Kelas";
+      return "Aman / Disiplin Baik";
+    }
+
+    function recalculateAllStudentPointsLocal() {
+      state.db.siswa.forEach(s => {
+        const sum = state.db.pelanggaran
+          .filter(p => p.nisn === s.nisn || p.siswa_id === s.id)
+          .reduce((acc, cur) => acc + (Number(cur.poin) || 0), 0);
+        s.total_poin = sum;
+        s.status_pembinaan = determineStatusPembinaan(sum);
+      });
+    }
+
+    // ====================================================================
+    // VISUAL SETTINGS & MAINTENANCE MODE GUARD
+    // ====================================================================
+    function updateGlobalVisualSettings() {
+      const cfg = state.db.settings || DEFAULT_SETTINGS;
+      const rootWrapper = document.getElementById('sipps-root-wrapper');
+      rootWrapper.style.setProperty('--canvas-opacity', cfg.canvas_opacity || 0.88);
+
+      // Apply Custom Background PNG/JPEG or Modern Architectural Default
+      const defaultModernBg = "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=1920&q=80";
+      rootWrapper.style.backgroundImage = `url('${cfg.bg_url && cfg.bg_url.trim() !== '' ? cfg.bg_url : defaultModernBg}')`;
+
+      // Update Logos & App Titles
+      const logoSrc = cfg.logo_url && cfg.logo_url.trim() !== '' ? cfg.logo_url : DEFAULT_SETTINGS.logo_url;
+      ['login-app-logo', 'sidebar-app-logo'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.src = logoSrc;
+      });
+
+      const loginTitle = document.getElementById('login-app-title');
+      if (loginTitle) loginTitle.textContent = cfg.app_name || DEFAULT_SETTINGS.app_name;
+
+      const sidebarName = document.getElementById('sidebar-app-name');
+      if (sidebarName) sidebarName.textContent = cfg.app_name || DEFAULT_SETTINGS.app_name;
+
+      const maintCustomMsg = document.getElementById('maint-custom-message');
+      if (maintCustomMsg) maintCustomMsg.textContent = cfg.maintenance_message || DEFAULT_SETTINGS.maintenance_message;
+
+      // Maintenance Badges
+      const loginMaintBadge = document.getElementById('login-maint-badge');
+      const headerMaintInd = document.getElementById('header-maint-indicator');
+      const btnPreviewMaint = document.getElementById('btn-preview-maint');
+
+      if (cfg.is_maintenance) {
+        if (loginMaintBadge) loginMaintBadge.classList.remove('hidden');
+        if (headerMaintInd) headerMaintInd.classList.remove('hidden');
+        if (btnPreviewMaint) {
+          btnPreviewMaint.innerHTML = `<i data-lucide="check-circle" class="w-3 h-3"></i> Matikan Maintenance`;
+          btnPreviewMaint.className = "px-2.5 py-0.5 rounded-full bg-emerald-700 text-white hover:bg-emerald-800 transition text-[11px] flex items-center gap-1";
+        }
+      } else {
+        if (loginMaintBadge) loginMaintBadge.classList.add('hidden');
+        if (headerMaintInd) headerMaintInd.classList.add('hidden');
+        if (btnPreviewMaint) {
+          btnPreviewMaint.innerHTML = `<i data-lucide="wrench" class="w-3 h-3"></i> Uji Maintenance`;
+          btnPreviewMaint.className = "px-2.5 py-0.5 rounded-full bg-red-700 text-white hover:bg-red-800 transition text-[11px] flex items-center gap-1";
+        }
+      }
+      lucide.createIcons();
+    }
+
+    function enforceMaintenanceGuard() {
+      const isMaint = Boolean(state.db.settings?.is_maintenance);
+      const loginScreen = document.getElementById('login-screen');
+      const maintScreen = document.getElementById('maintenance-screen');
+      const appShell = document.getElementById('app-shell');
+
+      // If a non-admin is logged in OR trying to access while Maintenance is ON -> redirect to Maintenance Screen
+      if (isMaint && state.currentUser && state.currentUser.role !== 'admin') {
+        loginScreen.classList.add('hidden');
+        appShell.classList.add('hidden');
+        maintScreen.classList.remove('hidden');
+        return true;
+      }
+
+      if (!isMaint && !maintScreen.classList.contains('hidden')) {
+        maintScreen.classList.add('hidden');
+        if (state.currentUser) {
+          appShell.classList.remove('hidden');
+        } else {
+          loginScreen.classList.remove('hidden');
+        }
+      }
+      return false;
+    }
+
+    // ====================================================================
+    // AUTHENTICATION & MULTI-ROLE LOGIN (HYBRID SUPABASE AUTH + TABLE)
+    // ====================================================================
+    function setLoginRole(role) {
+      state.loginRole = role;
+      document.querySelectorAll('.role-tab').forEach(btn => {
+        if (btn.dataset.role === role) {
+          btn.className = "role-tab py-2 px-2 rounded-xl text-xs font-bold transition-all bg-[#3E5463] text-white shadow";
+        } else {
+          btn.className = "role-tab py-2 px-2 rounded-xl text-xs font-bold transition-all text-slate-600 hover:text-slate-900";
+        }
+      });
+
+      const labelId = document.getElementById('label-login-id');
+      const inputId = document.getElementById('input-login-id');
+      const hintText = document.getElementById('login-hint-text');
+
+      if (role === 'siswa') {
+        labelId.textContent = "NISN Siswa";
+        inputId.type = "text";
+        inputId.placeholder = "Masukkan NISN Siswa (Contoh: 0091234561)";
+        if (hintText) hintText.innerHTML = `NISN Siswa: <b>0091234561</b> | Kata Sandi: <b>siswa123</b>`;
+      } else if (role === 'wali') {
+        labelId.textContent = "NISN Putra / Putri";
+        inputId.type = "text";
+        inputId.placeholder = "Masukkan NISN Anak (Contoh: 0091234561)";
+        if (hintText) hintText.innerHTML = `NISN Anak: <b>0091234561</b> | Kata Sandi Wali: <b>wali123</b>`;
+      } else if (role === 'bk') {
+        labelId.textContent = "Username / NIP Guru BK";
+        inputId.type = "text";
+        inputId.placeholder = "Masukkan Username atau NIP Guru BK";
+        if (hintText) hintText.innerHTML = `Username BK: <b>bk71</b> | Kata Sandi: <b>bk123</b>`;
+      } else if (role === 'admin') {
+        labelId.textContent = "Email Administrator (Supabase Auth)";
+        inputId.type = "email";
+        inputId.placeholder = "admin@smpn71bandung.sch.id";
+        if (hintText) hintText.innerHTML = `Email: <b>admin@smpn71.sch.id</b> | Kata Sandi: <b>admin123</b>`;
+      }
+    }
+
+    async function handleLoginSubmit(e) {
+      e.preventDefault();
+      const idVal = document.getElementById('input-login-id').value.trim();
+      const passVal = document.getElementById('input-login-pass').value.trim();
+      const role = state.loginRole;
+
+      // Maintenance Check for Non-Admin before login completes
+      if (state.db.settings?.is_maintenance && role !== 'admin') {
+        document.getElementById('login-screen').classList.add('hidden');
+        document.getElementById('maintenance-screen').classList.remove('hidden');
+        showToast("Akses sedang ditutup sementara karena Mode Pemeliharaan aktif.", "warning");
+        return;
+      }
+
+      try {
+        if (role === 'admin') {
+          if (IS_PREVIEW) {
+            state.currentUser = {
+              id: 'admin-preview',
+              name: 'Administrator Utama',
+              role: 'admin',
+              identifier: idVal || 'admin@smpn71.sch.id'
+            };
+          } else {
+            if (!supabase) throw new Error("Koneksi Supabase belum dikonfigurasi.");
+            const { data, error } = await supabase.auth.signInWithPassword({
+              email: idVal,
+              password: passVal
+            });
+            if (error) throw error;
+            state.currentUser = {
+              id: data.user.id,
+              name: data.user.email.split('@')[0],
+              role: 'admin',
+              identifier: data.user.email
+            };
+          }
+        } else if (role === 'bk') {
+          let staffUser = null;
+          if (IS_PREVIEW) {
+            staffUser = state.db.staff.find(s => (s.username === idVal || s.nip === idVal) && s.password === passVal);
+          } else {
+            const { data, error } = await supabase
+              .from('sipps_staff')
+              .select('*')
+              .or(`username.eq.${idVal},nip.eq.${idVal}`)
+              .eq('password', passVal)
+              .maybeSingle();
+            if (error) throw error;
+            staffUser = data;
+          }
+          if (!staffUser) throw new Error("Username/NIP atau Kata Sandi Guru BK tidak sesuai.");
+          state.currentUser = {
+            id: staffUser.id,
+            name: staffUser.nama,
+            role: 'bk',
+            identifier: staffUser.nip
+          };
+        } else if (role === 'siswa') {
+          let siswaUser = null;
+          if (IS_PREVIEW) {
+            siswaUser = state.db.siswa.find(s => s.nisn === idVal && s.password_siswa === passVal);
+          } else {
+            const { data, error } = await supabase
+              .from('sipps_siswa')
+              .select('*')
+              .eq('nisn', idVal)
+              .eq('password_siswa', passVal)
+              .maybeSingle();
+            if (error) throw error;
+            siswaUser = data;
+          }
+          if (!siswaUser) throw new Error("NISN atau Kata Sandi Siswa tidak ditemukan.");
+          state.currentUser = {
+            id: siswaUser.id,
+            name: siswaUser.nama_siswa,
+            role: 'siswa',
+            nisn: siswaUser.nisn,
+            kelas: siswaUser.kelas,
+            identifier: siswaUser.nisn
+          };
+        } else if (role === 'wali') {
+          let waliUser = null;
+          if (IS_PREVIEW) {
+            waliUser = state.db.siswa.find(s => s.nisn === idVal && s.password_wali === passVal);
+          } else {
+            const { data, error } = await supabase
+              .from('sipps_siswa')
+              .select('*')
+              .eq('nisn', idVal)
+              .eq('password_wali', passVal)
+              .maybeSingle();
+            if (error) throw error;
+            waliUser = data;
+          }
+          if (!waliUser) throw new Error("NISN Anak atau Kata Sandi Wali Murid tidak sesuai.");
+          state.currentUser = {
+            id: waliUser.id,
+            name: `${waliUser.nama_wali} (Wali dari ${waliUser.nama_siswa})`,
+            studentName: waliUser.nama_siswa,
+            role: 'wali',
+            nisn: waliUser.nisn,
+            kelas: waliUser.kelas,
+            identifier: waliUser.nisn
+          };
+        }
+
+        enterAuthenticatedShell();
+        showToast(`Selamat datang, ${state.currentUser.name}!`, "success");
+      } catch (err) {
+        showToast(err.message || "Gagal masuk. Periksa kembali kredensial Anda.", "error");
+      }
+    }
+
+    function quickLogin(role) {
+      if (!IS_PREVIEW) return;
+      if (state.db.settings?.is_maintenance && role !== 'admin') {
+        state.currentUser = { id: 'temp-' + role, name: 'Pengguna ' + role.toUpperCase(), role };
+        enforceMaintenanceGuard();
+        showToast("Dialihkan ke halaman Maintenance karena Mode Pemeliharaan aktif!", "warning");
+        return;
+      }
+
+      if (role === 'admin') {
+        state.currentUser = { id: 'admin-1', name: 'Admin SIPPS 71', role: 'admin', identifier: 'admin@smpn71.sch.id' };
+      } else if (role === 'bk') {
+        const bk = state.db.staff[0] || { id: 'st-1', nama: 'Dra. Rina Kartika, S.Pd.', nip: '19850411' };
+        state.currentUser = { id: bk.id, name: bk.nama, role: 'bk', identifier: bk.nip };
+      } else if (role === 'wali') {
+        const sw = state.db.siswa[0] || { id: 'sw-1', nama_wali: 'H. Hendra Pratama', nama_siswa: 'Aditya Pratama Putra', nisn: '0091234561', kelas: 'VIII-A' };
+        state.currentUser = { id: sw.id, name: `${sw.nama_wali} (Wali ${sw.nama_siswa})`, studentName: sw.nama_siswa, role: 'wali', nisn: sw.nisn, kelas: sw.kelas, identifier: sw.nisn };
+      } else {
+        const sw = state.db.siswa[0] || { id: 'sw-1', nama_siswa: 'Aditya Pratama Putra', nisn: '0091234561', kelas: 'VIII-A' };
+        state.currentUser = { id: sw.id, name: sw.nama_siswa, role: 'siswa', nisn: sw.nisn, kelas: sw.kelas, identifier: sw.nisn };
+      }
+      enterAuthenticatedShell();
+      showToast(`Login Pintas sebagai ${state.currentUser.name}`, "info");
+    }
+
+    function enterAuthenticatedShell() {
+      if (enforceMaintenanceGuard()) return;
+
+      document.getElementById('login-screen').classList.add('hidden');
+      document.getElementById('maintenance-screen').classList.add('hidden');
+      document.getElementById('app-shell').classList.remove('hidden');
+
+      const roleLabels = {
+        admin: 'Administrator Sistem',
+        bk: 'Guru Bimbingan Konseling',
+        wali: 'Wali Murid Siswa',
+        siswa: 'Siswa SMPN 71'
+      };
+      document.getElementById('sidebar-role-badge').textContent = roleLabels[state.currentUser.role] || 'Pengguna';
+      document.getElementById('sidebar-user-name').textContent = state.currentUser.name;
+      const initials = state.currentUser.name.split(' ').slice(0, 2).map(w => w[0]).join('').toUpperCase();
+      document.getElementById('sidebar-user-avatar').textContent = initials || 'U';
+
+      state.activeMenu = 'beranda';
+      renderNavigationMenus();
+      renderNotificationDrawer();
+      renderActiveView();
+    }
+
+    async function handleLogout() {
+      if (!IS_PREVIEW && supabase && state.currentUser?.role === 'admin') {
+        await supabase.auth.signOut();
+      }
+      state.currentUser = null;
+      document.getElementById('app-shell').classList.add('hidden');
+      document.getElementById('maintenance-screen').classList.add('hidden');
+      document.getElementById('login-screen').classList.remove('hidden');
+      showToast("Anda telah keluar dari sesi aplikasi.", "info");
+    }
+
+    function backToAdminLoginFromMaintenance() {
+      state.currentUser = null;
+      document.getElementById('maintenance-screen').classList.add('hidden');
+      document.getElementById('login-screen').classList.remove('hidden');
+      setLoginRole('admin');
+    }
+
+    async function checkMaintenanceStatus() {
+      await loadAllDatabase(false);
+      if (!state.db.settings?.is_maintenance) {
+        showToast("Sistem telah selesai diperbaiki! Silakan masuk kembali.", "success");
+        document.getElementById('maintenance-screen').classList.add('hidden');
+        document.getElementById('login-screen').classList.remove('hidden');
+      } else {
+        showToast("Sistem masih dalam proses pemeliharaan oleh Administrator.", "warning");
+      }
+    }
+
+    function toggleMaintenanceQuick() {
+      if (!IS_PREVIEW) return;
+      state.db.settings.is_maintenance = !state.db.settings.is_maintenance;
+      savePreviewLocal();
+      updateGlobalVisualSettings();
+      if (state.db.settings.is_maintenance) {
+        if (!state.currentUser || state.currentUser.role === 'admin') {
+          // Simulate non-admin view so user immediately sees the interactive maintenance screen
+          state.currentUser = { id: 'sim-siswa', name: 'Aditya Pratama Putra', role: 'siswa', nisn: '0091234561', kelas: 'VIII-A' };
+        }
+        enforceMaintenanceGuard();
+        showToast("Mode Maintenance Diaktifkan! Pengguna diarahkan ke layar perbaikan.", "warning");
+      } else {
+        enforceMaintenanceGuard();
+        showToast("Mode Maintenance Dinonaktifkan! Akses kembali normal.", "success");
+      }
+    }
+
+    // ====================================================================
+    // NAVIGATION ENGINE (DESKTOP LEFT SIDEBAR + MOBILE FLOATING BAR)
+    // ====================================================================
+    function getMenusForRole(role) {
+      const allMenus = [
+        { id: 'beranda', label: 'Beranda', icon: 'home', roles: ['admin', 'bk', 'wali', 'siswa'] },
+        { id: 'pelanggaran', label: role === 'wali' || role === 'siswa' ? 'Riwayat Poin' : 'Poin & Riwayat', icon: 'bar-chart-2', roles: ['admin', 'bk', 'wali', 'siswa'] },
+        { id: 'siswa', label: 'Identitas Siswa', icon: 'users', roles: ['admin', 'bk'] },
+        { id: 'aturan', label: 'Katalog Aturan', icon: 'book-open', roles: ['admin', 'bk', 'wali', 'siswa'] },
+        { id: 'rekap', label: 'Rekap & Laporan', icon: 'file-text', roles: ['admin', 'bk'] },
+        { id: 'notifikasi', label: 'Pesan & Notif', icon: 'message-square', roles: ['admin', 'bk', 'wali', 'siswa'] },
+        { id: 'pengaturan', label: 'Pengaturan', icon: 'settings', roles: ['admin'] }
+      ];
+      return allMenus.filter(m => m.roles.includes(role));
+    }
+
+    function renderNavigationMenus() {
+      if (!state.currentUser) return;
+      const menus = getMenusForRole(state.currentUser.role);
+      const desktopNav = document.getElementById('desktop-nav-list');
+      const mobileNav = document.getElementById('mobile-nav-list');
+
+      desktopNav.innerHTML = menus.map(m => {
+        const active = state.activeMenu === m.id;
+        return `
+          <button onclick="window.app.navigate('${m.id}')" class="w-full py-3 px-3 rounded-2xl transition-all flex flex-col xl:flex-row items-center gap-1.5 xl:gap-3 ${
+            active
+              ? 'bg-white/20 text-white font-bold shadow-sm border border-white/25'
+              : 'text-slate-300 hover:bg-white/10 hover:text-white font-medium'
+          }">
+            <i data-lucide="${m.icon}" class="w-5 h-5 shrink-0 ${active ? 'text-sky-200' : ''}"></i>
+            <span class="text-[11px] xl:text-xs tracking-tight text-center xl:text-left">${m.label}</span>
+          </button>
+        `;
+      }).join('');
+
+      mobileNav.innerHTML = menus.map(m => {
+        const active = state.activeMenu === m.id;
+        return `
+          <button onclick="window.app.navigate('${m.id}')" class="flex-1 py-1.5 px-1 rounded-xl flex flex-col items-center justify-center gap-1 transition ${
+            active ? 'bg-white/20 text-white font-bold' : 'text-slate-300'
+          }">
+            <i data-lucide="${m.icon}" class="w-4 h-4"></i>
+            <span class="text-[9px] truncate max-w-[54px]">${m.label}</span>
+          </button>
+        `;
+      }).join('');
+
+      lucide.createIcons();
+    }
+
+    function navigate(menuId) {
+      if (enforceMaintenanceGuard()) return;
+      state.activeMenu = menuId;
+      renderNavigationMenus();
+      renderActiveView();
+    }
+
+    // ====================================================================
+    // VIEW ROUTER & HEADER METADATA
+    // ====================================================================
+    function renderActiveView() {
+      if (!state.currentUser) return;
+      const container = document.getElementById('main-view-container');
+      const titleEl = document.getElementById('header-page-title');
+      const subEl = document.getElementById('header-page-subtitle');
+
+      const headers = {
+        beranda: {
+          title: 'Beranda Analitik SIPPS',
+          sub: 'Ringkasan analitik kedisiplinan, indeks ketertiban & aktivitas real-time SMP Negeri 71 Bandung'
+        },
+        pelanggaran: {
+          title: 'Poin & Riwayat Pelanggaran',
+          sub: 'Pencatatan poin pelanggaran tata tertib, sinkronisasi Excel & tindak lanjut pembinaan'
+        },
+        siswa: {
+          title: 'Data Identitas Siswa',
+          sub: 'Manajemen data induk siswa, akun akses Wali Murid/Siswa & Import/Export Excel massal'
+        },
+        aturan: {
+          title: 'Katalog Aturan & Buku Saku',
+          sub: 'Master poin tata tertib SMP Negeri 71 Bandung beserta pedoman sanksi pembinaan'
+        },
+        notifikasi: {
+          title: 'Pesan & Notifikasi Real-Time',
+          sub: 'Kelola pengiriman pesan, surat panggilan BK & filter tujuan penerima per kelas atau nama'
+        },
+        rekap: {
+          title: 'Rekap & Laporan Resmi (A4)',
+          sub: 'Cetak & unduh laporan PDF ukuran A4 secara real-time lengkap dengan Kop Surat SMP Negeri 71 Bandung'
+        },
+        pengaturan: {
+          title: 'Pengaturan Sistem & Maintenance',
+          sub: 'Kustomisasi identitas aplikasi, logo, background transparan & kontrol Mode Pemeliharaan'
+        }
+      };
+
+      const meta = headers[state.activeMenu] || headers.beranda;
+      titleEl.textContent = meta.title;
+      subEl.textContent = meta.sub;
+
+      if (state.activeMenu === 'beranda') renderBerandaView(container);
+      else if (state.activeMenu === 'pelanggaran') renderPelanggaranView(container);
+      else if (state.activeMenu === 'siswa') renderSiswaView(container);
+      else if (state.activeMenu === 'aturan') renderAturanView(container);
+      else if (state.activeMenu === 'notifikasi') renderNotifikasiView(container);
+      else if (state.activeMenu === 'rekap') renderRekapView(container);
+      else if (state.activeMenu === 'pengaturan') renderPengaturanView(container);
+
+      lucide.createIcons();
+    }
+
+    // ====================================================================
+    // VIEW 1: BERANDA (BENTO DASHBOARD MATCHING image_c8929d.jpg)
+    // ====================================================================
+    function renderBerandaView(container) {
+      const role = state.currentUser.role;
+      const isPersonal = role === 'siswa' || role === 'wali';
+
+      // Filter relevant records
+      const relevantPelanggaran = isPersonal
+        ? state.db.pelanggaran.filter(p => p.nisn === state.currentUser.nisn)
+        : state.db.pelanggaran;
+
+      const totalSiswa = state.db.siswa.length;
+      const totalKasus = relevantPelanggaran.length;
+      const totalPoinAkumulasi = relevantPelanggaran.reduce((a, b) => a + (Number(b.poin) || 0), 0);
+      const selesaiCount = relevantPelanggaran.filter(p => p.status_penanganan === 'Selesai').length;
+      const rasioSelesai = totalKasus > 0 ? Math.round((selesaiCount / totalKasus) * 100) : 100;
+
+      // Discipline Index Calculation (0 - 100, higher is better)
+      let indeksDisiplin = 92;
+      if (isPersonal) {
+        const mySiswa = state.db.siswa.find(s => s.nisn === state.currentUser.nisn);
+        const myPoin = mySiswa ? Number(mySiswa.total_poin) : totalPoinAkumulasi;
+        indeksDisiplin = Math.max(0, 100 - myPoin);
+      } else if (totalSiswa > 0) {
+        const avgPoin = totalPoinAkumulasi / totalSiswa;
+        indeksDisiplin = Math.max(10, Math.min(100, Math.round(100 - avgPoin * 0.8)));
+      }
+
+      // Class distribution stats
+      const classCounts = {};
+      state.db.pelanggaran.forEach(p => {
+        const k = p.kelas || 'Lainnya';
+        classCounts[k] = (classCounts[k] || 0) + 1;
+      });
+      const sortedClasses = Object.entries(classCounts).sort((a, b) => b[1] - a[1]);
+      const topClassName = sortedClasses[0]?.[0] || 'VIII-A';
+      const topClassPct = state.db.pelanggaran.length > 0 && sortedClasses[0]
+        ? ((sortedClasses[0][1] / state.db.pelanggaran.length) * 100).toFixed(1)
+        : '0.0';
+
+      // Gauge needle angle (-90deg to +90deg)
+      const needleDeg = -90 + (indeksDisiplin / 100) * 180;
+
+      container.innerHTML = `
+        <div class="space-y-5">
+          
+          <!-- ROW 1: ASYMMETRIC 2-COLUMN HERO BENTO (Steel Blue Left + Warm Peach Right) -->
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+            
+            <!-- Left Hero Card (#6B8E9B Steel Blue with Character Illustration) -->
+            <div class="lg:col-span-7 rounded-[28px] bg-[#6B8E9B] text-white p-6 sm:p-7 relative overflow-hidden shadow-lg flex flex-col justify-between min-h-[290px]">
+              <!-- Subtle Room Frame & Lamp SVG Illustration matching Reference Image -->
+              <svg viewBox="0 0 420 280" class="absolute right-0 bottom-0 w-72 sm:w-80 h-auto pointer-events-none opacity-95">
+                <!-- Hanging Lamp -->
+                <line x1="330" y1="0" x2="330" y2="45" stroke="#CBD5E1" stroke-width="2" />
+                <path d="M310 65 C310 45, 350 45, 350 65 Z" fill="#94B4C1" />
+                <!-- Wall Picture Frame -->
+                <rect x="225" y="45" width="48" height="62" rx="4" fill="#F5DFD3" stroke="#E2E8F0" stroke-width="3" />
+                <circle cx="242" cy="68" r="7" fill="#EB8A5E" />
+                <path d="M228 98 Q245 80 270 95 L270 104 L228 104 Z" fill="#3E5463" />
+                <!-- Modern Armchair -->
+                <rect x="265" y="135" width="105" height="90" rx="26" fill="#4A6B7C" />
+                <rect x="252" y="160" width="26" height="62" rx="12" fill="#5B8092" />
+                <rect x="355" y="160" width="26" height="62" rx="12" fill="#5B8092" />
+                <!-- Person with Laptop -->
+                <circle cx="318" cy="110" r="16" fill="#F5CBA7" />
+                <path d="M302 104 Q318 90 334 104" fill="#1E293B" />
+                <rect x="290" y="130" width="56" height="52" rx="14" fill="#F8FAFC" />
+                <path d="M285 182 L315 182 L295 235 L275 235 Z" fill="#334155" />
+                <path d="M315 182 L342 182 L332 235 L312 235 Z" fill="#1E293B" />
+                <!-- Laptop -->
+                <rect x="282" y="156" width="42" height="26" rx="4" fill="#CBD5E1" />
+                <!-- Side Table & Plant -->
+                <ellipse cx="212" cy="215" rx="22" ry="6" fill="#D99B66" />
+                <line x1="202" y1="221" x2="196" y2="255" stroke="#B87D4B" stroke-width="4" />
+                <line x1="222" y1="221" x2="228" y2="255" stroke="#B87D4B" stroke-width="4" />
+                <rect x="382" y="210" width="24" height="32" rx="6" fill="#F1F5F9" />
+                <path d="M394 210 Q382 185 388 175 Q394 195 394 210" fill="#10B981" />
+                <path d="M394 210 Q406 185 400 175 Q394 195 394 210" fill="#059669" />
+              </svg>
+
+              <div class="relative z-10">
+                <span class="text-xs font-semibold text-sky-100 tracking-wide">
+                  ${isPersonal ? 'Total Akumulasi Poin Anda' : 'Total Poin & Kasus Tercatat'}
+                </span>
+                <div class="text-4xl sm:text-5xl font-extrabold tracking-tight mt-1">
+                  ${isPersonal ? totalPoinAkumulasi + ' Poin' : totalKasus + ' Kasus'}
+                </div>
+              </div>
+
+              <!-- 2 Frosted Glass Mini Sub-Cards -->
+              <div class="relative z-10 grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-xs mt-5">
+                <div class="glass-subcard rounded-2xl p-3.5 flex items-center gap-3">
+                  <div class="w-9 h-9 rounded-xl bg-white/20 flex items-center justify-center">
+                    <i data-lucide="users" class="w-4 h-4 text-white"></i>
+                  </div>
+                  <div>
+                    <div class="text-[11px] text-sky-100">Total Siswa Aktif</div>
+                    <div class="text-lg font-extrabold">${totalSiswa}</div>
+                  </div>
+                </div>
+
+                <div class="glass-subcard rounded-2xl p-3.5 flex items-center gap-3">
+                  <div class="w-9 h-9 rounded-xl bg-white/20 flex items-center justify-center">
+                    <i data-lucide="trending-up" class="w-4 h-4 text-white"></i>
+                  </div>
+                  <div>
+                    <div class="text-[11px] text-sky-100">Tindak Lanjut</div>
+                    <div class="text-lg font-extrabold">${rasioSelesai}%</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Pill Action Button Bottom Right -->
+              <div class="relative z-10 mt-5 flex justify-end">
+                <button onclick="window.app.navigate('pelanggaran')" class="px-5 py-2.5 rounded-full bg-[#2A4756] hover:bg-[#1E3542] text-white text-xs font-bold tracking-wider uppercase shadow-md transition flex items-center gap-2">
+                  <span>Lihat Statistik & Riwayat</span>
+                  <i data-lucide="chevron-right" class="w-4 h-4"></i>
+                </button>
+              </div>
+            </div>
+
+            <!-- Right Hero Card (#F5DFD3 Warm Peach with Gauge Meter) -->
+            <div class="lg:col-span-5 rounded-[28px] bg-[#F5DFD3] text-slate-800 p-6 sm:p-7 flex flex-col justify-between shadow-lg min-h-[290px]">
+              <div>
+                <div class="flex items-center justify-between">
+                  <h3 class="text-base font-extrabold text-slate-800">Indeks Kedisiplinan</h3>
+                  <span class="px-2.5 py-0.5 rounded-full bg-[#EB8A5E]/20 text-[#C85A28] text-[11px] font-bold">Real-Time</span>
+                </div>
+
+                <!-- Score + Semi-Circle Gauge -->
+                <div class="flex items-center justify-between gap-4 my-4">
+                  <div class="text-5xl font-extrabold text-slate-800 tracking-tight">${indeksDisiplin}</div>
+                  <div class="relative w-36 h-20 flex items-end justify-center overflow-hidden">
+                    <svg viewBox="0 0 120 65" class="w-full h-full">
+                      <path d="M 12 58 A 46 46 0 0 1 108 58" fill="none" stroke="#FFFFFF" stroke-width="11" stroke-linecap="round" />
+                      <path d="M 12 58 A 46 46 0 0 1 108 58" fill="none" stroke="#EB8A5E" stroke-width="11" stroke-linecap="round" stroke-dasharray="145" stroke-dashoffset="${145 - (145 * indeksDisiplin) / 100}" />
+                    </svg>
+                    <div class="absolute bottom-1 w-1 h-10 bg-slate-700 origin-bottom rounded-full transition-transform duration-700" style="transform: rotate(${needleDeg}deg);"></div>
+                    <div class="w-3.5 h-3.5 rounded-full bg-slate-800 border-2 border-white absolute bottom-0"></div>
+                  </div>
+                </div>
+
+                <p class="text-xs text-slate-600 leading-relaxed">
+                  ${
+                    indeksDisiplin >= 80
+                      ? 'Indeks ketertiban berada pada kategori Sangat Baik. Pertahankan budaya positif dan kepatuhan tata tertib SMPN 71 Bandung!'
+                      : 'Terdapat catatan poin pelanggaran yang memerlukan perhatian pembinaan BK dan kolaborasi Wali Murid.'
+                  }
+                </p>
+              </div>
+
+              <!-- White Pill Card at Bottom -->
+              <div onclick="window.app.navigate('aturan')" class="mt-5 rounded-2xl bg-white/95 p-3.5 flex items-center justify-between gap-3 cursor-pointer hover:shadow-md transition">
+                <div class="flex items-center gap-3">
+                  <div class="w-9 h-9 rounded-xl bg-[#F5DFD3] text-[#EB8A5E] flex items-center justify-center shrink-0">
+                    <i data-lucide="rocket" class="w-4 h-4"></i>
+                  </div>
+                  <div class="text-xs font-bold text-slate-700 leading-snug">
+                    Buka Buku Saku & Pedoman Poin Tata Tertib
+                  </div>
+                </div>
+                <div class="w-8 h-8 rounded-full bg-[#EB8A5E] text-white flex items-center justify-center shrink-0">
+                  <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- ROW 2: 3-COLUMN ANALYTICS BENTO GRID -->
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+            
+            <!-- Col 1: Statistik Bulanan (Pill Bar Chart) -->
+            <div class="rounded-[26px] glass-card p-5 flex flex-col justify-between">
+              <div>
+                <div class="flex items-center justify-between mb-4">
+                  <h4 class="text-sm font-extrabold text-slate-800">Tren Pembinaan & Kasus</h4>
+                  <span class="text-[11px] font-bold text-slate-400">6 Bulan</span>
+                </div>
+
+                <div class="flex items-center gap-3 mb-5">
+                  <div class="w-10 h-10 rounded-xl bg-[#3E5463] text-white flex items-center justify-center font-extrabold text-sm">
+                    <i data-lucide="activity" class="w-5 h-5"></i>
+                  </div>
+                  <div>
+                    <div class="text-xl font-extrabold text-slate-800">${totalPoinAkumulasi} Poin</div>
+                    <div class="text-[11px] text-slate-500">Total akumulasi tercatat</div>
+                  </div>
+                </div>
+
+                <!-- Vertical Pill Bars -->
+                <div class="grid grid-cols-6 gap-2 items-end h-32 pt-4 px-2">
+                  ${[
+                    { m: 'MEI', h: '45%' },
+                    { m: 'JUN', h: '65%' },
+                    { m: 'JUL', h: '50%' },
+                    { m: 'AGU', h: '75%' },
+                    { m: 'SEP', h: '40%' },
+                    { m: 'OKT', h: '80%' }
+                  ].map(bar => `
+                    <div class="flex flex-col items-center gap-1.5 h-full justify-end">
+                      <div class="w-3 sm:w-3.5 h-full bg-slate-100 rounded-full flex items-end overflow-hidden p-0.5">
+                        <div class="w-full bg-[#6B8E9B] rounded-full transition-all duration-500" style="height: ${bar.h}"></div>
+                      </div>
+                      <span class="text-[9px] font-bold text-slate-400">${bar.m}</span>
+                    </div>
+                  `).join('')}
+                </div>
+              </div>
+
+              <div class="mt-4 pt-3 border-t border-slate-100 flex items-center gap-1.5 text-xs font-bold text-emerald-600">
+                <i data-lucide="trending-up" class="w-4 h-4"></i>
+                <span>${rasioSelesai}% kasus telah ditindaklanjuti</span>
+              </div>
+            </div>
+
+            <!-- Col 2: Daftar Siswa / Riwayat Sorotan -->
+            <div class="rounded-[26px] glass-card p-5 flex flex-col justify-between">
+              <div>
+                <h4 class="text-sm font-extrabold text-slate-800 mb-4">Pantauan Poin Siswa</h4>
+                <div class="space-y-3.5">
+                  ${state.db.siswa.slice(0, 3).map(sw => `
+                    <div class="flex items-center justify-between gap-3 p-2 rounded-2xl hover:bg-slate-50/80 transition">
+                      <div class="flex items-center gap-3 overflow-hidden">
+                        <div class="w-10 h-10 rounded-full bg-[#F5DFD3] text-[#2A4756] font-extrabold text-xs flex items-center justify-center shrink-0">
+                          ${sw.nama_siswa.split(' ').slice(0, 2).map(n => n[0]).join('')}
+                        </div>
+                        <div class="overflow-hidden">
+                          <div class="text-xs font-extrabold text-slate-800 truncate">${sw.nama_siswa}</div>
+                          <div class="text-[11px] text-slate-500 truncate">Kelas ${sw.kelas} • ${sw.status_pembinaan}</div>
+                        </div>
+                      </div>
+                      <div class="px-2.5 py-1 rounded-xl ${sw.total_poin >= 30 ? 'bg-red-50 text-red-600' : 'bg-amber-50 text-amber-700'} text-xs font-extrabold shrink-0">
+                        ${sw.total_poin} P
+                      </div>
+                    </div>
+                  `).join('') || `<div class="text-xs text-slate-400 py-8 text-center">Belum ada data siswa</div>`}
+                </div>
+              </div>
+
+              <button onclick="window.app.navigate('${role === 'admin' || role === 'bk' ? 'siswa' : 'pelanggaran'}')" class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-slate-700 hover:text-[#2A4756]">
+                <span>Lihat Seluruh Data</span>
+                <i data-lucide="arrow-right" class="w-4 h-4"></i>
+              </button>
+            </div>
+
+            <!-- Col 3: Distribusi Kelas (Audience par région style) -->
+            <div class="rounded-[26px] glass-card p-5 flex flex-col justify-between relative overflow-hidden">
+              <div>
+                <h4 class="text-sm font-extrabold text-slate-800 mb-3">Sebaran Kasus per Kelas</h4>
+                
+                <!-- Stylized Class Cluster Map Graphic + Floating Callout -->
+                <div class="relative h-40 rounded-2xl bg-slate-50/90 border border-slate-100 p-3 flex flex-col justify-between overflow-hidden">
+                  <svg viewBox="0 0 240 120" class="w-full h-full opacity-35">
+                    <path d="M20,30 Q50,10 90,35 T160,30 T220,55 L210,95 Q150,110 90,85 T25,90 Z" fill="#94A3B8" />
+                  </svg>
+                  <!-- Active Pulse Dots -->
+                  <span class="w-3 h-3 rounded-full bg-[#3E5463] ring-4 ring-[#3E5463]/20 absolute top-8 left-12"></span>
+                  <span class="w-3 h-3 rounded-full bg-[#EB8A5E] ring-4 ring-[#EB8A5E]/20 absolute bottom-7 right-10"></span>
+
+                  <!-- Floating Callout Card -->
+                  <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white rounded-2xl shadow-md border border-slate-100 px-3.5 py-2.5 flex items-center gap-2.5 min-w-[155px]">
+                    <div class="w-8 h-8 rounded-xl bg-[#6B8E9B]/20 text-[#2A4756] flex items-center justify-center font-extrabold text-xs">
+                      ${topClassName}
+                    </div>
+                    <div>
+                      <div class="text-xs font-extrabold text-slate-800">Kelas ${topClassName}</div>
+                      <div class="text-[11px] font-bold text-emerald-600">${topClassPct}% Proporsi</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
+                <span class="flex items-center gap-2 text-slate-600 font-semibold">
+                  <span class="w-2.5 h-2.5 rounded-full bg-[#6B8E9B]"></span> Kelas Aktif Terpantau
+                </span>
+                <span class="font-extrabold text-slate-800">${Object.keys(classCounts).length || 1} Rombel</span>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- ROW 3: 4-COLUMN BOTTOM METRIC STRIP -->
+          <div class="rounded-[26px] glass-card p-5 grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="flex items-center gap-3.5">
+              <div class="w-11 h-11 rounded-2xl bg-slate-100 text-slate-700 flex items-center justify-center shrink-0">
+                <i data-lucide="users" class="w-5 h-5"></i>
+              </div>
+              <div>
+                <div class="text-[11px] text-slate-500 font-medium">Siswa Terdaftar</div>
+                <div class="text-lg font-extrabold text-slate-800">${totalSiswa} Siswa</div>
+                <div class="text-[10px] font-bold text-emerald-600">Tersinkronisasi Database</div>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-3.5">
+              <div class="w-11 h-11 rounded-2xl bg-slate-100 text-slate-700 flex items-center justify-center shrink-0">
+                <i data-lucide="book-open" class="w-5 h-5"></i>
+              </div>
+              <div>
+                <div class="text-[11px] text-slate-500 font-medium">Katalog Aturan</div>
+                <div class="text-lg font-extrabold text-slate-800">${state.db.aturan.length} Pasal</div>
+                <div class="text-[10px] font-bold text-emerald-600">Buku Saku Aktif</div>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-3.5">
+              <div class="w-11 h-11 rounded-2xl bg-slate-100 text-slate-700 flex items-center justify-center shrink-0">
+                <i data-lucide="bell" class="w-5 h-5"></i>
+              </div>
+              <div>
+                <div class="text-[11px] text-slate-500 font-medium">Pesan & Notifikasi</div>
+                <div class="text-lg font-extrabold text-slate-800">${state.db.notifikasi.length} Terkirim</div>
+                <div class="text-[10px] font-bold text-emerald-600">Real-Time Push</div>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-3.5">
+              <div class="w-11 h-11 rounded-2xl bg-slate-100 text-slate-700 flex items-center justify-center shrink-0">
+                <i data-lucide="printer" class="w-5 h-5"></i>
+              </div>
+              <div>
+                <div class="text-[11px] text-slate-500 font-medium">Format Laporan</div>
+                <div class="text-lg font-extrabold text-slate-800">Cetak PDF A4</div>
+                <div class="text-[10px] font-bold text-[#EB8A5E]">Ber-Kop Surat Resmi</div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      `;
+    }
+
+    // ====================================================================
+    // VIEW 2: POIN & RIWAYAT PELANGGARAN (+ EXCEL IMPORT/EXPORT & SYNC)
+    // ====================================================================
+    function getUniqueClasses() {
+      const defaults = ['VII-A', 'VII-B', 'VIII-A', 'VIII-B', 'IX-A', 'IX-B'];
+      const fromData = state.db.siswa.map(s => s.kelas).filter(Boolean);
+      return [...new Set([...defaults, ...fromData])].sort();
+    }
+
+    function renderPelanggaranView(container) {
+      const role = state.currentUser.role;
+      const canManage = role === 'admin' || role === 'bk';
+      const classes = getUniqueClasses();
+
+      let list = [...state.db.pelanggaran];
+      if (role === 'siswa' || role === 'wali') {
+        list = list.filter(p => p.nisn === state.currentUser.nisn);
+      }
+      if (state.filters.pelanggaranKelas !== 'SEMUA') {
+        list = list.filter(p => p.kelas === state.filters.pelanggaranKelas);
+      }
+      if (state.filters.pelanggaranKategori !== 'SEMUA') {
+        list = list.filter(p => p.kategori === state.filters.pelanggaranKategori);
+      }
+      if (state.filters.pelanggaranSearch.trim() !== '') {
+        const q = state.filters.pelanggaranSearch.toLowerCase();
+        list = list.filter(p =>
+          (p.nama_siswa || '').toLowerCase().includes(q) ||
+          (p.nisn || '').toLowerCase().includes(q) ||
+          (p.nama_pelanggaran || '').toLowerCase().includes(q) ||
+          (p.kode_aturan || '').toLowerCase().includes(q)
+        );
+      }
+
+      container.innerHTML = `
+        <div class="space-y-4">
+          <!-- Action & Excel Import/Export Toolbar -->
+          <div class="rounded-[24px] glass-card p-4 flex flex-wrap items-center justify-between gap-3">
+            <div class="flex flex-wrap items-center gap-2">
+              <div class="relative">
+                <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2"></i>
+                <input type="text" value="${state.filters.pelanggaranSearch}" oninput="window.app.setFilter('pelanggaranSearch', this.value)" placeholder="Cari nama siswa / NISN / pelanggaran..." class="pl-9 pr-3 py-2 rounded-xl bg-white border border-slate-200 text-xs w-56 focus:outline-none focus:ring-2 focus:ring-[#6B8E9B]" />
+              </div>
+
+              ${canManage ? `
+                <select onchange="window.app.setFilter('pelanggaranKelas', this.value)" class="px-3 py-2 rounded-xl bg-white border border-slate-200 text-xs font-semibold text-slate-700">
+                  <option value="SEMUA">Semua Kelas</option>
+                  ${classes.map(c => `<option value="${c}" ${state.filters.pelanggaranKelas === c ? 'selected' : ''}>Kelas ${c}</option>`).join('')}
+                </select>
+              ` : ''}
+
+              <select onchange="window.app.setFilter('pelanggaranKategori', this.value)" class="px-3 py-2 rounded-xl bg-white border border-slate-200 text-xs font-semibold text-slate-700">
+                <option value="SEMUA">Semua Kategori</option>
+                <option value="Ringan" ${state.filters.pelanggaranKategori === 'Ringan' ? 'selected' : ''}>Ringan</option>
+                <option value="Sedang" ${state.filters.pelanggaranKategori === 'Sedang' ? 'selected' : ''}>Sedang</option>
+                <option value="Berat" ${state.filters.pelanggaranKategori === 'Berat' ? 'selected' : ''}>Berat</option>
+              </select>
+            </div>
+
+            ${canManage ? `
+              <div class="flex flex-wrap items-center gap-2">
+                <input type="file" id="excel-input-pelanggaran" accept=".xlsx,.xls,.csv" class="hidden" onchange="window.app.importExcelPelanggaran(event)" />
+                <button onclick="document.getElementById('excel-input-pelanggaran').click()" class="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition flex items-center gap-1.5 shadow-sm">
+                  <i data-lucide="upload" class="w-3.5 h-3.5"></i> Import Excel
+                </button>
+                <button onclick="window.app.exportExcelPelanggaran()" class="px-3.5 py-2 rounded-xl bg-[#6B8E9B] hover:bg-[#587985] text-white text-xs font-bold transition flex items-center gap-1.5 shadow-sm">
+                  <i data-lucide="download" class="w-3.5 h-3.5"></i> Export Excel
+                </button>
+                <button onclick="window.app.syncAllData(true)" class="px-3.5 py-2 rounded-xl bg-slate-700 hover:bg-slate-800 text-white text-xs font-bold transition flex items-center gap-1.5">
+                  <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Sinkronkan
+                </button>
+                <button onclick="window.app.openModalPelanggaran()" class="px-4 py-2 rounded-xl bg-[#2A4756] hover:bg-[#1E3542] text-white text-xs font-bold transition flex items-center gap-1.5 shadow-md">
+                  <i data-lucide="plus-circle" class="w-4 h-4"></i> Catat Pelanggaran
+                </button>
+              </div>
+            ` : ''}
+          </div>
+
+          <!-- Table Card -->
+          <div class="rounded-[24px] glass-card overflow-hidden">
+            <div class="overflow-x-auto">
+              <table class="w-full text-left border-collapse">
+                <thead>
+                  <tr class="bg-slate-100/90 text-slate-600 text-[11px] font-extrabold uppercase tracking-wider border-b border-slate-200">
+                    <th class="py-3.5 px-4">Tanggal</th>
+                    <th class="py-3.5 px-4">Siswa & Kelas</th>
+                    <th class="py-3.5 px-4">Kode & Pelanggaran</th>
+                    <th class="py-3.5 px-4">Kategori</th>
+                    <th class="py-3.5 px-4 text-center">Poin</th>
+                    <th class="py-3.5 px-4">Status & Tindak Lanjut</th>
+                    ${canManage ? `<th class="py-3.5 px-4 text-right">Aksi</th>` : ''}
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-200/60 text-xs">
+                  ${list.length === 0 ? `
+                    <tr>
+                      <td colspan="${canManage ? 7 : 6}" class="py-12 text-center text-slate-400">
+                        <i data-lucide="inbox" class="w-8 h-8 mx-auto mb-2 opacity-50"></i>
+                        Belum ada data riwayat pelanggaran yang sesuai filter.
+                      </td>
+                    </tr>
+                  ` : list.map(item => `
+                    <tr class="hover:bg-white/90 transition">
+                      <td class="py-3.5 px-4 font-semibold text-slate-700 whitespace-nowrap">${item.tanggal || '-'}</td>
+                      <td class="py-3.5 px-4">
+                        <div class="font-extrabold text-slate-800">${item.nama_siswa}</div>
+                        <div class="text-[11px] text-slate-500">NISN: ${item.nisn} • Kelas <span class="font-bold text-slate-700">${item.kelas}</span></div>
+                      </td>
+                      <td class="py-3.5 px-4 max-w-xs">
+                        <span class="inline-block px-2 py-0.5 rounded bg-slate-200 text-slate-800 text-[10px] font-extrabold mb-0.5">${item.kode_aturan || 'AT-00'}</span>
+                        <div class="text-slate-700 font-medium">${item.nama_pelanggaran}</div>
+                        <div class="text-[10px] text-slate-400 mt-0.5">Pelapor: ${item.pelapor || 'Guru BK'}</div>
+                      </td>
+                      <td class="py-3.5 px-4">
+                        <span class="px-2.5 py-1 rounded-full text-[10px] font-extrabold ${
+                          item.kategori === 'Berat' ? 'bg-red-100 text-red-700' :
+                          item.kategori === 'Sedang' ? 'bg-amber-100 text-amber-800' : 'bg-sky-100 text-sky-800'
+                        }">${item.kategori || 'Ringan'}</span>
+                      </td>
+                      <td class="py-3.5 px-4 text-center">
+                        <span class="px-2.5 py-1 rounded-xl bg-red-50 text-red-600 font-extrabold">+${item.poin}</span>
+                      </td>
+                      <td class="py-3.5 px-4">
+                        <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
+                          item.status_penanganan === 'Selesai' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-800'
+                        }">${item.status_penanganan || 'Tercatat'}</span>
+                        <div class="text-[11px] text-slate-500 mt-1">${item.catatan_tindak_lanjut || '-'}</div>
+                      </td>
+                      ${canManage ? `
+                        <td class="py-3.5 px-4 text-right whitespace-nowrap">
+                          <button onclick="window.app.openModalPelanggaran('${item.id}')" class="p-1.5 rounded-lg hover:bg-slate-200 text-slate-600" title="Edit">
+                            <i data-lucide="edit-3" class="w-4 h-4"></i>
+                          </button>
+                          <button onclick="window.app.confirmDelete('pelanggaran', '${item.id}', '${item.nama_siswa}')" class="p-1.5 rounded-lg hover:bg-red-100 text-red-600" title="Hapus">
+                            <i data-lucide="trash-2" class="w-4 h-4"></i>
+                          </button>
+                        </td>
+                      ` : ''}
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    // ====================================================================
+    // VIEW 3: DATA IDENTITAS SISWA (MASS EXCEL IMPORT/EXPORT & SYNC)
+    // ====================================================================
+    function renderSiswaView(container) {
+      const classes = getUniqueClasses();
+      let list = [...state.db.siswa];
+
+      if (state.filters.siswaKelas !== 'SEMUA') {
+        list = list.filter(s => s.kelas === state.filters.siswaKelas);
+      }
+      if (state.filters.siswaSearch.trim() !== '') {
+        const q = state.filters.siswaSearch.toLowerCase();
+        list = list.filter(s =>
+          (s.nama_siswa || '').toLowerCase().includes(q) ||
+          (s.nisn || '').toLowerCase().includes(q) ||
+          (s.nama_wali || '').toLowerCase().includes(q)
+        );
+      }
+
+      container.innerHTML = `
+        <div class="space-y-4">
+          <div class="rounded-[24px] glass-card p-4 flex flex-wrap items-center justify-between gap-3">
+            <div class="flex flex-wrap items-center gap-2">
+              <div class="relative">
+                <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2"></i>
+                <input type="text" value="${state.filters.siswaSearch}" oninput="window.app.setFilter('siswaSearch', this.value)" placeholder="Cari nama siswa / NISN / wali..." class="pl-9 pr-3 py-2 rounded-xl bg-white border border-slate-200 text-xs w-56 focus:outline-none focus:ring-2 focus:ring-[#6B8E9B]" />
+              </div>
+
+              <select onchange="window.app.setFilter('siswaKelas', this.value)" class="px-3 py-2 rounded-xl bg-white border border-slate-200 text-xs font-semibold text-slate-700">
+                <option value="SEMUA">Semua Kelas</option>
+                ${classes.map(c => `<option value="${c}" ${state.filters.siswaKelas === c ? 'selected' : ''}>Kelas ${c}</option>`).join('')}
+              </select>
+            </div>
+
+            <div class="flex flex-wrap items-center gap-2">
+              <input type="file" id="excel-input-siswa" accept=".xlsx,.xls,.csv" class="hidden" onchange="window.app.importExcelSiswa(event)" />
+              <button onclick="document.getElementById('excel-input-siswa').click()" class="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition flex items-center gap-1.5 shadow-sm">
+                <i data-lucide="upload" class="w-3.5 h-3.5"></i> Import Massal Excel
+              </button>
+              <button onclick="window.app.exportExcelSiswa()" class="px-3.5 py-2 rounded-xl bg-[#6B8E9B] hover:bg-[#587985] text-white text-xs font-bold transition flex items-center gap-1.5 shadow-sm">
+                <i data-lucide="download" class="w-3.5 h-3.5"></i> Export Excel
+              </button>
+              <button onclick="window.app.syncAllData(true)" class="px-3.5 py-2 rounded-xl bg-slate-700 hover:bg-slate-800 text-white text-xs font-bold transition flex items-center gap-1.5">
+                <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Sinkronkan
+              </button>
+              <button onclick="window.app.openModalSiswa()" class="px-4 py-2 rounded-xl bg-[#2A4756] hover:bg-[#1E3542] text-white text-xs font-bold transition flex items-center gap-1.5 shadow-md">
+                <i data-lucide="user-plus" class="w-4 h-4"></i> Tambah Siswa
+              </button>
+            </div>
+          </div>
+
+          <div class="rounded-[24px] glass-card overflow-hidden">
+            <div class="overflow-x-auto">
+              <table class="w-full text-left border-collapse">
+                <thead>
+                  <tr class="bg-slate-100/90 text-slate-600 text-[11px] font-extrabold uppercase tracking-wider border-b border-slate-200">
+                    <th class="py-3.5 px-4">NISN / NIS</th>
+                    <th class="py-3.5 px-4">Nama Lengkap Siswa</th>
+                    <th class="py-3.5 px-4">Kelas</th>
+                    <th class="py-3.5 px-4">Wali Murid & Kontak</th>
+                    <th class="py-3.5 px-4 text-center">Total Poin</th>
+                    <th class="py-3.5 px-4">Status Pembinaan</th>
+                    <th class="py-3.5 px-4 text-right">Aksi</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-200/60 text-xs">
+                  ${list.length === 0 ? `
+                    <tr>
+                      <td colspan="7" class="py-12 text-center text-slate-400">Belum ada data identitas siswa.</td>
+                    </tr>
+                  ` : list.map(s => `
+                    <tr class="hover:bg-white/90 transition">
+                      <td class="py-3.5 px-4">
+                        <div class="font-extrabold text-slate-800">${s.nisn}</div>
+                        <div class="text-[11px] text-slate-400">NIS: ${s.nis || '-'}</div>
+                      </td>
+                      <td class="py-3.5 px-4 font-bold text-slate-800">${s.nama_siswa} <span class="text-[11px] font-normal text-slate-400">(${s.jenis_kelamin || 'L'})</span></td>
+                      <td class="py-3.5 px-4"><span class="px-2.5 py-1 rounded-lg bg-slate-200/80 text-slate-800 font-bold">${s.kelas}</span></td>
+                      <td class="py-3.5 px-4">
+                        <div class="font-semibold text-slate-700">${s.nama_wali || '-'}</div>
+                        <div class="text-[11px] text-slate-500">${s.no_hp_wali || '-'}</div>
+                      </td>
+                      <td class="py-3.5 px-4 text-center">
+                        <span class="px-3 py-1 rounded-xl font-extrabold ${s.total_poin >= 30 ? 'bg-red-100 text-red-700' : 'bg-emerald-100 text-emerald-800'}">${s.total_poin || 0}</span>
+                      </td>
+                      <td class="py-3.5 px-4 font-semibold text-slate-700">${s.status_pembinaan || 'Aman'}</td>
+                      <td class="py-3.5 px-4 text-right whitespace-nowrap">
+                        <button onclick="window.app.openModalSiswa('${s.id}')" class="p-1.5 rounded-lg hover:bg-slate-200 text-slate-600" title="Edit">
+                          <i data-lucide="edit-3" class="w-4 h-4"></i>
+                        </button>
+                        <button onclick="window.app.confirmDelete('siswa', '${s.id}', '${s.nama_siswa}')" class="p-1.5 rounded-lg hover:bg-red-100 text-red-600" title="Hapus">
+                          <i data-lucide="trash-2" class="w-4 h-4"></i>
+                        </button>
+                      </td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    // ====================================================================
+    // VIEW 4: KATALOG ATURAN & BUKU SAKU (+ EXCEL IMPORT/EXPORT & SYNC)
+    // ====================================================================
+    function renderAturanView(container) {
+      const canManage = state.currentUser.role === 'admin';
+      let list = [...state.db.aturan];
+
+      if (state.filters.aturanKategori !== 'SEMUA') {
+        list = list.filter(a => a.kategori === state.filters.aturanKategori);
+      }
+      if (state.filters.aturanSearch.trim() !== '') {
+        const q = state.filters.aturanSearch.toLowerCase();
+        list = list.filter(a =>
+          (a.kode_aturan || '').toLowerCase().includes(q) ||
+          (a.nama_pelanggaran || '').toLowerCase().includes(q) ||
+          (a.sanksi_tindak_lanjut || '').toLowerCase().includes(q)
+        );
+      }
+
+      container.innerHTML = `
+        <div class="space-y-4">
+          <div class="rounded-[24px] glass-card p-4 flex flex-wrap items-center justify-between gap-3">
+            <div class="flex flex-wrap items-center gap-2">
+              <div class="relative">
+                <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2"></i>
+                <input type="text" value="${state.filters.aturanSearch}" oninput="window.app.setFilter('aturanSearch', this.value)" placeholder="Cari kode / jenis pelanggaran..." class="pl-9 pr-3 py-2 rounded-xl bg-white border border-slate-200 text-xs w-56 focus:outline-none focus:ring-2 focus:ring-[#6B8E9B]" />
+              </div>
+
+              <select onchange="window.app.setFilter('aturanKategori', this.value)" class="px-3 py-2 rounded-xl bg-white border border-slate-200 text-xs font-semibold text-slate-700">
+                <option value="SEMUA">Semua Kategori Aturan</option>
+                <option value="Ringan" ${state.filters.aturanKategori === 'Ringan' ? 'selected' : ''}>Pelanggaran Ringan</option>
+                <option value="Sedang" ${state.filters.aturanKategori === 'Sedang' ? 'selected' : ''}>Pelanggaran Sedang</option>
+                <option value="Berat" ${state.filters.aturanKategori === 'Berat' ? 'selected' : ''}>Pelanggaran Berat</option>
+              </select>
+            </div>
+
+            ${canManage ? `
+              <div class="flex flex-wrap items-center gap-2">
+                <input type="file" id="excel-input-aturan" accept=".xlsx,.xls,.csv" class="hidden" onchange="window.app.importExcelAturan(event)" />
+                <button onclick="document.getElementById('excel-input-aturan').click()" class="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition flex items-center gap-1.5 shadow-sm">
+                  <i data-lucide="upload" class="w-3.5 h-3.5"></i> Import Buku Saku (Excel)
+                </button>
+                <button onclick="window.app.exportExcelAturan()" class="px-3.5 py-2 rounded-xl bg-[#6B8E9B] hover:bg-[#587985] text-white text-xs font-bold transition flex items-center gap-1.5 shadow-sm">
+                  <i data-lucide="download" class="w-3.5 h-3.5"></i> Export Excel
+                </button>
+                <button onclick="window.app.syncAllData(true)" class="px-3.5 py-2 rounded-xl bg-slate-700 hover:bg-slate-800 text-white text-xs font-bold transition flex items-center gap-1.5">
+                  <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Sinkronkan
+                </button>
+                <button onclick="window.app.openModalAturan()" class="px-4 py-2 rounded-xl bg-[#2A4756] hover:bg-[#1E3542] text-white text-xs font-bold transition flex items-center gap-1.5 shadow-md">
+                  <i data-lucide="plus-circle" class="w-4 h-4"></i> Tambah Pasal Aturan
+                </button>
+              </div>
+            ` : ''}
+          </div>
+
+          <div class="rounded-[24px] glass-card overflow-hidden">
+            <div class="overflow-x-auto">
+              <table class="w-full text-left border-collapse">
+                <thead>
+                  <tr class="bg-slate-100/90 text-slate-600 text-[11px] font-extrabold uppercase tracking-wider border-b border-slate-200">
+                    <th class="py-3.5 px-4">Kode Pasal</th>
+                    <th class="py-3.5 px-4">Kategori</th>
+                    <th class="py-3.5 px-4">Uraian Tata Tertib & Buku Saku</th>
+                    <th class="py-3.5 px-4 text-center">Bobot Poin</th>
+                    <th class="py-3.5 px-4">Sanksi & Tindak Lanjut Pembinaan</th>
+                    ${canManage ? `<th class="py-3.5 px-4 text-right">Aksi</th>` : ''}
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-200/60 text-xs">
+                  ${list.length === 0 ? `
+                    <tr>
+                      <td colspan="${canManage ? 6 : 5}" class="py-12 text-center text-slate-400">Belum ada katalog aturan tata tertib.</td>
+                    </tr>
+                  ` : list.map(a => `
+                    <tr class="hover:bg-white/90 transition">
+                      <td class="py-3.5 px-4 font-extrabold text-slate-800 whitespace-nowrap">${a.kode_aturan}</td>
+                      <td class="py-3.5 px-4">
+                        <span class="px-2.5 py-1 rounded-full text-[10px] font-extrabold ${
+                          a.kategori === 'Berat' ? 'bg-red-100 text-red-700' :
+                          a.kategori === 'Sedang' ? 'bg-amber-100 text-amber-800' : 'bg-sky-100 text-sky-800'
+                        }">${a.kategori}</span>
+                      </td>
+                      <td class="py-3.5 px-4 font-semibold text-slate-800">${a.nama_pelanggaran}</td>
+                      <td class="py-3.5 px-4 text-center">
+                        <span class="px-3 py-1 rounded-xl bg-[#F5DFD3] text-[#2A4756] font-extrabold">+${a.poin} Poin</span>
+                      </td>
+                      <td class="py-3.5 px-4 text-slate-600">${a.sanksi_tindak_lanjut || '-'}</td>
+                      ${canManage ? `
+                        <td class="py-3.5 px-4 text-right whitespace-nowrap">
+                          <button onclick="window.app.openModalAturan('${a.id}')" class="p-1.5 rounded-lg hover:bg-slate-200 text-slate-600" title="Edit">
+                            <i data-lucide="edit-3" class="w-4 h-4"></i>
+                          </button>
+                          <button onclick="window.app.confirmDelete('aturan', '${a.id}', '${a.kode_aturan}')" class="p-1.5 rounded-lg hover:bg-red-100 text-red-600" title="Hapus">
+                            <i data-lucide="trash-2" class="w-4 h-4"></i>
+                          </button>
+                        </td>
+                      ` : ''}
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    // ====================================================================
+    // VIEW 5: PESAN & NOTIFIKASI (CRUD TUJUAN PENERIMA + FILTER KELAS/NAMA)
+    // ====================================================================
+    function renderNotifikasiView(container) {
+      const role = state.currentUser.role;
+      const canManage = role === 'admin' || role === 'bk';
+      const classes = getUniqueClasses();
+
+      let list = [...state.db.notifikasi];
+
+      // For Siswa or Wali Murid, filter relevant notifications
+      if (role === 'siswa' || role === 'wali') {
+        list = list.filter(n =>
+          n.target_Kelas === 'Semua Kelas' ||
+          n.target_kelas === 'Semua Kelas' ||
+          n.target_kelas === state.currentUser.kelas ||
+          n.target_nisn === state.currentUser.nisn ||
+          !n.target_nisn
+        );
+      }
+
+      if (state.filters.notifKelas !== 'SEMUA') {
+        list = list.filter(n => n.target_kelas === state.filters.notifKelas || n.target_kelas === 'Semua Kelas');
+      }
+      if (state.filters.notifRole !== 'SEMUA') {
+        list = list.filter(n => n.target_role === state.filters.notifRole || n.target_role === 'Semua');
+      }
+      if (state.filters.notifNamaSearch.trim() !== '') {
+        const q = state.filters.notifNamaSearch.toLowerCase();
+        list = list.filter(n =>
+          (n.target_nama || '').toLowerCase().includes(q) ||
+          (n.target_nisn || '').toLowerCase().includes(q) ||
+          (n.judul || '').toLowerCase().includes(q) ||
+          (n.isi_pesan || '').toLowerCase().includes(q)
+        );
+      }
+
+      container.innerHTML = `
+        <div class="space-y-4">
+          <div class="rounded-[24px] glass-card p-4 flex flex-wrap items-center justify-between gap-3">
+            <div class="flex flex-wrap items-center gap-2">
+              <div class="relative">
+                <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2"></i>
+                <input type="text" value="${state.filters.notifNamaSearch}" oninput="window.app.setFilter('notifNamaSearch', this.value)" placeholder="Filter Nama Penerima / NISN / Judul..." class="pl-9 pr-3 py-2 rounded-xl bg-white border border-slate-200 text-xs w-60 focus:outline-none focus:ring-2 focus:ring-[#6B8E9B]" />
+              </div>
+
+              <select onchange="window.app.setFilter('notifKelas', this.value)" class="px-3 py-2 rounded-xl bg-white border border-slate-200 text-xs font-semibold text-slate-700">
+                <option value="SEMUA">Semua Kelas Penerima</option>
+                ${classes.map(c => `<option value="${c}" ${state.filters.notifKelas === c ? 'selected' : ''}>Kelas ${c}</option>`).join('')}
+              </select>
+
+              <select onchange="window.app.setFilter('notifRole', this.value)" class="px-3 py-2 rounded-xl bg-white border border-slate-200 text-xs font-semibold text-slate-700">
+                <option value="SEMUA">Semua Peran Tujuan</option>
+                <option value="Wali Murid" ${state.filters.notifRole === 'Wali Murid' ? 'selected' : ''}>Wali Murid</option>
+                <option value="Siswa" ${state.filters.notifRole === 'Siswa' ? 'selected' : ''}>Siswa</option>
+                <option value="Guru BK" ${state.filters.notifRole === 'Guru BK' ? 'selected' : ''}>Guru BK</option>
+              </select>
+            </div>
+
+            <div class="flex items-center gap-2">
+              <button onclick="window.app.syncAllData(true)" class="px-3.5 py-2 rounded-xl bg-slate-700 hover:bg-slate-800 text-white text-xs font-bold transition flex items-center gap-1.5">
+                <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Sinkronkan
+              </button>
+              ${canManage ? `
+                <button onclick="window.app.openModalNotifikasi()" class="px-4 py-2 rounded-xl bg-[#2A4756] hover:bg-[#1E3542] text-white text-xs font-bold transition flex items-center gap-1.5 shadow-md">
+                  <i data-lucide="send" class="w-4 h-4"></i> Buat Pesan / Notifikasi Tujuan
+                </button>
+              ` : ''}
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            ${list.length === 0 ? `
+              <div class="md:col-span-2 rounded-[24px] glass-card p-12 text-center text-slate-400 text-xs">
+                Belum ada pesan atau notifikasi untuk filter kelas/nama ini.
+              </div>
+            ` : list.map(n => `
+              <div class="rounded-[24px] glass-card p-5 flex flex-col justify-between border-l-4 ${n.is_read ? 'border-l-slate-300' : 'border-l-[#EB8A5E]'}">
+                <div>
+                  <div class="flex items-start justify-between gap-2 mb-2">
+                    <div class="flex flex-wrap items-center gap-1.5">
+                      <span class="px-2.5 py-0.5 rounded-full bg-[#3E5463] text-white text-[10px] font-bold">${n.tipe || 'Pengumuman'}</span>
+                      <span class="px-2.5 py-0.5 rounded-full bg-[#F5DFD3] text-[#2A4756] text-[10px] font-extrabold">Kelas: ${n.target_kelas || 'Semua Kelas'}</span>
+                      <span class="px-2.5 py-0.5 rounded-full bg-slate-200 text-slate-700 text-[10px] font-bold">Tujuan: ${n.target_role || 'Semua'}</span>
+                    </div>
+                    ${canManage ? `
+                      <div class="flex items-center gap-1 shrink-0">
+                        <button onclick="window.app.openModalNotifikasi('${n.id}')" class="p-1 rounded-lg hover:bg-slate-200 text-slate-600" title="Edit Penerima/Pesan">
+                          <i data-lucide="edit-3" class="w-3.5 h-3.5"></i>
+                        </button>
+                        <button onclick="window.app.confirmDelete('notifikasi', '${n.id}', '${n.judul}')" class="p-1 rounded-lg hover:bg-red-100 text-red-600" title="Hapus">
+                          <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                        </button>
+                      </div>
+                    ` : ''}
+                  </div>
+
+                  <h4 class="text-sm font-extrabold text-slate-800 mb-1">${n.judul}</h4>
+                  <p class="text-xs text-slate-600 leading-relaxed mb-3">${n.isi_pesan}</p>
+                </div>
+
+                <div class="pt-3 border-t border-slate-200/70 flex flex-wrap items-center justify-between gap-2 text-[11px] text-slate-500">
+                  <div>
+                    <span class="font-bold text-slate-700">Penerima:</span> ${n.target_nama ? `${n.target_nama} (${n.target_nisn || '-'})` : 'Seluruh Anggota Kelas'}
+                  </div>
+                  <div>Pengirim: <span class="font-semibold text-slate-700">${n.pengirim || 'Admin'}</span></div>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `;
+    }
+
+    // ====================================================================
+    // VIEW 6: REKAP & LAPORAN (REAL-TIME A4 PDF DOWNLOAD + KOP SURAT)
+    // ====================================================================
+    function renderRekapView(container) {
+      const classes = getUniqueClasses();
+      const cfg = state.db.settings || DEFAULT_SETTINGS;
+
+      let filtered = [...state.db.pelanggaran];
+      if (state.filters.rekapKelas !== 'SEMUA') {
+        filtered = filtered.filter(p => p.kelas === state.filters.rekapKelas);
+      }
+      if (state.filters.rekapKategori !== 'SEMUA') {
+        filtered = filtered.filter(p => p.kategori === state.filters.rekapKategori);
+      }
+      if (state.filters.rekapSiswaNisn !== 'SEMUA') {
+        filtered = filtered.filter(p => p.nisn === state.filters.rekapSiswaNisn);
+      }
+      if (state.filters.rekapStartDate) {
+        filtered = filtered.filter(p => p.tanggal >= state.filters.rekapStartDate);
+      }
+      if (state.filters.rekapEndDate) {
+        filtered = filtered.filter(p => p.tanggal <= state.filters.rekapEndDate);
+      }
+
+      const totalPoinRekap = filtered.reduce((acc, cur) => acc + (Number(cur.poin) || 0), 0);
+      const todayFormatted = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+
+      container.innerHTML = `
+        <div class="space-y-5">
+          <!-- Filter & Download A4 PDF Control Bar -->
+          <div class="rounded-[24px] glass-card p-4 flex flex-wrap items-center justify-between gap-3">
+            <div class="flex flex-wrap items-center gap-2">
+              <select onchange="window.app.setFilter('rekapKelas', this.value)" class="px-3 py-2 rounded-xl bg-white border border-slate-200 text-xs font-semibold text-slate-700">
+                <option value="SEMUA">Semua Kelas</option>
+                ${classes.map(c => `<option value="${c}" ${state.filters.rekapKelas === c ? 'selected' : ''}>Kelas ${c}</option>`).join('')}
+              </select>
+
+              <select onchange="window.app.setFilter('rekapSiswaNisn', this.value)" class="px-3 py-2 rounded-xl bg-white border border-slate-200 text-xs font-semibold text-slate-700 max-w-[200px]">
+                <option value="SEMUA">Semua Siswa</option>
+                ${state.db.siswa.map(s => `<option value="${s.nisn}" ${state.filters.rekapSiswaNisn === s.nisn ? 'selected' : ''}>${s.nama_siswa} (${s.kelas})</option>`).join('')}
+              </select>
+
+              <select onchange="window.app.setFilter('rekapKategori', this.value)" class="px-3 py-2 rounded-xl bg-white border border-slate-200 text-xs font-semibold text-slate-700">
+                <option value="SEMUA">Semua Kategori</option>
+                <option value="Ringan" ${state.filters.rekapKategori === 'Ringan' ? 'selected' : ''}>Ringan</option>
+                <option value="Sedang" ${state.filters.rekapKategori === 'Sedang' ? 'selected' : ''}>Sedang</option>
+                <option value="Berat" ${state.filters.rekapKategori === 'Berat' ? 'selected' : ''}>Berat</option>
+              </select>
+
+              <input type="date" value="${state.filters.rekapStartDate}" onchange="window.app.setFilter('rekapStartDate', this.value)" class="px-2.5 py-1.5 rounded-xl bg-white border border-slate-200 text-xs" title="Dari Tanggal" />
+              <input type="date" value="${state.filters.rekapEndDate}" onchange="window.app.setFilter('rekapEndDate', this.value)" class="px-2.5 py-1.5 rounded-xl bg-white border border-slate-200 text-xs" title="Sampai Tanggal" />
+            </div>
+
+            <div class="flex flex-wrap items-center gap-2">
+              <button onclick="window.app.syncAllData(true)" class="px-3.5 py-2 rounded-xl bg-slate-700 hover:bg-slate-800 text-white text-xs font-bold transition flex items-center gap-1.5">
+                <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Refresh Real-Time
+              </button>
+              <button onclick="window.app.downloadPDFReportA4()" class="px-4 py-2 rounded-xl bg-[#EB8A5E] hover:bg-[#d97448] text-white text-xs font-bold transition flex items-center gap-1.5 shadow-md">
+                <i data-lucide="file-down" class="w-4 h-4"></i> Download PDF A4
+              </button>
+              <button onclick="window.print()" class="px-4 py-2 rounded-xl bg-[#2A4756] hover:bg-[#1E3542] text-white text-xs font-bold transition flex items-center gap-1.5 shadow-md">
+                <i data-lucide="printer" class="w-4 h-4"></i> Cetak Kertas A4
+              </button>
+            </div>
+          </div>
+
+          <!-- LIVE A4 SHEET PREVIEW WITH OFFICIAL KOP SURAT -->
+          <div class="overflow-x-auto py-2">
+            <div id="printable-a4-area" class="a4-sheet">
+              
+              <!-- KOP SURAT RESMI SMP NEGERI 71 BANDUNG -->
+              ${cfg.kop_surat_url && cfg.kop_surat_url.trim() !== '' ? `
+                <div class="mb-4 pb-2 border-b-4 border-double border-black">
+                  <img src="${cfg.kop_surat_url}" alt="Kop Surat SMPN 71 Bandung" class="w-full max-h-36 object-contain mx-auto" />
+                </div>
+              ` : `
+                <div class="flex items-center justify-between gap-4 pb-3 mb-4 border-b-4 border-double border-black">
+                  <img src="${cfg.logo_url || DEFAULT_SETTINGS.logo_url}" alt="Logo" class="w-20 h-20 object-contain shrink-0" />
+                  <div class="text-center flex-1">
+                    <div class="text-sm font-bold uppercase tracking-wider">PEMERINTAH KOTA BANDUNG</div>
+                    <div class="text-base font-bold uppercase tracking-wider">DINAS PENDIDIKAN</div>
+                    <div class="text-xl font-extrabold uppercase tracking-wide mt-0.5">${cfg.school_name || 'SMP NEGERI 71 BANDUNG'}</div>
+                    <div class="text-[11px] mt-1">${cfg.school_address || DEFAULT_SETTINGS.school_address}</div>
+                    <div class="text-[11px] italic">Laman: www.smpn71bandung.sch.id • Pos-el: info@smpn71bandung.sch.id</div>
+                  </div>
+                  <div class="w-16 shrink-0 text-right text-[10px] font-bold">KODE POS<br/>40111</div>
+                </div>
+              `}
+
+              <!-- JUDUL LAPORAN RESMI -->
+              <div class="text-center my-4">
+                <h2 class="text-base font-bold uppercase underline tracking-wide">LAPORAN REKAPITULASI POIN PELANGGARAN & PEMBINAAN SISWA</h2>
+                <p class="text-xs mt-1">
+                  Kelas: <b>${state.filters.rekapKelas === 'SEMUA' ? 'Semua Rombongan Belajar' : state.filters.rekapKelas}</b> |
+                  Kategori: <b>${state.filters.rekapKategori === 'SEMUA' ? 'Semua Kategori' : state.filters.rekapKategori}</b> |
+                  Status Data: <b>Real-Time (${todayFormatted})</b>
+                </p>
+              </div>
+
+              <!-- RINGKASAN EKSEKUTIF -->
+              <div class="grid grid-cols-3 gap-3 mb-4 text-xs border border-black p-2.5">
+                <div>Total Kasus Tercatat: <b>${filtered.length} Kasus</b></div>
+                <div>Total Akumulasi Poin: <b>${totalPoinRekap} Poin</b></div>
+                <div>Dicetak Oleh: <b>${state.currentUser.name}</b></div>
+              </div>
+
+              <!-- TABEL DATA LAPORAN A4 -->
+              <table class="w-full border-collapse border border-black text-[11px] mb-6">
+                <thead>
+                  <tr class="bg-slate-100">
+                    <th class="border border-black py-1.5 px-2 text-center w-8">No</th>
+                    <th class="border border-black py-1.5 px-2">Tanggal</th>
+                    <th class="border border-black py-1.5 px-2">NISN & Nama Siswa</th>
+                    <th class="border border-black py-1.5 px-2 text-center">Kelas</th>
+                    <th class="border border-black py-1.5 px-2">Kode & Uraian Pelanggaran</th>
+                    <th class="border border-black py-1.5 px-2 text-center">Poin</th>
+                    <th class="border border-black py-1.5 px-2">Tindak Lanjut / Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${filtered.length === 0 ? `
+                    <tr>
+                      <td colspan="7" class="border border-black py-6 text-center italic">Tidak ada catatan pelanggaran pada kriteria ini.</td>
+                    </tr>
+                  ` : filtered.map((item, idx) => `
+                    <tr>
+                      <td class="border border-black py-1.5 px-2 text-center">${idx + 1}</td>
+                      <td class="border border-black py-1.5 px-2 whitespace-nowrap">${item.tanggal || '-'}</td>
+                      <td class="border border-black py-1.5 px-2">
+                        <b>${item.nama_siswa}</b><br/>NISN: ${item.nisn}
+                      </td>
+                      <td class="border border-black py-1.5 px-2 text-center font-bold">${item.kelas}</td>
+                      <td class="border border-black py-1.5 px-2">
+                        <b>[${item.kode_aturan || 'AT'}]</b> ${item.nama_pelanggaran} (${item.kategori})
+                      </td>
+                      <td class="border border-black py-1.5 px-2 text-center font-bold">+${item.poin}</td>
+                      <td class="border border-black py-1.5 px-2">${item.status_penanganan} — ${item.catatan_tindak_lanjut || '-'}</td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+
+              <!-- TANDA TANGAN PENGESAHAN -->
+              <div class="grid grid-cols-2 gap-8 mt-10 text-xs">
+                <div class="text-center">
+                  <p>Mengetahui,</p>
+                  <p class="font-bold">Kepala ${cfg.school_name || 'SMP Negeri 71 Bandung'}</p>
+                  <div class="h-20"></div>
+                  <p class="font-bold underline">${cfg.kepsek_name || DEFAULT_SETTINGS.kepsek_name}</p>
+                  <p>NIP. ${cfg.kepsek_nip || DEFAULT_SETTINGS.kepsek_nip}</p>
+                </div>
+                <div class="text-center">
+                  <p>Bandung, ${todayFormatted}</p>
+                  <p class="font-bold">Koordinator Bimbingan & Konseling</p>
+                  <div class="h-20"></div>
+                  <p class="font-bold underline">${state.currentUser.name}</p>
+                  <p>Petugas Pencatat / BK</p>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    // ====================================================================
+    // VIEW 7: PENGATURAN SISTEM & MODE MAINTENANCE (ADMIN ONLY)
+    // ====================================================================
+    function renderPengaturanView(container) {
+      const cfg = state.db.settings || DEFAULT_SETTINGS;
+
+      container.innerHTML = `
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+          
+          <!-- Left Column: Identitas Aplikasi, Logo, Background & Kop Surat -->
+          <div class="lg:col-span-7 rounded-[26px] glass-card p-6 space-y-5">
+            <div class="flex items-center justify-between border-b border-slate-200 pb-3">
+              <div>
+                <h3 class="text-base font-extrabold text-slate-800">Identitas & Visual Aplikasi</h3>
+                <p class="text-xs text-slate-500">Ubah nama aplikasi, unggah logo, background PNG/JPEG, dan kop surat laporan</p>
+              </div>
+              <i data-lucide="sliders" class="w-5 h-5 text-[#6B8E9B]"></i>
+            </div>
+
+            <form onsubmit="window.app.saveSettingsForm(event)" class="space-y-4">
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-xs font-bold text-slate-700 mb-1">Nama Aplikasi</label>
+                  <input type="text" id="set-app-name" value="${cfg.app_name || ''}" required class="w-full px-3.5 py-2 rounded-xl bg-white border border-slate-200 text-xs font-semibold" />
+                </div>
+                <div>
+                  <label class="block text-xs font-bold text-slate-700 mb-1">Nama Sekolah / Instansi</label>
+                  <input type="text" id="set-school-name" value="${cfg.school_name || ''}" required class="w-full px-3.5 py-2 rounded-xl bg-white border border-slate-200 text-xs font-semibold" />
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-xs font-bold text-slate-700 mb-1">Nama Kepala Sekolah (Untuk PDF A4)</label>
+                  <input type="text" id="set-kepsek-name" value="${cfg.kepsek_name || DEFAULT_SETTINGS.kepsek_name}" class="w-full px-3.5 py-2 rounded-xl bg-white border border-slate-200 text-xs" />
+                </div>
+                <div>
+                  <label class="block text-xs font-bold text-slate-700 mb-1">NIP Kepala Sekolah</label>
+                  <input type="text" id="set-kepsek-nip" value="${cfg.kepsek_nip || DEFAULT_SETTINGS.kepsek_nip}" class="w-full px-3.5 py-2 rounded-xl bg-white border border-slate-200 text-xs" />
+                </div>
+              </div>
+
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">Alamat Lengkap Kop Surat</label>
+                <input type="text" id="set-school-address" value="${cfg.school_address || DEFAULT_SETTINGS.school_address}" class="w-full px-3.5 py-2 rounded-xl bg-white border border-slate-200 text-xs" />
+              </div>
+
+              <!-- Upload Logo, Background PNG/JPEG & Kop Surat -->
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
+                <!-- Upload Logo -->
+                <div class="p-3 rounded-2xl bg-slate-50 border border-slate-200/80 text-center">
+                  <div class="text-[11px] font-bold text-slate-700 mb-2">Logo Aplikasi</div>
+                  <img id="preview-set-logo" src="${cfg.logo_url || DEFAULT_SETTINGS.logo_url}" class="w-12 h-12 rounded-xl mx-auto object-cover mb-2 border" />
+                  <input type="file" id="file-logo-upload" accept="image/png,image/jpeg,image/webp" class="hidden" onchange="window.app.handleImageUpload(event, 'logo_url', 'preview-set-logo')" />
+                  <button type="button" onclick="document.getElementById('file-logo-upload').click()" class="px-3 py-1 rounded-lg bg-[#6B8E9B] text-white text-[11px] font-bold">Pilih PNG/JPEG</button>
+                </div>
+
+                <!-- Upload Background Latar Belakang -->
+                <div class="p-3 rounded-2xl bg-slate-50 border border-slate-200/80 text-center">
+                  <div class="text-[11px] font-bold text-slate-700 mb-2">Background Latar</div>
+                  <div class="w-12 h-12 rounded-xl mx-auto mb-2 border bg-cover bg-center" id="preview-set-bg" style="background-image: url('${cfg.bg_url || 'https://placehold.co/100x100/3E5463/FFFFFF?text=BG'}')"></div>
+                  <input type="file" id="file-bg-upload" accept="image/png,image/jpeg,image/webp" class="hidden" onchange="window.app.handleImageUpload(event, 'bg_url', 'preview-set-bg')" />
+                  <button type="button" onclick="document.getElementById('file-bg-upload').click()" class="px-3 py-1 rounded-lg bg-[#6B8E9B] text-white text-[11px] font-bold">Upload BG</button>
+                </div>
+
+                <!-- Upload Kop Surat -->
+                <div class="p-3 rounded-2xl bg-slate-50 border border-slate-200/80 text-center">
+                  <div class="text-[11px] font-bold text-slate-700 mb-2">Kop Surat A4</div>
+                  <div class="text-[10px] text-slate-500 h-12 flex items-center justify-center border rounded-xl mb-2 bg-white px-2">
+                    ${cfg.kop_surat_url ? 'Kop Kustom Aktif' : 'Kop Standar Aktif'}
+                  </div>
+                  <input type="file" id="file-kop-upload" accept="image/png,image/jpeg" class="hidden" onchange="window.app.handleImageUpload(event, 'kop_surat_url', null)" />
+                  <button type="button" onclick="document.getElementById('file-kop-upload').click()" class="px-3 py-1 rounded-lg bg-[#6B8E9B] text-white text-[11px] font-bold">Upload Kop</button>
+                </div>
+              </div>
+
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">Tingkat Transparansi Latar Kaca (Glassmorphism Opacity)</label>
+                <input type="range" id="set-canvas-opacity" min="0.65" max="0.96" step="0.02" value="${cfg.canvas_opacity || 0.88}" oninput="document.getElementById('sipps-root-wrapper').style.setProperty('--canvas-opacity', this.value)" class="w-full accent-[#2A4756]" />
+              </div>
+
+              <button type="submit" class="w-full py-3 rounded-2xl bg-[#2A4756] hover:bg-[#1E3542] text-white text-xs font-bold shadow-md transition flex items-center justify-center gap-2">
+                <i data-lucide="save" class="w-4 h-4"></i> Simpan & Sinkronkan Pengaturan
+              </button>
+            </form>
+          </div>
+
+          <!-- Right Column: Fitur Maintenance (Mode Pemeliharaan) -->
+          <div class="lg:col-span-5 rounded-[26px] glass-card p-6 flex flex-col justify-between space-y-5">
+            <div>
+              <div class="flex items-center justify-between border-b border-slate-200 pb-3 mb-4">
+                <div>
+                  <h3 class="text-base font-extrabold text-slate-800">Mode Pemeliharaan (Maintenance)</h3>
+                  <p class="text-xs text-slate-500">Tutup sementara akses untuk Siswa, Guru BK & Wali Murid</p>
+                </div>
+                <div class="w-10 h-10 rounded-2xl ${cfg.is_maintenance ? 'bg-amber-500 text-white' : 'bg-slate-100 text-slate-600'} flex items-center justify-center">
+                  <i data-lucide="wrench" class="w-5 h-5"></i>
+                </div>
+              </div>
+
+              <div class="p-4 rounded-2xl ${cfg.is_maintenance ? 'bg-amber-50 border border-amber-300' : 'bg-emerald-50 border border-emerald-200'} mb-4">
+                <div class="flex items-center justify-between">
+                  <div>
+                    <div class="text-xs font-extrabold ${cfg.is_maintenance ? 'text-amber-900' : 'text-emerald-900'}">
+                      Status Saat Ini: ${cfg.is_maintenance ? 'MAINTENANCE AKTIF' : 'SISTEM ONLINE NORMAL'}
+                    </div>
+                    <div class="text-[11px] ${cfg.is_maintenance ? 'text-amber-700' : 'text-emerald-700'} mt-0.5">
+                      ${cfg.is_maintenance
+                        ? 'Semua pengguna non-admin langsung diarahkan ke layar "Sistem Sedang Diperbaiki".'
+                        : 'Seluruh peran (Admin, Guru BK, Wali Murid, Siswa) dapat mengakses SIPPS.'}
+                    </div>
+                  </div>
+                  <input type="checkbox" id="toggle-maint-switch" ${cfg.is_maintenance ? 'checked' : ''} onchange="window.app.toggleMaintenanceModeSetting(this.checked)" class="w-5 h-5 accent-amber-600 cursor-pointer" />
+                </div>
+              </div>
+
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1.5">Pesan Informasi pada Halaman "Sistem Sedang Diperbaiki"</label>
+                <textarea id="set-maint-message" rows="4" class="w-full p-3 rounded-2xl bg-white border border-slate-200 text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#6B8E9B]">${cfg.maintenance_message || DEFAULT_SETTINGS.maintenance_message}</textarea>
+              </div>
+            </div>
+
+            <div class="space-y-2.5 pt-3 border-t border-slate-200">
+              <button type="button" onclick="window.app.previewMaintenanceScreenAsAdmin()" class="w-full py-2.5 rounded-xl bg-[#F5DFD3] hover:bg-[#ebd0c0] text-[#2A4756] text-xs font-extrabold transition flex items-center justify-center gap-2">
+                <i data-lucide="eye" class="w-4 h-4"></i> Lihat Tampilan Layar "Sistem Sedang Diperbaiki"
+              </button>
+            </div>
+          </div>
+
+        </div>
+      `;
+    }
+
+    // ====================================================================
+    // CRUD OPERATIONS & AUTOMATIC REAL-TIME NOTIFICATION DISPATCH
+    // ====================================================================
+    function openModalPelanggaran(editId = null) {
+      const item = editId ? state.db.pelanggaran.find(p => p.id === editId) : null;
+      const modalTitle = document.getElementById('modal-title');
+      const modalBody = document.getElementById('modal-body');
+
+      modalTitle.textContent = item ? 'Edit Catatan Pelanggaran Siswa' : 'Catat Poin Pelanggaran Baru';
+      modalBody.innerHTML = `
+        <form onsubmit="window.app.savePelanggaranForm(event, '${editId || ''}')" class="space-y-3.5 text-xs">
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Tanggal Kejadian</label>
+            <input type="date" id="form-pel-tanggal" required value="${item?.tanggal || new Date().toISOString().slice(0, 10)}" class="w-full px-3 py-2 rounded-xl border border-slate-200" />
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Pilih Siswa</label>
+            <select id="form-pel-siswa" required class="w-full px-3 py-2 rounded-xl border border-slate-200 font-semibold">
+              <option value="">-- Pilih Nama Siswa & Kelas --</option>
+              ${state.db.siswa.map(s => `
+                <option value="${s.id}" ${item?.siswa_id === s.id || item?.nisn === s.nisn ? 'selected' : ''}>
+                  ${s.nama_siswa} (Kelas ${s.kelas} • NISN: ${s.nisn})
+                </option>
+              `).join('')}
+            </select>
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Pilih Pasal Aturan Tata Tertib</label>
+            <select id="form-pel-aturan" required class="w-full px-3 py-2 rounded-xl border border-slate-200 font-semibold">
+              <option value="">-- Pilih Kode & Jenis Pelanggaran --</option>
+              ${state.db.aturan.map(a => `
+                <option value="${a.id}" ${item?.aturan_id === a.id || item?.kode_aturan === a.kode_aturan ? 'selected' : ''}>
+                  [${a.kode_aturan}] ${a.nama_pelanggaran} (+${a.poin} Poin - ${a.kategori})
+                </option>
+              `).join('')}
+            </select>
+          </div>
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block font-bold text-slate-700 mb-1">Status Penanganan</label>
+              <select id="form-pel-status" class="w-full px-3 py-2 rounded-xl border border-slate-200 font-semibold">
+                <option value="Tercatat" ${item?.status_penanganan === 'Tercatat' ? 'selected' : ''}>Tercatat</option>
+                <option value="Dalam Pembinaan" ${item?.status_penanganan === 'Dalam Pembinaan' ? 'selected' : ''}>Dalam Pembinaan</option>
+                <option value="Selesai" ${item?.status_penanganan === 'Selesai' ? 'selected' : ''}>Selesai</option>
+              </select>
+            </div>
+            <div>
+              <label class="block font-bold text-slate-700 mb-1">Petugas Pencatat</label>
+              <input type="text" id="form-pel-pelapor" value="${item?.pelapor || state.currentUser.name}" class="w-full px-3 py-2 rounded-xl border border-slate-200" />
+            </div>
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Catatan Tindak Lanjut Pembinaan</label>
+            <textarea id="form-pel-catatan" rows="2" placeholder="Catatan konseling / pembinaan..." class="w-full px-3 py-2 rounded-xl border border-slate-200">${item?.catatan_tindak_lanjut || ''}</textarea>
+          </div>
+          <div class="pt-3 flex justify-end gap-2">
+            <button type="button" onclick="window.app.closeModal()" class="px-4 py-2 rounded-xl bg-slate-100 text-slate-600 font-bold">Batal</button>
+            <button type="submit" class="px-5 py-2 rounded-xl bg-[#2A4756] text-white font-bold">Simpan & Kirim Notifikasi</button>
+          </div>
+        </form>
+      `;
+      document.getElementById('modal-overlay').classList.remove('hidden');
+    }
+
+    async function savePelanggaranForm(e, editId) {
+      e.preventDefault();
+      const siswaId = document.getElementById('form-pel-siswa').value;
+      const aturanId = document.getElementById('form-pel-aturan').value;
+      const sw = state.db.siswa.find(s => s.id === siswaId);
+      const at = state.db.aturan.find(a => a.id === aturanId);
+      if (!sw || !at) return showToast("Pilih siswa dan aturan dengan benar.", "error");
+
+      const payload = {
+        tanggal: document.getElementById('form-pel-tanggal').value,
+        siswa_id: sw.id,
+        nisn: sw.nisn,
+        nama_siswa: sw.nama_siswa,
+        kelas: sw.kelas,
+        aturan_id: at.id,
+        kode_aturan: at.kode_aturan,
+        nama_pelanggaran: at.nama_pelanggaran,
+        kategori: at.kategori,
+        poin: Number(at.poin),
+        pelapor: document.getElementById('form-pel-pelapor').value.trim(),
+        catatan_tindak_lanjut: document.getElementById('form-pel-catatan').value.trim(),
+        status_penanganan: document.getElementById('form-pel-status').value
+      };
+
+      try {
+        if (IS_PREVIEW) {
+          if (editId) {
+            const idx = state.db.pelanggaran.findIndex(p => p.id === editId);
+            if (idx > -1) state.db.pelanggaran[idx] = { ...state.db.pelanggaran[idx], ...payload };
+          } else {
+            state.db.pelanggaran.unshift({ id: 'pl-' + Date.now(), ...payload });
+            // Auto generate Real-time Notification for Student & Parent
+            state.db.notifikasi.unshift({
+              id: 'nt-' + Date.now(),
+              judul: `Pencatatan Poin Pelanggaran (${payload.kode_aturan})`,
+              isi_pesan: `Ananda ${payload.nama_siswa} (${payload.kelas}) tercatat melanggar aturan ${payload.nama_pelanggaran} (+${payload.poin} Poin). Tindak lanjut: ${payload.catatan_tindak_lanjut || 'Pembinaan'}.`,
+              tipe: 'Pelanggaran Otomatis',
+              target_role: 'Semua',
+              target_kelas: payload.kelas,
+              target_nisn: payload.nisn,
+              target_nama: payload.nama_siswa,
+              pengirim: payload.pelapor,
+              is_read: false,
+              created_at: new Date().toISOString()
+            });
+          }
+          recalculateAllStudentPointsLocal();
+          savePreviewLocal();
+        } else {
+          if (editId) {
+            const { error } = await supabase.from('sipps_pelanggaran').update(payload).eq('id', editId);
+            if (error) throw error;
+          } else {
+            const { error } = await supabase.from('sipps_pelanggaran').insert([payload]);
+            if (error) throw error;
+            await supabase.from('sipps_notifikasi').insert([{
+              judul: `Pencatatan Poin Pelanggaran (${payload.kode_aturan})`,
+              isi_pesan: `Ananda ${payload.nama_siswa} (${payload.kelas}) tercatat melanggar aturan ${payload.nama_pelanggaran} (+${payload.poin} Poin).`,
+              tipe: 'Pelanggaran Otomatis',
+              target_role: 'Semua',
+              target_kelas: payload.kelas,
+              target_nisn: payload.nisn,
+              target_nama: payload.nama_siswa,
+              pengirim: payload.pelapor,
+              is_read: false
+            }]);
+          }
+          await loadAllDatabase(false);
+        }
+
+        closeModal();
+        renderNotificationDrawer();
+        renderActiveView();
+        showToast("Catatan pelanggaran disimpan & notifikasi otomatis dikirim!", "success");
+      } catch (err) {
+        showToast("Gagal menyimpan: " + err.message, "error");
+      }
+    }
+
+    function openModalSiswa(editId = null) {
+      const s = editId ? state.db.siswa.find(x => x.id === editId) : null;
+      document.getElementById('modal-title').textContent = s ? 'Edit Identitas Siswa' : 'Tambah Identitas Siswa Baru';
+      document.getElementById('modal-body').innerHTML = `
+        <form onsubmit="window.app.saveSiswaForm(event, '${editId || ''}')" class="space-y-3 text-xs">
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block font-bold text-slate-700 mb-1">NISN (ID Login)</label>
+              <input type="text" id="form-sw-nisn" required value="${s?.nisn || ''}" class="w-full px-3 py-2 rounded-xl border border-slate-200" />
+            </div>
+            <div>
+              <label class="block font-bold text-slate-700 mb-1">NIS Sekolah</label>
+              <input type="text" id="form-sw-nis" value="${s?.nis || ''}" class="w-full px-3 py-2 rounded-xl border border-slate-200" />
+            </div>
+          </div>
+          <div class="grid grid-cols-3 gap-3">
+            <div class="col-span-2">
+              <label class="block font-bold text-slate-700 mb-1">Nama Lengkap Siswa</label>
+              <input type="text" id="form-sw-nama" required value="${s?.nama_siswa || ''}" class="w-full px-3 py-2 rounded-xl border border-slate-200" />
+            </div>
+            <div>
+              <label class="block font-bold text-slate-700 mb-1">Kelas</label>
+              <input type="text" id="form-sw-kelas" required placeholder="VIII-A" value="${s?.kelas || 'VII-A'}" class="w-full px-3 py-2 rounded-xl border border-slate-200" />
+            </div>
+          </div>
+          <div class="grid grid-cols-3 gap-3">
+            <div>
+              <label class="block font-bold text-slate-700 mb-1">L/P</label>
+              <select id="form-sw-jk" class="w-full px-3 py-2 rounded-xl border border-slate-200">
+                <option value="L" ${s?.jenis_kelamin === 'L' ? 'selected' : ''}>Laki-laki (L)</option>
+                <option value="P" ${s?.jenis_kelamin === 'P' ? 'selected' : ''}>Perempuan (P)</option>
+              </select>
+            </div>
+            <div>
+              <label class="block font-bold text-slate-700 mb-1">Nama Wali Murid</label>
+              <input type="text" id="form-sw-wali" required value="${s?.nama_wali || ''}" class="w-full px-3 py-2 rounded-xl border border-slate-200" />
+            </div>
+            <div>
+              <label class="block font-bold text-slate-700 mb-1">No. HP Wali</label>
+              <input type="text" id="form-sw-hp" value="${s?.no_hp_wali || ''}" class="w-full px-3 py-2 rounded-xl border border-slate-200" />
+            </div>
+          </div>
+          <div class="grid grid-cols-2 gap-3 pt-1">
+            <div>
+              <label class="block font-bold text-slate-700 mb-1">Sandi Login Siswa</label>
+              <input type="text" id="form-sw-pass-siswa" required value="${s?.password_siswa || 'siswa123'}" class="w-full px-3 py-2 rounded-xl border border-slate-200" />
+            </div>
+            <div>
+              <label class="block font-bold text-slate-700 mb-1">Sandi Login Wali Murid</label>
+              <input type="text" id="form-sw-pass-wali" required value="${s?.password_wali || 'wali123'}" class="w-full px-3 py-2 rounded-xl border border-slate-200" />
+            </div>
+          </div>
+          <div class="pt-3 flex justify-end gap-2">
+            <button type="button" onclick="window.app.closeModal()" class="px-4 py-2 rounded-xl bg-slate-100 text-slate-600 font-bold">Batal</button>
+            <button type="submit" class="px-5 py-2 rounded-xl bg-[#2A4756] text-white font-bold">Simpan Data Siswa</button>
+          </div>
+        </form>
+      `;
+      document.getElementById('modal-overlay').classList.remove('hidden');
+    }
+
+    async function saveSiswaForm(e, editId) {
+      e.preventDefault();
+      const payload = {
+        nisn: document.getElementById('form-sw-nisn').value.trim(),
+        nis: document.getElementById('form-sw-nis').value.trim(),
+        nama_siswa: document.getElementById('form-sw-nama').value.trim(),
+        kelas: document.getElementById('form-sw-kelas').value.trim().toUpperCase(),
+        jenis_kelamin: document.getElementById('form-sw-jk').value,
+        nama_wali: document.getElementById('form-sw-wali').value.trim(),
+        no_hp_wali: document.getElementById('form-sw-hp').value.trim(),
+        password_siswa: document.getElementById('form-sw-pass-siswa').value.trim(),
+        password_wali: document.getElementById('form-sw-pass-wali').value.trim()
+      };
+
+      try {
+        if (IS_PREVIEW) {
+          if (editId) {
+            const idx = state.db.siswa.findIndex(x => x.id === editId);
+            if (idx > -1) state.db.siswa[idx] = { ...state.db.siswa[idx], ...payload };
+          } else {
+            state.db.siswa.push({ id: 'sw-' + Date.now(), total_poin: 0, status_pembinaan: 'Aman / Disiplin Baik', ...payload });
+          }
+          recalculateAllStudentPointsLocal();
+          savePreviewLocal();
+        } else {
+          if (editId) {
+            const { error } = await supabase.from('sipps_siswa').update(payload).eq('id', editId);
+            if (error) throw error;
+          } else {
+            const { error } = await supabase.from('sipps_siswa').insert([payload]);
+            if (error) throw error;
+          }
+          await loadAllDatabase(false);
+        }
+        closeModal();
+        renderActiveView();
+        showToast("Data identitas siswa berhasil disimpan.", "success");
+      } catch (err) {
+        showToast("Gagal menyimpan siswa: " + err.message, "error");
+      }
+    }
+
+    function openModalAturan(editId = null) {
+      const a = editId ? state.db.aturan.find(x => x.id === editId) : null;
+      document.getElementById('modal-title').textContent = a ? 'Edit Pasal Katalog Aturan' : 'Tambah Pasal Aturan & Buku Saku';
+      document.getElementById('modal-body').innerHTML = `
+        <form onsubmit="window.app.saveAturanForm(event, '${editId || ''}')" class="space-y-3 text-xs">
+          <div class="grid grid-cols-3 gap-3">
+            <div>
+              <label class="block font-bold text-slate-700 mb-1">Kode Pasal</label>
+              <input type="text" id="form-at-kode" required placeholder="KR-02" value="${a?.kode_aturan || ''}" class="w-full px-3 py-2 rounded-xl border border-slate-200" />
+            </div>
+            <div>
+              <label class="block font-bold text-slate-700 mb-1">Kategori</label>
+              <select id="form-at-kategori" class="w-full px-3 py-2 rounded-xl border border-slate-200 font-semibold">
+                <option value="Ringan" ${a?.kategori === 'Ringan' ? 'selected' : ''}>Ringan</option>
+                <option value="Sedang" ${a?.kategori === 'Sedang' ? 'selected' : ''}>Sedang</option>
+                <option value="Berat" ${a?.kategori === 'Berat' ? 'selected' : ''}>Berat</option>
+              </select>
+            </div>
+            <div>
+              <label class="block font-bold text-slate-700 mb-1">Bobot Poin</label>
+              <input type="number" id="form-at-poin" required min="1" max="100" value="${a?.poin || 10}" class="w-full px-3 py-2 rounded-xl border border-slate-200" />
+            </div>
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Nama / Uraian Pelanggaran Tata Tertib</label>
+            <textarea id="form-at-nama" rows="2" required class="w-full px-3 py-2 rounded-xl border border-slate-200">${a?.nama_pelanggaran || ''}</textarea>
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Pedoman Sanksi & Tindak Lanjut Buku Saku</label>
+            <textarea id="form-at-sanksi" rows="2" required class="w-full px-3 py-2 rounded-xl border border-slate-200">${a?.sanksi_tindak_lanjut || ''}</textarea>
+          </div>
+          <div class="pt-3 flex justify-end gap-2">
+            <button type="button" onclick="window.app.closeModal()" class="px-4 py-2 rounded-xl bg-slate-100 text-slate-600 font-bold">Batal</button>
+            <button type="submit" class="px-5 py-2 rounded-xl bg-[#2A4756] text-white font-bold">Simpan Katalog Aturan</button>
+          </div>
+        </form>
+      `;
+      document.getElementById('modal-overlay').classList.remove('hidden');
+    }
+
+    async function saveAturanForm(e, editId) {
+      e.preventDefault();
+      const payload = {
+        kode_aturan: document.getElementById('form-at-kode').value.trim().toUpperCase(),
+        kategori: document.getElementById('form-at-kategori').value,
+        poin: Number(document.getElementById('form-at-poin').value),
+        nama_pelanggaran: document.getElementById('form-at-nama').value.trim(),
+        sanksi_tindak_lanjut: document.getElementById('form-at-sanksi').value.trim()
+      };
+
+      try {
+        if (IS_PREVIEW) {
+          if (editId) {
+            const idx = state.db.aturan.findIndex(x => x.id === editId);
+            if (idx > -1) state.db.aturan[idx] = { ...state.db.aturan[idx], ...payload };
+          } else {
+            state.db.aturan.push({ id: 'at-' + Date.now(), ...payload });
+          }
+          savePreviewLocal();
+        } else {
+          if (editId) {
+            const { error } = await supabase.from('sipps_aturan').update(payload).eq('id', editId);
+            if (error) throw error;
+          } else {
+            const { error } = await supabase.from('sipps_aturan').insert([payload]);
+            if (error) throw error;
+          }
+          await loadAllDatabase(false);
+        }
+        closeModal();
+        renderActiveView();
+        showToast("Katalog aturan & buku saku berhasil diperbarui.", "success");
+      } catch (err) {
+        showToast("Gagal menyimpan aturan: " + err.message, "error");
+      }
+    }
+
+    // CRUD Pesan & Notifikasi Tujuan Penerima (Filter Per Kelas & Nama)
+    function openModalNotifikasi(editId = null) {
+      const n = editId ? state.db.notifikasi.find(x => x.id === editId) : null;
+      const classes = getUniqueClasses();
+      document.getElementById('modal-title').textContent = n ? 'Edit Pesan & Tujuan Penerima' : 'Kirim Pesan / Notifikasi Baru';
+
+      document.getElementById('modal-body').innerHTML = `
+        <form onsubmit="window.app.saveNotifikasiForm(event, '${editId || ''}')" class="space-y-3 text-xs">
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block font-bold text-slate-700 mb-1">Kategori Pesan</label>
+              <select id="form-nt-tipe" class="w-full px-3 py-2 rounded-xl border border-slate-200 font-semibold">
+                <option value="Panggilan BK" ${n?.tipe === 'Panggilan BK' ? 'selected' : ''}>Surat Panggilan BK</option>
+                <option value="Pengumuman" ${n?.tipe === 'Pengumuman' ? 'selected' : ''}>Pengumuman Kelas/Sekolah</option>
+                <option value="Pelanggaran Otomatis" ${n?.tipe === 'Pelanggaran Otomatis' ? 'selected' : ''}>Peringatan Poin Siswa</option>
+              </select>
+            </div>
+            <div>
+              <label class="block font-bold text-slate-700 mb-1">Peran Tujuan</label>
+              <select id="form-nt-role" class="w-full px-3 py-2 rounded-xl border border-slate-200 font-semibold">
+                <option value="Semua" ${n?.target_role === 'Semua' ? 'selected' : ''}>Siswa & Wali Murid</option>
+                <option value="Wali Murid" ${n?.target_role === 'Wali Murid' ? 'selected' : ''}>Khusus Wali Murid</option>
+                <option value="Siswa" ${n?.target_role === 'Siswa' ? 'selected' : ''}>Khusus Siswa</option>
+                <option value="Guru BK" ${n?.target_role === 'Guru BK' ? 'selected' : ''}>Internal Guru BK</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="p-3 rounded-2xl bg-slate-50 border border-slate-200 space-y-3">
+            <div class="font-extrabold text-slate-700 flex items-center gap-1.5">
+              <i data-lucide="filter" class="w-3.5 h-3.5 text-[#6B8E9B]"></i> Filter & Pisah Tujuan Penerima (Per Kelas / Nama)
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block font-bold text-slate-600 mb-1">Pilih Kelas Tujuan</label>
+                <select id="form-nt-kelas" onchange="window.app.populateRecipientDropdownByClass(this.value)" class="w-full px-3 py-2 rounded-xl bg-white border border-slate-200 font-semibold">
+                  <option value="Semua Kelas" ${n?.target_kelas === 'Semua Kelas' ? 'selected' : ''}>Semua Kelas</option>
+                  ${classes.map(c => `<option value="${c}" ${n?.target_kelas === c ? 'selected' : ''}>Kelas ${c}</option>`).join('')}
+                </select>
+              </div>
+              <div>
+                <label class="block font-bold text-slate-600 mb-1">Pilih Nama Siswa / Wali Spesifik</label>
+                <select id="form-nt-recipient" class="w-full px-3 py-2 rounded-xl bg-white border border-slate-200 font-semibold">
+                  <!-- Populated dynamically -->
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Judul Pesan / Notifikasi</label>
+            <input type="text" id="form-nt-judul" required placeholder="Contoh: Undangan Konsultasi Pembinaan Siswa" value="${n?.judul || ''}" class="w-full px-3 py-2 rounded-xl border border-slate-200 font-semibold" />
+          </div>
+
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Isi Pesan Lengkap</label>
+            <textarea id="form-nt-isi" rows="3" required placeholder="Tuliskan detail informasi atau jadwal panggilan..." class="w-full px-3 py-2 rounded-xl border border-slate-200">${n?.isi_pesan || ''}</textarea>
+          </div>
+
+          <div class="pt-3 flex justify-end gap-2">
+            <button type="button" onclick="window.app.closeModal()" class="px-4 py-2 rounded-xl bg-slate-100 text-slate-600 font-bold">Batal</button>
+            <button type="submit" class="px-5 py-2 rounded-xl bg-[#2A4756] text-white font-bold">Kirim & Sinkronkan</button>
+          </div>
+        </form>
+      `;
+
+      document.getElementById('modal-overlay').classList.remove('hidden');
+      populateRecipientDropdownByClass(n?.target_kelas || 'Semua Kelas', n?.target_nisn || '');
+      lucide.createIcons();
+    }
+
+    function populateRecipientDropdownByClass(selectedClass, selectedNisn = '') {
+      const selectEl = document.getElementById('form-nt-recipient');
+      if (!selectEl) return;
+      let students = [...state.db.siswa];
+      if (selectedClass && selectedClass !== 'Semua Kelas') {
+        students = students.filter(s => s.kelas === selectedClass);
+      }
+      selectEl.innerHTML = `
+        <option value="">-- Seluruh Anggota ${selectedClass} --</option>
+        ${students.map(s => `
+          <option value="${s.nisn}" ${s.nisn === selectedNisn ? 'selected' : ''}>
+            ${s.nama_siswa} (Wali: ${s.nama_wali || '-'} • ${s.kelas})
+          </option>
+        `).join('')}
+      `;
+    }
+
+    async function saveNotifikasiForm(e, editId) {
+      e.preventDefault();
+      const targetNisn = document.getElementById('form-nt-recipient').value;
+      const matchedStudent = targetNisn ? state.db.siswa.find(s => s.nisn === targetNisn) : null;
+
+      const payload = {
+        tipe: document.getElementById('form-nt-tipe').value,
+        target_role: document.getElementById('form-nt-role').value,
+        target_kelas: matchedStudent ? matchedStudent.kelas : document.getElementById('form-nt-kelas').value,
+        target_nisn: matchedStudent ? matchedStudent.nisn : '',
+        target_nama: matchedStudent ? matchedStudent.nama_siswa : '',
+        judul: document.getElementById('form-nt-judul').value.trim(),
+        isi_pesan: document.getElementById('form-nt-isi').value.trim(),
+        pengirim: state.currentUser.name,
+        is_read: false
+      };
+
+      try {
+        if (IS_PREVIEW) {
+          if (editId) {
+            const idx = state.db.notifikasi.findIndex(x => x.id === editId);
+            if (idx > -1) state.db.notifikasi[idx] = { ...state.db.notifikasi[idx], ...payload };
+          } else {
+            state.db.notifikasi.unshift({ id: 'nt-' + Date.now(), created_at: new Date().toISOString(), ...payload });
+          }
+          savePreviewLocal();
+        } else {
+          if (editId) {
+            const { error } = await supabase.from('sipps_notifikasi').update(payload).eq('id', editId);
+            if (error) throw error;
+          } else {
+            const { error } = await supabase.from('sipps_notifikasi').insert([payload]);
+            if (error) throw error;
+          }
+          await loadAllDatabase(false);
+        }
+        closeModal();
+        renderNotificationDrawer();
+        renderActiveView();
+        showToast("Pesan & Notifikasi berhasil dikirim dan disinkronkan!", "success");
+      } catch (err) {
+        showToast("Gagal menyimpan pesan: " + err.message, "error");
+      }
+    }
+
+    function confirmDelete(type, id, label) {
+      document.getElementById('modal-title').textContent = 'Konfirmasi Hapus Data';
+      document.getElementById('modal-body').innerHTML = `
+        <div class="text-xs text-slate-600 space-y-4">
+          <p>Apakah Anda yakin ingin menghapus data <b>"${label}"</b> secara permanen dari database?</p>
+          <div class="flex justify-end gap-2">
+            <button onclick="window.app.closeModal()" class="px-4 py-2 rounded-xl bg-slate-100 text-slate-700 font-bold">Batal</button>
+            <button onclick="window.app.executeDelete('${type}', '${id}')" class="px-4 py-2 rounded-xl bg-red-600 text-white font-bold">Ya, Hapus & Sinkronkan</button>
+          </div>
+        </div>
+      `;
+      document.getElementById('modal-overlay').classList.remove('hidden');
+    }
+
+    async function executeDelete(type, id) {
+      const tableMap = {
+        pelanggaran: 'sipps_pelanggaran',
+        siswa: 'sipps_siswa',
+        aturan: 'sipps_aturan',
+        notifikasi: 'sipps_notifikasi'
+      };
+      try {
+        if (IS_PREVIEW) {
+          state.db[type] = state.db[type].filter(x => x.id !== id);
+          recalculateAllStudentPointsLocal();
+          savePreviewLocal();
+        } else {
+          const { error } = await supabase.from(tableMap[type]).delete().eq('id', id);
+          if (error) throw error;
+          await loadAllDatabase(false);
+        }
+        closeModal();
+        renderNotificationDrawer();
+        renderActiveView();
+        showToast("Data berhasil dihapus dan disinkronkan.", "success");
+      } catch (err) {
+        showToast("Gagal menghapus: " + err.message, "error");
+      }
+    }
+
+    // ====================================================================
+    // EXCEL (.XLSX) IMPORT & EXPORT ENGINE FOR PELANGGARAN, SISWA, ATURAN
+    // ====================================================================
+    function exportExcelPelanggaran() {
+      const rows = state.db.pelanggaran.map((p, i) => ({
+        No: i + 1,
+        Tanggal: p.tanggal,
+        NISN: p.nisn,
+        Nama_Siswa: p.nama_siswa,
+        Kelas: p.kelas,
+        Kode_Aturan: p.kode_aturan,
+        Nama_Pelanggaran: p.nama_pelanggaran,
+        Kategori: p.kategori,
+        Poin: p.poin,
+        Pelapor: p.pelapor,
+        Catatan_Tindak_Lanjut: p.catatan_tindak_lanjut,
+        Status_Penanganan: p.status_penanganan
+      }));
+      const ws = XLSX.utils.json_to_sheet(rows);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "Data_Pelanggaran");
+      XLSX.writeFile(wb, `SIPPS71_Data_Pelanggaran_${new Date().toISOString().slice(0, 10)}.xlsx`);
+      showToast("Data Pelanggaran berhasil di-export ke format Excel (.xlsx)!", "success");
+    }
+
+    function importExcelPelanggaran(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = async (e) => {
+        try {
+          const data = new Uint8Array(e.target.result);
+          const workbook = XLSX.read(data, { type: 'array' });
+          const sheet = workbook.Sheets[workbook.SheetNames[0]];
+          const rows = XLSX.utils.sheet_to_json(sheet);
+          if (!rows.length) throw new Error("File Excel kosong.");
+
+          const mapped = rows.map((r, idx) => ({
+            id: 'pl-imp-' + Date.now() + '-' + idx,
+            tanggal: String(r.Tanggal || r.tanggal || new Date().toISOString().slice(0, 10)),
+            nisn: String(r.NISN || r.nisn || ''),
+            nama_siswa: String(r.Nama_Siswa || r.nama_siswa || 'Siswa'),
+            kelas: String(r.Kelas || r.kelas || 'VII-A'),
+            kode_aturan: String(r.Kode_Aturan || r.kode_aturan || 'KR-01'),
+            nama_pelanggaran: String(r.Nama_Pelanggaran || r.nama_pelanggaran || 'Pelanggaran Tata Tertib'),
+            kategori: String(r.Kategori || r.kategori || 'Ringan'),
+            poin: Number(r.Poin || r.poin || 10),
+            pelapor: String(r.Pelapor || r.pelapor || state.currentUser.name),
+            catatan_tindak_lanjut: String(r.Catatan_Tindak_Lanjut || r.catatan_tindak_lanjut || 'Hasil Import Excel'),
+            status_penanganan: String(r.Status_Penanganan || r.status_penanganan || 'Tercatat')
+          }));
+
+          if (IS_PREVIEW) {
+            state.db.pelanggaran = [...mapped, ...state.db.pelanggaran];
+            recalculateAllStudentPointsLocal();
+            savePreviewLocal();
+          } else {
+            const cleanInsert = mapped.map(({ id, ...rest }) => rest);
+            const { error } = await supabase.from('sipps_pelanggaran').insert(cleanInsert);
+            if (error) throw error;
+            await loadAllDatabase(false);
+          }
+          renderActiveView();
+          showToast(`${mapped.length} baris Data Pelanggaran berhasil di-import & disinkronkan!`, "success");
+        } catch (err) {
+          showToast("Gagal Import Excel Pelanggaran: " + err.message, "error");
+        } finally {
+          event.target.value = '';
+        }
+      };
+      reader.readAsArrayBuffer(file);
+    }
+
+    function exportExcelSiswa() {
+      const rows = state.db.siswa.map((s, i) => ({
+        No: i + 1,
+        NISN: s.nisn,
+        NIS: s.nis,
+        Nama_Siswa: s.nama_siswa,
+        Kelas: s.kelas,
+        Jenis_Kelamin: s.jenis_kelamin,
+        Nama_Wali: s.nama_wali,
+        No_HP_Wali: s.no_hp_wali,
+        Password_Siswa: s.password_siswa,
+        Password_Wali: s.password_wali,
+        Total_Poin: s.total_poin,
+        Status_Pembinaan: s.status_pembinaan
+      }));
+      const ws = XLSX.utils.json_to_sheet(rows);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "Identitas_Siswa");
+      XLSX.writeFile(wb, `SIPPS71_Identitas_Siswa_${new Date().toISOString().slice(0, 10)}.xlsx`);
+      showToast("Data Identitas Siswa berhasil di-export ke format Excel (.xlsx)!", "success");
+    }
+
+    function importExcelSiswa(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = async (e) => {
+        try {
+          const data = new Uint8Array(e.target.result);
+          const workbook = XLSX.read(data, { type: 'array' });
+          const sheet = workbook.Sheets[workbook.SheetNames[0]];
+          const rows = XLSX.utils.sheet_to_json(sheet);
+          if (!rows.length) throw new Error("File Excel kosong.");
+
+          const mapped = rows.map((r, idx) => ({
+            id: 'sw-imp-' + Date.now() + '-' + idx,
+            nisn: String(r.NISN || r.nisn || '009' + Math.floor(1000000 + Math.random() * 9000000)),
+            nis: String(r.NIS || r.nis || ''),
+            nama_siswa: String(r.Nama_Siswa || r.nama_siswa || 'Siswa Baru'),
+            kelas: String(r.Kelas || r.kelas || 'VII-A').toUpperCase(),
+            jenis_kelamin: String(r.Jenis_Kelamin || r.jenis_kelamin || 'L'),
+            nama_wali: String(r.Nama_Wali || r.nama_wali || 'Wali Murid'),
+            no_hp_wali: String(r.No_HP_Wali || r.no_hp_wali || ''),
+            password_siswa: String(r.Password_Siswa || r.password_siswa || 'siswa123'),
+            password_wali: String(r.Password_Wali || r.password_wali || 'wali123'),
+            total_poin: Number(r.Total_Poin || r.total_poin || 0),
+            status_pembinaan: String(r.Status_Pembinaan || r.status_pembinaan || 'Aman / Disiplin Baik')
+          }));
+
+          if (IS_PREVIEW) {
+            mapped.forEach(newSw => {
+              const existIdx = state.db.siswa.findIndex(s => s.nisn === newSw.nisn);
+              if (existIdx > -1) state.db.siswa[existIdx] = { ...state.db.siswa[existIdx], ...newSw };
+              else state.db.siswa.push(newSw);
+            });
+            recalculateAllStudentPointsLocal();
+            savePreviewLocal();
+          } else {
+            const cleanUpsert = mapped.map(({ id, ...rest }) => rest);
+            const { error } = await supabase.from('sipps_siswa').upsert(cleanUpsert, { onConflict: 'nisn' });
+            if (error) throw error;
+            await loadAllDatabase(false);
+          }
+          renderActiveView();
+          showToast(`${mapped.length} identitas siswa berhasil di-import massal & disinkronkan!`, "success");
+        } catch (err) {
+          showToast("Gagal Import Excel Siswa: " + err.message, "error");
+        } finally {
+          event.target.value = '';
+        }
+      };
+      reader.readAsArrayBuffer(file);
+    }
+
+    function exportExcelAturan() {
+      const rows = state.db.aturan.map((a, i) => ({
+        No: i + 1,
+        Kode_Aturan: a.kode_aturan,
+        Kategori: a.kategori,
+        Nama_Pelanggaran: a.nama_pelanggaran,
+        Poin: a.poin,
+        Sanksi_Tindak_Lanjut: a.sanksi_tindak_lanjut
+      }));
+      const ws = XLSX.utils.json_to_sheet(rows);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "Buku_Saku_Aturan");
+      XLSX.writeFile(wb, `SIPPS71_Katalog_Aturan_Buku_Saku_${new Date().toISOString().slice(0, 10)}.xlsx`);
+      showToast("Katalog Aturan & Buku Saku berhasil di-export ke Excel (.xlsx)!", "success");
+    }
+
+    function importExcelAturan(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = async (e) => {
+        try {
+          const data = new Uint8Array(e.target.result);
+          const workbook = XLSX.read(data, { type: 'array' });
+          const sheet = workbook.Sheets[workbook.SheetNames[0]];
+          const rows = XLSX.utils.sheet_to_json(sheet);
+          if (!rows.length) throw new Error("File Excel kosong.");
+
+          const mapped = rows.map((r, idx) => ({
+            id: 'at-imp-' + Date.now() + '-' + idx,
+            kode_aturan: String(r.Kode_Aturan || r.kode_aturan || 'KR-0' + (idx + 1)).toUpperCase(),
+            kategori: String(r.Kategori || r.kategori || 'Ringan'),
+            nama_pelanggaran: String(r.Nama_Pelanggaran || r.nama_pelanggaran || 'Aturan Tata Tertib'),
+            poin: Number(r.Poin || r.poin || 10),
+            sanksi_tindak_lanjut: String(r.Sanksi_Tindak_Lanjut || r.sanksi_tindak_lanjut || 'Pembinaan')
+          }));
+
+          if (IS_PREVIEW) {
+            mapped.forEach(newAt => {
+              const existIdx = state.db.aturan.findIndex(a => a.kode_aturan === newAt.kode_aturan);
+              if (existIdx > -1) state.db.aturan[existIdx] = { ...state.db.aturan[existIdx], ...newAt };
+              else state.db.aturan.push(newAt);
+            });
+            savePreviewLocal();
+          } else {
+            const cleanUpsert = mapped.map(({ id, ...rest }) => rest);
+            const { error } = await supabase.from('sipps_aturan').upsert(cleanUpsert, { onConflict: 'kode_aturan' });
+            if (error) throw error;
+            await loadAllDatabase(false);
+          }
+          renderActiveView();
+          showToast(`${mapped.length} pasal Katalog Aturan & Buku Saku berhasil di-import & disinkronkan!`, "success");
+        } catch (err) {
+          showToast("Gagal Import Excel Aturan: " + err.message, "error");
+        } finally {
+          event.target.value = '';
+        }
+      };
+      reader.readAsArrayBuffer(file);
+    }
+
+    // ====================================================================
+    // REAL-TIME A4 PDF DOWNLOAD ENGINE (html2pdf.js)
+    // ====================================================================
+    async function downloadPDFReportA4() {
+      const element = document.getElementById('printable-a4-area');
+      if (!element) return;
+      showToast("Menyiapkan dokumen PDF ukuran A4 ber-Kop Surat...", "info");
+      try {
+        const opt = {
+          margin: 0,
+          filename: `Laporan_SIPPS_SMPN71_${new Date().toISOString().slice(0, 10)}.pdf`,
+          image: { type: 'jpeg', quality: 0.98 },
+          html2canvas: { scale: 2, useCORS: true },
+          jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+        };
+        await html2pdf().set(opt).from(element).save();
+        showToast("Laporan PDF A4 berhasil diunduh!", "success");
+      } catch (err) {
+        showToast("Mengalihkan ke dialog cetak PDF browser...", "info");
+        window.print();
+      }
+    }
+
+    // ====================================================================
+    // SETTINGS & IMAGE UPLOAD HANDLERS
+    // ====================================================================
+    function handleImageUpload(event, settingKey, previewElementId) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const dataUri = e.target.result;
+        state.db.settings[settingKey] = dataUri;
+        if (previewElementId) {
+          const el = document.getElementById(previewElementId);
+          if (el) {
+            if (el.tagName === 'IMG') el.src = dataUri;
+            else el.style.backgroundImage = `url('${dataUri}')`;
+          }
+        }
+        updateGlobalVisualSettings();
+        showToast("Gambar berhasil dimuat. Klik Simpan Pengaturan untuk menyinkronkan.", "info");
+      };
+      reader.readAsDataURL(file);
+    }
+
+    async function saveSettingsForm(e) {
+      e.preventDefault();
+      state.db.settings.app_name = document.getElementById('set-app-name').value.trim();
+      state.db.settings.school_name = document.getElementById('set-school-name').value.trim();
+      state.db.settings.kepsek_name = document.getElementById('set-kepsek-name').value.trim();
+      state.db.settings.kepsek_nip = document.getElementById('set-kepsek-nip').value.trim();
+      state.db.settings.school_address = document.getElementById('set-school-address').value.trim();
+      state.db.settings.canvas_opacity = Number(document.getElementById('set-canvas-opacity').value);
+      const maintMsgEl = document.getElementById('set-maint-message');
+      if (maintMsgEl) state.db.settings.maintenance_message = maintMsgEl.value.trim();
+
+      try {
+        if (IS_PREVIEW) {
+          savePreviewLocal();
+        } else if (supabase) {
+          const { error } = await supabase.from('sipps_settings').upsert([state.db.settings]);
+          if (error) throw error;
+        }
+        updateGlobalVisualSettings();
+        renderActiveView();
+        showToast("Pengaturan aplikasi berhasil disimpan & disinkronkan!", "success");
+      } catch (err) {
+        showToast("Gagal menyimpan pengaturan: " + err.message, "error");
+      }
+    }
+
+    async function toggleMaintenanceModeSetting(checked) {
+      state.db.settings.is_maintenance = checked;
+      const maintMsgEl = document.getElementById('set-maint-message');
+      if (maintMsgEl) state.db.settings.maintenance_message = maintMsgEl.value.trim();
+
+      try {
+        if (IS_PREVIEW) {
+          savePreviewLocal();
+        } else if (supabase) {
+          const { error } = await supabase.from('sipps_settings').upsert([state.db.settings]);
+          if (error) throw error;
+        }
+        updateGlobalVisualSettings();
+        renderActiveView();
+        showToast(
+          checked
+            ? "Mode Maintenance AKTIF: Siswa, Guru BK & Wali Murid dialihkan ke layar perbaikan."
+            : "Mode Maintenance NONAKTIF: Seluruh pengguna dapat mengakses aplikasi kembali.",
+          checked ? "warning" : "success"
+        );
+      } catch (err) {
+        showToast("Gagal mengubah status maintenance: " + err.message, "error");
+      }
+    }
+
+    function previewMaintenanceScreenAsAdmin() {
+      document.getElementById('app-shell').classList.add('hidden');
+      document.getElementById('maintenance-screen').classList.remove('hidden');
+    }
+
+    // ====================================================================
+    // NOTIFICATION DRAWER & UTILITIES
+    // ====================================================================
+    function renderNotificationDrawer() {
+      const container = document.getElementById('notif-drawer-items');
+      const badge = document.getElementById('notif-unread-badge');
+      if (!container || !state.currentUser) return;
+
+      let list = [...state.db.notifikasi];
+      if (state.currentUser.role === 'siswa' || state.currentUser.role === 'wali') {
+        list = list.filter(n =>
+          n.target_kelas === 'Semua Kelas' ||
+          n.target_kelas === state.currentUser.kelas ||
+          n.target_nisn === state.currentUser.nisn ||
+          !n.target_nisn
+        );
+      }
+
+      const unreadCount = list.filter(n => !n.is_read).length;
+      if (unreadCount > 0) {
+        badge.textContent = unreadCount;
+        badge.classList.remove('hidden');
+      } else {
+        badge.classList.add('hidden');
+      }
+
+      container.innerHTML = list.length === 0
+        ? `<div class="text-xs text-slate-400 text-center py-10">Belum ada notifikasi masuk.</div>`
+        : list.map(n => `
+          <div class="p-3.5 rounded-2xl border ${n.is_read ? 'bg-slate-50 border-slate-200/70' : 'bg-[#F5DFD3]/40 border-[#EB8A5E]/40'}">
+            <div class="flex items-center justify-between gap-2 mb-1">
+              <span class="px-2 py-0.5 rounded-full bg-[#3E5463] text-white text-[9px] font-bold">${n.tipe || 'Info'}</span>
+              <span class="text-[10px] font-bold text-slate-500">Kelas ${n.target_kelas || 'Semua'}</span>
+            </div>
+            <div class="text-xs font-extrabold text-slate-800">${n.judul}</div>
+            <p class="text-[11px] text-slate-600 mt-1 leading-relaxed">${n.isi_pesan}</p>
+            <div class="text-[10px] text-slate-400 mt-2 flex justify-between">
+              <span>Kepada: ${n.target_nama || 'Seluruh Kelas'}</span>
+              <span>Oleh: ${n.pengirim || 'Sistem'}</span>
+            </div>
+          </div>
+        `).join('');
+    }
+
+    function toggleNotifDrawer(forceState) {
+      const drawer = document.getElementById('notif-drawer');
+      const backdrop = document.getElementById('notif-drawer-backdrop');
+      const isOpen = !drawer.classList.contains('translate-x-full');
+      const next = typeof forceState === 'boolean' ? forceState : !isOpen;
+      if (next) {
+        drawer.classList.remove('translate-x-full');
+        backdrop.classList.remove('hidden');
+      } else {
+        drawer.classList.add('translate-x-full');
+        backdrop.classList.add('hidden');
+      }
+    }
+
+    async function markAllNotifRead() {
+      state.db.notifikasi.forEach(n => { n.is_read = true; });
+      if (IS_PREVIEW) savePreviewLocal();
+      else if (supabase) await supabase.from('sipps_notifikasi').update({ is_read: true }).eq('is_read', false);
+      renderNotificationDrawer();
+      if (state.activeMenu === 'notifikasi') renderActiveView();
+      showToast("Semua notifikasi ditandai telah dibaca.", "info");
+    }
+
+    function setFilter(key, val) {
+      state.filters[key] = val;
+      renderActiveView();
+    }
+
+    function handleGlobalSearch(val) {
+      state.globalSearch = val;
+      if (state.activeMenu === 'beranda' && val.trim() !== '') {
+        state.filters.pelanggaranSearch = val;
+        navigate('pelanggaran');
+      } else if (state.activeMenu === 'pelanggaran') {
+        state.filters.pelanggaranSearch = val;
+        renderActiveView();
+      } else if (state.activeMenu === 'siswa') {
+        state.filters.siswaSearch = val;
+        renderActiveView();
+      }
+    }
+
+    function togglePasswordVisibility() {
+      const el = document.getElementById('input-login-pass');
+      el.type = el.type === 'password' ? 'text' : 'password';
+    }
+
+    function closeModal() {
+      document.getElementById('modal-overlay').classList.add('hidden');
+    }
+
+    function showToast(message, type = 'info') {
+      const container = document.getElementById('toast-container');
+      const colors = {
+        success: 'bg-emerald-700 text-white border-emerald-500',
+        error: 'bg-red-700 text-white border-red-500',
+        warning: 'bg-amber-600 text-white border-amber-400',
+        info: 'bg-[#2A4756] text-white border-sky-400/40'
+      };
+      const toast = document.createElement('div');
+      toast.className = `pointer-events-auto px-4 py-3 rounded-2xl border shadow-xl text-xs font-bold flex items-center justify-between gap-3 transition-all duration-300 ${colors[type] || colors.info}`;
+      toast.innerHTML = `<span>${message}</span>`;
+      container.appendChild(toast);
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        setTimeout(() => toast.remove(), 300);
+      }, 3600);
+    }
+
+    // Expose public methods to window.app
+    window.app = {
+      setLoginRole,
+      handleLoginSubmit,
+      quickLogin,
+      handleLogout,
+      togglePasswordVisibility,
+      navigate,
+      syncAllData: loadAllDatabase,
+      setFilter,
+      handleGlobalSearch,
+      openModalPelanggaran,
+      savePelanggaranForm,
+      openModalSiswa,
+      saveSiswaForm,
+      openModalAturan,
+      saveAturanForm,
+      openModalNotifikasi,
+      populateRecipientDropdownByClass,
+      saveNotifikasiForm,
+      confirmDelete,
+      executeDelete,
+      closeModal,
+      exportExcelPelanggaran,
+      importExcelPelanggaran,
+      exportExcelSiswa,
+      importExcelSiswa,
+      exportExcelAturan,
+      importExcelAturan,
+      downloadPDFReportA4,
+      handleImageUpload,
+      saveSettingsForm,
+      toggleMaintenanceModeSetting,
+      toggleMaintenanceQuick,
+      checkMaintenanceStatus,
+      backToAdminLoginFromMaintenance,
+      previewMaintenanceScreenAsAdmin,
+      toggleNotifDrawer,
+      markAllNotifRead
+    };
+
+    window.addEventListener('DOMContentLoaded', initApp);
+  </script>
+</body>
+</html>
