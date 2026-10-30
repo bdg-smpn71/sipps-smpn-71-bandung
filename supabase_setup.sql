@@ -38,8 +38,11 @@ CREATE TABLE IF NOT EXISTS public.sipps_staff (
   password text NOT NULL,
   role text NOT NULL DEFAULT 'bk',
   jabatan text DEFAULT 'Guru BK',
+  avatar_url text DEFAULT '',
   created_at timestamptz DEFAULT now()
 );
+
+ALTER TABLE public.sipps_staff ADD COLUMN IF NOT EXISTS avatar_url text DEFAULT '';
 
 -- 3. TABEL MASTER IDENTITAS SISWA (HANYA NISN TANPA NIS) & AKSES WALI MURID / SISWA
 CREATE TABLE IF NOT EXISTS public.sipps_siswa (
