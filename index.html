@@ -600,8 +600,8 @@
         { id: "st-2", nip: "199008212015021001", nama: "Budi Santoso, S.Pd.", username: "budi_bk", password: "bk123", role: "bk", jabatan: "Guru BK Kelas VIII & IX", avatar_url: "" }
       ],
       siswa: [
-        { id: "sw-1", nisn: "0091234561", nama_siswa: "Aditya Pratama Putra", kelas: "VIII-A", jenis_kelamin: "L", nama_wali: "H. Hendra Pratama", no_hp_wali: "081223344556", password_siswa: "siswa123", password_wali: "wali123", total_poin: 15, status_pembinaan: "Pembinaan Wali Kelas" },
-        { id: "sw-2", nisn: "0091234562", nama_siswa: "Nabila Putri Maharani", kelas: "IX-B", jenis_kelamin: "P", nama_wali: "Hj. Siti Aminah", no_hp_wali: "081334455667", password_siswa: "siswa123", password_wali: "wali123", total_poin: 35, status_pembinaan: "Peringatan BK I" }
+        { id: "sw-1", nisn: "0091234561", nama_siswa: "Aditya Pratama Putra", kelas: "VIII-A", jenis_kelamin: "L", nama_wali: "H. Hendra Pratama", no_hp_wali: "081223344556", password_siswa: "siswa123", password_wali: "wali123", avatar_url: "", total_poin: 15, status_pembinaan: "Pembinaan Wali Kelas" },
+        { id: "sw-2", nisn: "0091234562", nama_siswa: "Nabila Putri Maharani", kelas: "IX-B", jenis_kelamin: "P", nama_wali: "Hj. Siti Aminah", no_hp_wali: "081334455667", password_siswa: "siswa123", password_wali: "wali123", avatar_url: "", total_poin: 35, status_pembinaan: "Peringatan BK I" }
       ],
       aturan: [
         { id: "at-1", kode_aturan: "KR-01", kategori: "Ringan", nama_pelanggaran: "Terlambat hadir di sekolah lebih dari 15 menit tanpa keterangan", poin: 15, sanksi_tindak_lanjut: "Teguran lisan dan pembinaan disiplin pagi oleh piket/wali kelas" },
@@ -659,8 +659,45 @@
     };
 
     // ====================================================================
-    // INITIALIZATION & PWA REGISTRATION
+    // INITIALIZATION, PERFORMANCE OPTIMIZER & PWA REGISTRATION
     // ====================================================================
+    let iconRenderFrame = null;
+    function refreshIconsFast() {
+      if (iconRenderFrame) cancelAnimationFrame(iconRenderFrame);
+      iconRenderFrame = requestAnimationFrame(() => {
+        if (window.lucide) window.lucide.createIcons();
+      });
+    }
+
+    function compressImageDataUrl(file, maxSize = 360, quality = 0.82) {
+      return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+          const img = new Image();
+          img.onload = () => {
+            const canvas = document.createElement('canvas');
+            let w = img.width;
+            let h = img.height;
+            if (w > h && w > maxSize) {
+              h = Math.round((h * maxSize) / w);
+              w = maxSize;
+            } else if (h > maxSize) {
+              w = Math.round((w * maxSize) / h);
+              h = maxSize;
+            }
+            canvas.width = w;
+            canvas.height = h;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, w, h);
+            resolve(canvas.toDataURL('image/jpeg', quality));
+          };
+          img.onerror = () => resolve(ev.target.result);
+          img.src = ev.target.result;
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+
     async function initApp() {
       registerSingleFilePWA();
       initSupabaseConnection();
@@ -670,7 +707,7 @@
       updateGlobalVisualSettings();
       clearLoginInputs();
       setLoginRole('siswa');
-      lucide.createIcons();
+      refreshIconsFast();
     }
 
     function clearLoginInputs() {
@@ -880,7 +917,7 @@
         if (loginMaintBadge) loginMaintBadge.classList.add('hidden');
         if (headerMaintInd) headerMaintInd.classList.add('hidden');
       }
-      lucide.createIcons();
+      refreshIconsFast();
     }
 
     function enforceMaintenanceGuard() {
@@ -1078,6 +1115,7 @@
             role: 'siswa',
             nisn: siswaUser.nisn,
             kelas: siswaUser.kelas,
+            avatar_url: siswaUser.avatar_url || '',
             identifier: siswaUser.nisn
           };
         } else if (role === 'wali') {
@@ -1155,6 +1193,9 @@
       } else if (state.currentUser?.role === 'bk') {
         const bkRecord = state.db.staff.find(s => s.id === state.currentUser.id || s.nip === state.currentUser.identifier);
         avatarUrl = bkRecord?.avatar_url || state.currentUser.avatar_url || '';
+      } else if (state.currentUser?.role === 'siswa') {
+        const swRecord = state.db.siswa.find(s => s.id === state.currentUser.id || s.nisn === state.currentUser.nisn);
+        avatarUrl = swRecord?.avatar_url || state.currentUser.avatar_url || '';
       }
 
       if (avatarUrl && avatarUrl.trim() !== '') {
@@ -1213,7 +1254,7 @@
       { id: 'aturan', label: 'Katalog Aturan', icon: 'book-open', roles: ['admin', 'bk', 'wali', 'siswa'] },
       { id: 'notifikasi', label: 'Pesan & Notif', icon: 'message-square', roles: ['admin', 'bk', 'wali', 'siswa'] },
       { id: 'rekap', label: 'Rekap & Laporan', icon: 'file-text', roles: ['admin', 'bk'] },
-      { id: 'pengaturan', label: 'Pengaturan', icon: 'settings', roles: ['admin', 'bk'] }
+      { id: 'pengaturan', label: 'Pengaturan', icon: 'settings', roles: ['admin', 'bk', 'siswa'] }
     ];
 
     function renderNavigationMenus() {
@@ -1250,13 +1291,14 @@
         }).join('');
       }
 
-      lucide.createIcons();
+      refreshIconsFast();
     }
 
     function navigate(menuId) {
       state.activeMenu = menuId;
       renderNavigationMenus();
       renderActiveView();
+      const role = state.currentUser?.role;
       const titles = {
         beranda: ['Beranda Analitik', 'Ringkasan kedisiplinan dan poin pelanggaran siswa'],
         pelanggaran: ['Poin & Riwayat Pelanggaran', 'Catatan dan manajemen sanksi pelanggaran tata tertib'],
@@ -1267,8 +1309,8 @@
         notifikasi: ['Live Chatting Pesan & Notifikasi', 'Kirim pesan cepat ke Guru BK, Semua Wali Murid, Semua Siswa, atau individu'],
         rekap: ['Rekap & Laporan PDF A4', 'Unduh dan cetak laporan resmi ber-Kop Surat SMPN 71 Bandung'],
         pengaturan: [
-          state.currentUser?.role === 'bk' ? 'Pengaturan Profil Guru BK' : 'Pengaturan Sistem & Pemeliharaan',
-          state.currentUser?.role === 'bk' ? 'Kelola identitas, NIP, jabatan, akun login, dan foto profil Guru BK' : 'Kustomisasi identitas, logo, background, dan mode maintenance'
+          role === 'bk' ? 'Pengaturan Profil Guru BK' : role === 'siswa' ? 'Pengaturan Profil & Akun Siswa' : 'Pengaturan Sistem & Pemeliharaan',
+          role === 'bk' ? 'Kelola identitas, NIP, jabatan, akun login, dan foto profil Guru BK' : role === 'siswa' ? 'Kelola foto profil, nama lengkap, NISN, kelas, dan kata sandi login siswa' : 'Kustomisasi identitas, logo, background, dan mode maintenance'
         ]
       };
       const [title, subtitle] = titles[menuId] || ['Dashboard SIPPS', 'Sistem Informasi Poin Pelanggaran Siswa'];
@@ -1291,7 +1333,7 @@
       else if (menu === 'rekap') renderRekapView(container);
       else if (menu === 'pengaturan') renderPengaturanView(container);
 
-      lucide.createIcons();
+      refreshIconsFast();
     }
 
     // ====================================================================
@@ -2434,10 +2476,27 @@
     // ====================================================================
     // VIEW 7: REKAP & LAPORAN (REAL-TIME A4 PDF DOWNLOAD + KOP SURAT)
     // ====================================================================
+    function handleRekapKelasChange(selectedKelas) {
+      state.filters.rekapKelas = selectedKelas;
+      if (selectedKelas === 'SEMUA') {
+        state.filters.rekapSiswaNisn = 'SEMUA';
+      } else {
+        const currentSiswa = state.db.siswa.find(s => s.nisn === state.filters.rekapSiswaNisn);
+        if (!currentSiswa || currentSiswa.kelas !== selectedKelas) {
+          state.filters.rekapSiswaNisn = 'SEMUA';
+        }
+      }
+      renderActiveView();
+    }
+
     function renderRekapView(container) {
       const cfg = state.db.settings || DEFAULT_SETTINGS;
       const classes = getUniqueClasses();
       let list = [...(state.db.pelanggaran || [])];
+
+      const filteredSiswaOptions = state.filters.rekapKelas === 'SEMUA'
+        ? [...(state.db.siswa || [])]
+        : (state.db.siswa || []).filter(s => s.kelas === state.filters.rekapKelas);
 
       if (state.filters.rekapKelas !== 'SEMUA') {
         list = list.filter(p => p.kelas === state.filters.rekapKelas);
@@ -2455,6 +2514,10 @@
         list = list.filter(p => p.tanggal <= state.filters.rekapEndDate);
       }
 
+      const selectedSiswaObj = state.filters.rekapSiswaNisn !== 'SEMUA'
+        ? state.db.siswa.find(s => s.nisn === state.filters.rekapSiswaNisn)
+        : null;
+
       const totalPoin = list.reduce((acc, cur) => acc + (Number(cur.poin) || 0), 0);
       const todayStr = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
       const logoSrc = cfg.logo_url && cfg.logo_url.trim() !== '' ? cfg.logo_url : DEFAULT_SETTINGS.logo_url;
@@ -2463,9 +2526,16 @@
         <div class="space-y-5">
           <div class="rounded-[24px] glass-card p-4 flex flex-wrap items-center justify-between gap-3">
             <div class="flex flex-wrap items-center gap-2">
-              <select onchange="window.app.setFilter('rekapKelas', this.value)" class="px-3 py-2 rounded-xl bg-white border border-slate-200 text-xs font-semibold text-slate-700">
-                <option value="SEMUA">Semua Kelas</option>
+              <select onchange="window.app.handleRekapKelasChange(this.value)" class="px-3 py-2 rounded-xl bg-white border border-slate-200 text-xs font-semibold text-slate-700">
+                <option value="SEMUA" ${state.filters.rekapKelas === 'SEMUA' ? 'selected' : ''}>Semua Kelas</option>
                 ${classes.map(c => `<option value="${c}" ${state.filters.rekapKelas === c ? 'selected' : ''}>Kelas ${c}</option>`).join('')}
+              </select>
+
+              <select onchange="window.app.setFilter('rekapSiswaNisn', this.value)" class="px-3 py-2 rounded-xl bg-white border border-slate-200 text-xs font-semibold text-slate-700 max-w-[240px]">
+                <option value="SEMUA" ${state.filters.rekapSiswaNisn === 'SEMUA' ? 'selected' : ''}>
+                  ${state.filters.rekapKelas === 'SEMUA' ? `Semua Siswa (${filteredSiswaOptions.length} Siswa)` : `Semua Siswa Kelas ${state.filters.rekapKelas} (${filteredSiswaOptions.length} Siswa)`}
+                </option>
+                ${filteredSiswaOptions.map(s => `<option value="${s.nisn}" ${state.filters.rekapSiswaNisn === s.nisn ? 'selected' : ''}>${s.nama_siswa} (${s.kelas})</option>`).join('')}
               </select>
 
               <select onchange="window.app.setFilter('rekapKategori', this.value)" class="px-3 py-2 rounded-xl bg-white border border-slate-200 text-xs font-semibold text-slate-700">
@@ -2473,11 +2543,6 @@
                 <option value="Ringan" ${state.filters.rekapKategori === 'Ringan' ? 'selected' : ''}>Ringan</option>
                 <option value="Sedang" ${state.filters.rekapKategori === 'Sedang' ? 'selected' : ''}>Sedang</option>
                 <option value="Berat" ${state.filters.rekapKategori === 'Berat' ? 'selected' : ''}>Berat</option>
-              </select>
-
-              <select onchange="window.app.setFilter('rekapSiswaNisn', this.value)" class="px-3 py-2 rounded-xl bg-white border border-slate-200 text-xs font-semibold text-slate-700 max-w-[200px]">
-                <option value="SEMUA">Semua Siswa</option>
-                ${state.db.siswa.map(s => `<option value="${s.nisn}" ${state.filters.rekapSiswaNisn === s.nisn ? 'selected' : ''}>${s.nama_siswa} (${s.kelas})</option>`).join('')}
               </select>
 
               <input type="date" value="${state.filters.rekapStartDate}" onchange="window.app.setFilter('rekapStartDate', this.value)" class="px-3 py-1.5 rounded-xl bg-white border border-slate-200 text-xs" />
@@ -2516,6 +2581,7 @@
                 <h2 class="text-base font-bold uppercase underline">Laporan Rekapitulasi Poin Pelanggaran & Pembinaan Siswa</h2>
                 <p class="text-xs mt-1">
                   Kelas: <b>${state.filters.rekapKelas === 'SEMUA' ? 'Semua Kelas' : state.filters.rekapKelas}</b> •
+                  Siswa: <b>${selectedSiswaObj ? `${selectedSiswaObj.nama_siswa} (${selectedSiswaObj.nisn})` : (state.filters.rekapKelas === 'SEMUA' ? 'Semua Siswa' : `Semua Siswa Kelas ${state.filters.rekapKelas}`)}</b> •
                   Kategori: <b>${state.filters.rekapKategori === 'SEMUA' ? 'Semua Kategori' : state.filters.rekapKategori}</b> •
                   Total Kasus: <b>${list.length}</b> (${totalPoin} Poin)
                 </p>
@@ -2593,10 +2659,86 @@
     }
 
     // ====================================================================
-    // VIEW 8: PENGATURAN SISTEM (ADMIN) & PENGATURAN PROFIL (GURU BK)
+    // VIEW 8: PENGATURAN SISTEM (ADMIN), PROFIL (GURU BK), & PROFIL (SISWA)
     // ====================================================================
     function renderPengaturanView(container) {
       const role = state.currentUser.role;
+
+      if (role === 'siswa') {
+        const classes = getUniqueClasses();
+        const siswaRecord = state.db.siswa.find(
+          s => s.id === state.currentUser.id || s.nisn === state.currentUser.nisn
+        ) || state.db.siswa[0] || {
+          id: state.currentUser.id,
+          nisn: state.currentUser.nisn || '',
+          nama_siswa: state.currentUser.name || '',
+          kelas: state.currentUser.kelas || classes[0] || 'VIII-A',
+          password_siswa: 'siswa123',
+          avatar_url: state.currentUser.avatar_url || ''
+        };
+
+        container.innerHTML = `
+          <div class="max-w-3xl mx-auto rounded-[28px] glass-card p-6 sm:p-8 space-y-6">
+            <div class="flex items-center justify-between border-b border-slate-200 pb-4">
+              <div>
+                <h3 class="text-lg font-extrabold text-slate-800">Pengaturan Profil & Akun Siswa</h3>
+                <p class="text-xs text-slate-500">Perbarui Foto Profil Siswa, Nama Lengkap, NISN, Kelas, Username (NISN), dan Password Login Anda</p>
+              </div>
+              <div class="w-11 h-11 rounded-2xl bg-[#F5DFD3] text-[#2A4756] flex items-center justify-center">
+                <i data-lucide="user-check" class="w-6 h-6"></i>
+              </div>
+            </div>
+
+            <form onsubmit="window.app.saveSiswaProfileSettings(event, '${siswaRecord.id || ''}', '${siswaRecord.nisn || ''}')" class="space-y-5">
+              <div class="p-4 rounded-2xl bg-slate-50/90 border border-slate-200/80 flex flex-col sm:flex-row items-center gap-4">
+                <img id="preview-siswa-avatar" src="${siswaRecord.avatar_url && siswaRecord.avatar_url.trim() !== '' ? siswaRecord.avatar_url : 'https://placehold.co/120x120/6B8E9B/FFFFFF?text=SISWA'}" alt="Foto Profil Siswa" class="w-20 h-20 rounded-full object-cover border-4 border-white shadow-md shrink-0" />
+                <div class="text-center sm:text-left flex-1">
+                  <div class="text-xs font-extrabold text-slate-800 mb-1">Foto Profil Peserta Didik</div>
+                  <p class="text-[11px] text-slate-500 mb-2.5">Format PNG atau JPEG. Foto otomatis dikompresi agar ringan dan tampil di profil navigasi Anda.</p>
+                  <input type="file" id="file-siswa-avatar-upload" accept="image/png,image/jpeg,image/webp" class="hidden" onchange="window.app.handleSiswaAvatarUpload(event)" />
+                  <button type="button" onclick="document.getElementById('file-siswa-avatar-upload').click()" class="px-4 py-2 rounded-xl bg-[#6B8E9B] hover:bg-[#587985] text-white text-xs font-bold transition inline-flex items-center gap-1.5 shadow-xs">
+                    <i data-lucide="upload" class="w-3.5 h-3.5"></i> Upload Foto Profil Siswa
+                  </button>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-xs font-bold text-slate-700 mb-1">Nama Lengkap Siswa</label>
+                  <input type="text" id="sw-set-nama" required value="${siswaRecord.nama_siswa || ''}" class="w-full px-3.5 py-2.5 rounded-xl bg-white border border-slate-200 text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#6B8E9B]" />
+                </div>
+                <div>
+                  <label class="block text-xs font-bold text-slate-700 mb-1">NISN Siswa</label>
+                  <input type="text" id="sw-set-nisn" required value="${siswaRecord.nisn || ''}" oninput="document.getElementById('sw-set-username').value = this.value" class="w-full px-3.5 py-2.5 rounded-xl bg-white border border-slate-200 text-xs font-mono font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#6B8E9B]" />
+                </div>
+              </div>
+
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">Kelas Rombongan Belajar</label>
+                <select id="sw-set-kelas" required class="w-full px-3.5 py-2.5 rounded-xl bg-white border border-slate-200 text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#6B8E9B]">
+                  ${classes.map(c => `<option value="${c}" ${siswaRecord.kelas === c ? 'selected' : ''}>Kelas ${c}</option>`).join('')}
+                </select>
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 rounded-2xl bg-slate-50 border border-slate-200/80">
+                <div>
+                  <label class="block text-xs font-bold text-slate-700 mb-1">Username Login (NISN)</label>
+                  <input type="text" id="sw-set-username" readonly value="${siswaRecord.nisn || ''}" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-100 border border-slate-200 text-xs font-mono font-extrabold text-slate-700 cursor-not-allowed" title="Username Siswa otomatis mengikuti NISN" />
+                </div>
+                <div>
+                  <label class="block text-xs font-bold text-slate-700 mb-1">Password Login</label>
+                  <input type="text" id="sw-set-password" required value="${siswaRecord.password_siswa || 'siswa123'}" class="w-full px-3.5 py-2.5 rounded-xl bg-white border border-slate-200 text-xs font-mono font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#6B8E9B]" />
+                </div>
+              </div>
+
+              <button type="submit" class="w-full py-3 rounded-2xl bg-[#2A4756] hover:bg-[#1E3542] text-white text-xs font-extrabold shadow-md transition flex items-center justify-center gap-2">
+                <i data-lucide="save" class="w-4 h-4"></i> Simpan & Sinkronkan Pengaturan Siswa
+              </button>
+            </form>
+          </div>
+        `;
+        return;
+      }
 
       if (role === 'bk') {
         const bkRecord = state.db.staff.find(
@@ -2805,728 +2947,89 @@
     }
 
     // ====================================================================
-    // CRUD MODALS & EXCEL IMPORT/EXPORT HANDLERS
-    // ====================================================================
-    function openModalPelanggaran(editId = null) {
-      const item = editId ? state.db.pelanggaran.find(p => p.id === editId) : null;
-      const today = new Date().toISOString().slice(0, 10);
-
-      document.getElementById('modal-title').textContent = item ? 'Edit Catatan Pelanggaran Siswa' : 'Catat Pelanggaran Siswa Baru';
-      document.getElementById('modal-body').innerHTML = `
-        <form onsubmit="window.app.savePelanggaranForm(event, '${editId || ''}')" class="space-y-4 text-xs">
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div>
-              <label class="block font-bold text-slate-700 mb-1">Tanggal Kejadian</label>
-              <input type="date" id="form-pel-tanggal" required value="${item?.tanggal || today}" class="w-full px-3 py-2 rounded-xl border border-slate-200" />
-            </div>
-            <div>
-              <label class="block font-bold text-slate-700 mb-1">Status Penanganan</label>
-              <select id="form-pel-status" class="w-full px-3 py-2 rounded-xl border border-slate-200 font-semibold">
-                <option value="Tercatat" ${item?.status_penanganan === 'Tercatat' ? 'selected' : ''}>Tercatat</option>
-                <option value="Dalam Pembinaan" ${item?.status_penanganan === 'Dalam Pembinaan' ? 'selected' : ''}>Dalam Pembinaan</option>
-                <option value="Selesai" ${item?.status_penanganan === 'Selesai' ? 'selected' : ''}>Selesai</option>
-              </select>
-            </div>
-          </div>
-
-          <div>
-            <label class="block font-bold text-slate-700 mb-1">Pilih Siswa (NISN & Kelas)</label>
-            <select id="form-pel-siswa" required class="w-full px-3 py-2 rounded-xl border border-slate-200 font-semibold">
-              <option value="">-- Pilih Siswa --</option>
-              ${state.db.siswa.map(s => `<option value="${s.nisn}" ${item?.nisn === s.nisn ? 'selected' : ''}>${s.nama_siswa} — Kelas ${s.kelas} (NISN: ${s.nisn})</option>`).join('')}
-            </select>
-          </div>
-
-          <div>
-            <label class="block font-bold text-slate-700 mb-1">Pilih Pasal Pelanggaran Tata Tertib</label>
-            <select id="form-pel-aturan" required class="w-full px-3 py-2 rounded-xl border border-slate-200 font-semibold">
-              <option value="">-- Pilih Katalog Aturan --</option>
-              ${state.db.aturan.map(a => `<option value="${a.kode_aturan}" ${item?.kode_aturan === a.kode_aturan ? 'selected' : ''}>[${a.kode_aturan}] ${a.nama_pelanggaran} (+${a.poin} Poin - ${a.kategori})</option>`).join('')}
-            </select>
-          </div>
-
-          <div>
-            <label class="block font-bold text-slate-700 mb-1">Catatan Pembinaan / Tindak Lanjut</label>
-            <textarea id="form-pel-catatan" rows="3" placeholder="Tulis keterangan pembinaan..." class="w-full p-3 rounded-xl border border-slate-200">${item?.catatan_tindak_lanjut || ''}</textarea>
-          </div>
-
-          <div class="pt-2 flex justify-end gap-2">
-            <button type="button" onclick="window.app.closeModal()" class="px-4 py-2 rounded-xl bg-slate-100 text-slate-600 font-bold">Batal</button>
-            <button type="submit" class="px-5 py-2 rounded-xl bg-[#2A4756] text-white font-bold shadow">Simpan & Sinkronkan</button>
-          </div>
-        </form>
-      `;
-      document.getElementById('modal-overlay').classList.remove('hidden');
-    }
-
-    async function savePelanggaranForm(e, editId) {
-      e.preventDefault();
-      const tanggal = document.getElementById('form-pel-tanggal').value;
-      const status_penanganan = document.getElementById('form-pel-status').value;
-      const nisn = document.getElementById('form-pel-siswa').value;
-      const kode_aturan = document.getElementById('form-pel-aturan').value;
-      const catatan_tindak_lanjut = document.getElementById('form-pel-catatan').value.trim();
-
-      const sw = state.db.siswa.find(s => s.nisn === nisn);
-      const at = state.db.aturan.find(a => a.kode_aturan === kode_aturan);
-      if (!sw || !at) return showToast("Pilih siswa dan pasal aturan dengan benar.", "warning");
-
-      const payload = {
-        tanggal,
-        siswa_id: sw.id && String(sw.id).length > 10 ? sw.id : null,
-        nisn: sw.nisn,
-        nama_siswa: sw.nama_siswa,
-        kelas: sw.kelas,
-        aturan_id: at.id && String(at.id).length > 10 ? at.id : null,
-        kode_aturan: at.kode_aturan,
-        nama_pelanggaran: at.nama_pelanggaran,
-        kategori: at.kategori,
-        poin: Number(at.poin) || 0,
-        pelapor: state.currentUser.name,
-        catatan_tindak_lanjut,
-        status_penanganan
-      };
-
-      try {
-        if (IS_PREVIEW) {
-          if (editId) {
-            const idx = state.db.pelanggaran.findIndex(p => p.id === editId);
-            if (idx > -1) state.db.pelanggaran[idx] = { ...state.db.pelanggaran[idx], ...payload };
-          } else {
-            state.db.pelanggaran.unshift({ id: 'pl-' + Date.now(), ...payload });
-            state.db.notifikasi.unshift({
-              id: 'nt-' + Date.now(),
-              judul: `Pencatatan Poin Pelanggaran Baru (${at.kode_aturan})`,
-              isi_pesan: `Ananda ${sw.nama_siswa} (${sw.kelas}) tercatat melakukan pelanggaran ${at.nama_pelanggaran} (+${at.poin} Poin).`,
-              tipe: 'Pelanggaran Otomatis',
-              target_role: 'Wali Murid',
-              target_kelas: sw.kelas,
-              target_nisn: sw.nisn,
-              target_nama: sw.nama_siswa,
-              pengirim: state.currentUser.name,
-              pengirim_role: state.currentUser.role,
-              pengirim_id: state.currentUser.identifier || 'admin',
-              is_read: false,
-              created_at: new Date().toISOString()
-            });
-          }
-          recalculateAllStudentPointsLocal();
-          savePreviewLocal();
-        } else if (supabase) {
-          if (editId) {
-            const { error } = await supabase.from('sipps_pelanggaran').update(payload).eq('id', editId);
-            if (error) throw error;
-          } else {
-            const { error } = await supabase.from('sipps_pelanggaran').insert([payload]);
-            if (error) throw error;
-            await supabase.from('sipps_notifikasi').insert([{
-              judul: `Pencatatan Poin Pelanggaran Baru (${at.kode_aturan})`,
-              isi_pesan: `Ananda ${sw.nama_siswa} (${sw.kelas}) tercatat melakukan pelanggaran ${at.nama_pelanggaran} (+${at.poin} Poin).`,
-              tipe: 'Pelanggaran Otomatis',
-              target_role: 'Wali Murid',
-              target_kelas: sw.kelas,
-              target_nisn: sw.nisn,
-              target_nama: sw.nama_siswa,
-              pengirim: state.currentUser.name,
-              pengirim_role: state.currentUser.role,
-              pengirim_id: state.currentUser.identifier || 'admin',
-              is_read: false
-            }]);
-          }
-          await loadAllDatabase(false);
-        }
-        closeModal();
-        renderNotificationDrawer();
-        renderActiveView();
-        showToast("Catatan pelanggaran berhasil disimpan & disinkronkan!", "success");
-      } catch (err) {
-        showToast("Gagal menyimpan pelanggaran: " + err.message, "error");
-      }
-    }
-
-    function openModalSiswa(editId = null) {
-      const item = editId ? state.db.siswa.find(s => s.id === editId) : null;
-      const classes = getUniqueClasses();
-
-      document.getElementById('modal-title').textContent = item ? 'Edit Data Identitas Siswa' : 'Tambah Identitas Siswa Baru';
-      document.getElementById('modal-body').innerHTML = `
-        <form onsubmit="window.app.saveSiswaForm(event, '${editId || ''}')" class="space-y-3.5 text-xs">
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div>
-              <label class="block font-bold text-slate-700 mb-1">NISN Siswa (Wajib Unik)</label>
-              <input type="text" id="form-sw-nisn" required value="${item?.nisn || ''}" placeholder="Contoh: 0091234567" class="w-full px-3 py-2 rounded-xl border border-slate-200 font-mono" />
-            </div>
-            <div>
-              <label class="block font-bold text-slate-700 mb-1">Kelas</label>
-              <select id="form-sw-kelas" required class="w-full px-3 py-2 rounded-xl border border-slate-200 font-semibold">
-                ${classes.map(c => `<option value="${c}" ${item?.kelas === c ? 'selected' : ''}>${c}</option>`).join('')}
-              </select>
-            </div>
-          </div>
-
-          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            <div class="sm:col-span-2">
-              <label class="block font-bold text-slate-700 mb-1">Nama Lengkap Siswa</label>
-              <input type="text" id="form-sw-nama" required value="${item?.nama_siswa || ''}" class="w-full px-3 py-2 rounded-xl border border-slate-200 font-semibold" />
-            </div>
-            <div>
-              <label class="block font-bold text-slate-700 mb-1">Jenis Kelamin</label>
-              <select id="form-sw-jk" class="w-full px-3 py-2 rounded-xl border border-slate-200 font-semibold">
-                <option value="L" ${item?.jenis_kelamin === 'L' ? 'selected' : ''}>Laki-laki (L)</option>
-                <option value="P" ${item?.jenis_kelamin === 'P' ? 'selected' : ''}>Perempuan (P)</option>
-              </select>
-            </div>
-          </div>
-
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div>
-              <label class="block font-bold text-slate-700 mb-1">Nama Orang Tua / Wali Murid</label>
-              <input type="text" id="form-sw-wali" value="${item?.nama_wali || ''}" class="w-full px-3 py-2 rounded-xl border border-slate-200" />
-            </div>
-            <div>
-              <label class="block font-bold text-slate-700 mb-1">No. HP / WhatsApp Wali</label>
-              <input type="text" id="form-sw-hp" value="${item?.no_hp_wali || ''}" class="w-full px-3 py-2 rounded-xl border border-slate-200 font-mono" />
-            </div>
-          </div>
-
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3 rounded-2xl bg-slate-50 border border-slate-200">
-            <div>
-              <label class="block font-bold text-slate-700 mb-1">Password Login Siswa</label>
-              <input type="text" id="form-sw-pass-siswa" required value="${item?.password_siswa || 'siswa123'}" class="w-full px-3 py-2 rounded-xl border border-slate-200 font-mono" />
-            </div>
-            <div>
-              <label class="block font-bold text-slate-700 mb-1">Password Login Wali Murid</label>
-              <input type="text" id="form-sw-pass-wali" required value="${item?.password_wali || 'wali123'}" class="w-full px-3 py-2 rounded-xl border border-slate-200 font-mono" />
-            </div>
-          </div>
-
-          <div class="pt-2 flex justify-end gap-2">
-            <button type="button" onclick="window.app.closeModal()" class="px-4 py-2 rounded-xl bg-slate-100 text-slate-600 font-bold">Batal</button>
-            <button type="submit" class="px-5 py-2 rounded-xl bg-[#2A4756] text-white font-bold shadow">Simpan Data Siswa</button>
-          </div>
-        </form>
-      `;
-      document.getElementById('modal-overlay').classList.remove('hidden');
-    }
-
-    async function saveSiswaForm(e, editId) {
-      e.preventDefault();
-      const payload = {
-        nisn: document.getElementById('form-sw-nisn').value.trim(),
-        kelas: document.getElementById('form-sw-kelas').value.trim(),
-        nama_siswa: document.getElementById('form-sw-nama').value.trim(),
-        jenis_kelamin: document.getElementById('form-sw-jk').value,
-        nama_wali: document.getElementById('form-sw-wali').value.trim(),
-        no_hp_wali: document.getElementById('form-sw-hp').value.trim(),
-        password_siswa: document.getElementById('form-sw-pass-siswa').value.trim() || 'siswa123',
-        password_wali: document.getElementById('form-sw-pass-wali').value.trim() || 'wali123'
-      };
-
-      try {
-        if (IS_PREVIEW) {
-          if (editId) {
-            const idx = state.db.siswa.findIndex(s => s.id === editId);
-            if (idx > -1) state.db.siswa[idx] = { ...state.db.siswa[idx], ...payload };
-          } else {
-            state.db.siswa.push({ id: 'sw-' + Date.now(), total_poin: 0, status_pembinaan: 'Aman / Disiplin Baik', ...payload });
-          }
-          recalculateAllStudentPointsLocal();
-          savePreviewLocal();
-        } else if (supabase) {
-          if (editId) {
-            const { error } = await supabase.from('sipps_siswa').update(payload).eq('id', editId);
-            if (error) throw error;
-          } else {
-            const { error } = await supabase.from('sipps_siswa').insert([payload]);
-            if (error) throw error;
-          }
-          await loadAllDatabase(false);
-        }
-        closeModal();
-        renderActiveView();
-        showToast("Data identitas siswa berhasil disimpan & disinkronkan!", "success");
-      } catch (err) {
-        showToast("Gagal menyimpan siswa: " + err.message, "error");
-      }
-    }
-
-    function openModalKelas(editId = null) {
-      const item = editId ? state.db.kelas.find(k => k.id === editId) : null;
-      document.getElementById('modal-title').textContent = item ? 'Edit Master Data Kelas' : 'Tambah Master Kelas Baru';
-      document.getElementById('modal-body').innerHTML = `
-        <form onsubmit="window.app.saveKelasForm(event, '${editId || ''}')" class="space-y-3.5 text-xs">
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div>
-              <label class="block font-bold text-slate-700 mb-1">Kode Kelas (Contoh: VII-A)</label>
-              <input type="text" id="form-kl-kode" required value="${item?.kode_kelas || ''}" class="w-full px-3 py-2 rounded-xl border border-slate-200 font-bold" />
-            </div>
-            <div>
-              <label class="block font-bold text-slate-700 mb-1">Tingkat</label>
-              <select id="form-kl-tingkat" class="w-full px-3 py-2 rounded-xl border border-slate-200 font-semibold">
-                <option value="VII" ${item?.tingkat === 'VII' ? 'selected' : ''}>Tingkat VII</option>
-                <option value="VIII" ${item?.tingkat === 'VIII' ? 'selected' : ''}>Tingkat VIII</option>
-                <option value="IX" ${item?.tingkat === 'IX' ? 'selected' : ''}>Tingkat IX</option>
-              </select>
-            </div>
-          </div>
-
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div>
-              <label class="block font-bold text-slate-700 mb-1">Nama Rombongan Belajar</label>
-              <input type="text" id="form-kl-nama" required value="${item?.nama_kelas || ''}" placeholder="Kelas VII-A" class="w-full px-3 py-2 rounded-xl border border-slate-200" />
-            </div>
-            <div>
-              <label class="block font-bold text-slate-700 mb-1">Kapasitas Siswa</label>
-              <input type="number" id="form-kl-kapasitas" value="${item?.kapasitas || 36}" class="w-full px-3 py-2 rounded-xl border border-slate-200" />
-            </div>
-          </div>
-
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div>
-              <label class="block font-bold text-slate-700 mb-1">Nama Wali Kelas</label>
-              <input type="text" id="form-kl-wali" value="${item?.wali_kelas || ''}" class="w-full px-3 py-2 rounded-xl border border-slate-200" />
-            </div>
-            <div>
-              <label class="block font-bold text-slate-700 mb-1">NIP Wali Kelas</label>
-              <input type="text" id="form-kl-nip" value="${item?.nip_wali_kelas || ''}" class="w-full px-3 py-2 rounded-xl border border-slate-200 font-mono" />
-            </div>
-          </div>
-
-          <div class="pt-2 flex justify-end gap-2">
-            <button type="button" onclick="window.app.closeModal()" class="px-4 py-2 rounded-xl bg-slate-100 text-slate-600 font-bold">Batal</button>
-            <button type="submit" class="px-5 py-2 rounded-xl bg-[#2A4756] text-white font-bold shadow">Simpan Master Kelas</button>
-          </div>
-        </form>
-      `;
-      document.getElementById('modal-overlay').classList.remove('hidden');
-    }
-
-    async function saveKelasForm(e, editId) {
-      e.preventDefault();
-      const payload = {
-        kode_kelas: document.getElementById('form-kl-kode').value.trim().toUpperCase(),
-        tingkat: document.getElementById('form-kl-tingkat').value,
-        nama_kelas: document.getElementById('form-kl-nama').value.trim(),
-        kapasitas: Number(document.getElementById('form-kl-kapasitas').value) || 36,
-        wali_kelas: document.getElementById('form-kl-wali').value.trim(),
-        nip_wali_kelas: document.getElementById('form-kl-nip').value.trim()
-      };
-
-      try {
-        if (IS_PREVIEW) {
-          if (editId) {
-            const idx = state.db.kelas.findIndex(k => k.id === editId);
-            if (idx > -1) state.db.kelas[idx] = { ...state.db.kelas[idx], ...payload };
-          } else {
-            state.db.kelas.push({ id: 'kl-' + Date.now(), ...payload });
-          }
-          savePreviewLocal();
-        } else if (supabase) {
-          if (editId) {
-            const { error } = await supabase.from('sipps_kelas').update(payload).eq('id', editId);
-            if (error) throw error;
-          } else {
-            const { error } = await supabase.from('sipps_kelas').insert([payload]);
-            if (error) throw error;
-          }
-          await loadAllDatabase(false);
-        }
-        closeModal();
-        renderActiveView();
-        showToast("Data Master Kelas berhasil disimpan & disinkronkan!", "success");
-      } catch (err) {
-        showToast("Gagal menyimpan kelas: " + err.message, "error");
-      }
-    }
-
-    function openModalStaff(editId = null) {
-      const item = editId ? state.db.staff.find(st => st.id === editId) : null;
-      document.getElementById('modal-title').textContent = item ? 'Edit Pengguna Guru BK' : 'Tambah Pengguna Guru BK Baru';
-      document.getElementById('modal-body').innerHTML = `
-        <form onsubmit="window.app.saveStaffForm(event, '${editId || ''}')" class="space-y-3.5 text-xs">
-          <div>
-            <label class="block font-bold text-slate-700 mb-1">Nama Lengkap & Gelar Guru BK</label>
-            <input type="text" id="form-st-nama" required value="${item?.nama || ''}" class="w-full px-3 py-2 rounded-xl border border-slate-200 font-semibold" />
-          </div>
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div>
-              <label class="block font-bold text-slate-700 mb-1">NIP Guru BK</label>
-              <input type="text" id="form-st-nip" required value="${item?.nip || ''}" class="w-full px-3 py-2 rounded-xl border border-slate-200 font-mono" />
-            </div>
-            <div>
-              <label class="block font-bold text-slate-700 mb-1">Jabatan / Penugasan</label>
-              <input type="text" id="form-st-jabatan" required value="${item?.jabatan || 'Guru BK'}" class="w-full px-3 py-2 rounded-xl border border-slate-200" />
-            </div>
-          </div>
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3 rounded-2xl bg-slate-50 border border-slate-200">
-            <div>
-              <label class="block font-bold text-slate-700 mb-1">Username Login</label>
-              <input type="text" id="form-st-user" required value="${item?.username || ''}" class="w-full px-3 py-2 rounded-xl border border-slate-200 font-mono font-bold" />
-            </div>
-            <div>
-              <label class="block font-bold text-slate-700 mb-1">Password Login</label>
-              <input type="text" id="form-st-pass" required value="${item?.password || 'bk123'}" class="w-full px-3 py-2 rounded-xl border border-slate-200 font-mono font-bold" />
-            </div>
-          </div>
-          <div class="pt-2 flex justify-end gap-2">
-            <button type="button" onclick="window.app.closeModal()" class="px-4 py-2 rounded-xl bg-slate-100 text-slate-600 font-bold">Batal</button>
-            <button type="submit" class="px-5 py-2 rounded-xl bg-[#2A4756] text-white font-bold shadow">Simpan Akun Guru BK</button>
-          </div>
-        </form>
-      `;
-      document.getElementById('modal-overlay').classList.remove('hidden');
-    }
-
-    async function saveStaffForm(e, editId) {
-      e.preventDefault();
-      const payload = {
-        nama: document.getElementById('form-st-nama').value.trim(),
-        nip: document.getElementById('form-st-nip').value.trim(),
-        jabatan: document.getElementById('form-st-jabatan').value.trim(),
-        username: document.getElementById('form-st-user').value.trim(),
-        password: document.getElementById('form-st-pass').value.trim(),
-        role: 'bk'
-      };
-
-      try {
-        if (IS_PREVIEW) {
-          if (editId) {
-            const idx = state.db.staff.findIndex(st => st.id === editId);
-            if (idx > -1) state.db.staff[idx] = { ...state.db.staff[idx], ...payload };
-          } else {
-            state.db.staff.push({ id: 'st-' + Date.now(), avatar_url: '', ...payload });
-          }
-          savePreviewLocal();
-        } else if (supabase) {
-          if (editId) {
-            const { error } = await supabase.from('sipps_staff').update(payload).eq('id', editId);
-            if (error) throw error;
-          } else {
-            const { error } = await supabase.from('sipps_staff').insert([payload]);
-            if (error) throw error;
-          }
-          await loadAllDatabase(false);
-        }
-        closeModal();
-        renderActiveView();
-        showToast("Data Pengguna Guru BK berhasil disimpan & disinkronkan!", "success");
-      } catch (err) {
-        showToast("Gagal menyimpan Guru BK: " + err.message, "error");
-      }
-    }
-
-    function openModalAturan(editId = null) {
-      const item = editId ? state.db.aturan.find(a => a.id === editId) : null;
-      document.getElementById('modal-title').textContent = item ? 'Edit Pasal Katalog Aturan' : 'Tambah Pasal Aturan & Buku Saku';
-      document.getElementById('modal-body').innerHTML = `
-        <form onsubmit="window.app.saveAturanForm(event, '${editId || ''}')" class="space-y-3.5 text-xs">
-          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            <div>
-              <label class="block font-bold text-slate-700 mb-1">Kode Pasal</label>
-              <input type="text" id="form-at-kode" required value="${item?.kode_aturan || ''}" placeholder="KR-02" class="w-full px-3 py-2 rounded-xl border border-slate-200 font-mono font-bold" />
-            </div>
-            <div>
-              <label class="block font-bold text-slate-700 mb-1">Kategori</label>
-              <select id="form-at-kategori" class="w-full px-3 py-2 rounded-xl border border-slate-200 font-semibold">
-                <option value="Ringan" ${item?.kategori === 'Ringan' ? 'selected' : ''}>Ringan</option>
-                <option value="Sedang" ${item?.kategori === 'Sedang' ? 'selected' : ''}>Sedang</option>
-                <option value="Berat" ${item?.kategori === 'Berat' ? 'selected' : ''}>Berat</option>
-              </select>
-            </div>
-            <div>
-              <label class="block font-bold text-slate-700 mb-1">Bobot Poin</label>
-              <input type="number" id="form-at-poin" required value="${item?.poin || 10}" class="w-full px-3 py-2 rounded-xl border border-slate-200 font-bold" />
-            </div>
-          </div>
-          <div>
-            <label class="block font-bold text-slate-700 mb-1">Nama / Uraian Pelanggaran Tata Tertib</label>
-            <input type="text" id="form-at-nama" required value="${item?.nama_pelanggaran || ''}" class="w-full px-3 py-2 rounded-xl border border-slate-200 font-semibold" />
-          </div>
-          <div>
-            <label class="block font-bold text-slate-700 mb-1">Pedoman Sanksi / Tindak Lanjut Buku Saku</label>
-            <textarea id="form-at-sanksi" rows="3" class="w-full p-3 rounded-xl border border-slate-200">${item?.sanksi_tindak_lanjut || ''}</textarea>
-          </div>
-          <div class="pt-2 flex justify-end gap-2">
-            <button type="button" onclick="window.app.closeModal()" class="px-4 py-2 rounded-xl bg-slate-100 text-slate-600 font-bold">Batal</button>
-            <button type="submit" class="px-5 py-2 rounded-xl bg-[#2A4756] text-white font-bold shadow">Simpan Pasal Aturan</button>
-          </div>
-        </form>
-      `;
-      document.getElementById('modal-overlay').classList.remove('hidden');
-    }
-
-    async function saveAturanForm(e, editId) {
-      e.preventDefault();
-      const payload = {
-        kode_aturan: document.getElementById('form-at-kode').value.trim().toUpperCase(),
-        kategori: document.getElementById('form-at-kategori').value,
-        poin: Number(document.getElementById('form-at-poin').value) || 10,
-        nama_pelanggaran: document.getElementById('form-at-nama').value.trim(),
-        sanksi_tindak_lanjut: document.getElementById('form-at-sanksi').value.trim()
-      };
-
-      try {
-        if (IS_PREVIEW) {
-          if (editId) {
-            const idx = state.db.aturan.findIndex(a => a.id === editId);
-            if (idx > -1) state.db.aturan[idx] = { ...state.db.aturan[idx], ...payload };
-          } else {
-            state.db.aturan.push({ id: 'at-' + Date.now(), ...payload });
-          }
-          savePreviewLocal();
-        } else if (supabase) {
-          if (editId) {
-            const { error } = await supabase.from('sipps_aturan').update(payload).eq('id', editId);
-            if (error) throw error;
-          } else {
-            const { error } = await supabase.from('sipps_aturan').insert([payload]);
-            if (error) throw error;
-          }
-          await loadAllDatabase(false);
-        }
-        closeModal();
-        renderActiveView();
-        showToast("Katalog aturan tata tertib berhasil disimpan & disinkronkan!", "success");
-      } catch (err) {
-        showToast("Gagal menyimpan aturan: " + err.message, "error");
-      }
-    }
-
-    function confirmDelete(tableKey, id, label) {
-      document.getElementById('modal-title').textContent = 'Konfirmasi Hapus Data';
-      document.getElementById('modal-body').innerHTML = `
-        <div class="space-y-4 text-xs">
-          <p class="text-slate-600 leading-relaxed">Apakah Anda yakin ingin menghapus data <b>${label}</b>? Perubahan ini akan langsung disinkronkan ke database.</p>
-          <div class="flex justify-end gap-2">
-            <button type="button" onclick="window.app.closeModal()" class="px-4 py-2 rounded-xl bg-slate-100 text-slate-600 font-bold">Batal</button>
-            <button type="button" onclick="window.app.executeDelete('${tableKey}', '${id}')" class="px-5 py-2 rounded-xl bg-red-600 hover:bg-red-700 text-white font-bold shadow">Ya, Hapus</button>
-          </div>
-        </div>
-      `;
-      document.getElementById('modal-overlay').classList.remove('hidden');
-    }
-
-    async function executeDelete(tableKey, id) {
-      const tableMap = {
-        pelanggaran: 'sipps_pelanggaran',
-        siswa: 'sipps_siswa',
-        kelas: 'sipps_kelas',
-        staff: 'sipps_staff',
-        aturan: 'sipps_aturan',
-        notifikasi: 'sipps_notifikasi'
-      };
-      try {
-        if (IS_PREVIEW) {
-          state.db[tableKey] = state.db[tableKey].filter(item => item.id !== id);
-          recalculateAllStudentPointsLocal();
-          savePreviewLocal();
-        } else if (supabase && tableMap[tableKey]) {
-          const { error } = await supabase.from(tableMap[tableKey]).delete().eq('id', id);
-          if (error) throw error;
-          await loadAllDatabase(false);
-        }
-        closeModal();
-        renderNotificationDrawer();
-        renderActiveView();
-        showToast("Data berhasil dihapus & disinkronkan.", "info");
-      } catch (err) {
-        showToast("Gagal menghapus data: " + err.message, "error");
-      }
-    }
-
-    // ====================================================================
-    // EXCEL IMPORT & EXPORT FUNCTIONS (PELANGGARAN, SISWA, ATURAN)
-    // ====================================================================
-    function exportExcelPelanggaran() {
-      const rows = state.db.pelanggaran.map(p => ({
-        Tanggal: p.tanggal,
-        NISN: p.nisn,
-        Nama_Siswa: p.nama_siswa,
-        Kelas: p.kelas,
-        Kode_Aturan: p.kode_aturan,
-        Nama_Pelanggaran: p.nama_pelanggaran,
-        Kategori: p.kategori,
-        Poin: p.poin,
-        Pelapor: p.pelapor,
-        Catatan_Tindak_Lanjut: p.catatan_tindak_lanjut,
-        Status_Penanganan: p.status_penanganan
-      }));
-      const ws = XLSX.utils.json_to_sheet(rows);
-      const wb = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(wb, ws, "Pelanggaran");
-      XLSX.writeFile(wb, `Data_Pelanggaran_SIPPS_SMPN71.xlsx`);
-      showToast("Data pelanggaran berhasil diekspor ke Excel!", "success");
-    }
-
-    async function importExcelPelanggaran(event) {
-      const file = event.target.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = async (e) => {
-        try {
-          const wb = XLSX.read(new Uint8Array(e.target.result), { type: 'array' });
-          const json = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]]);
-          const items = json.map(r => ({
-            tanggal: r.Tanggal || new Date().toISOString().slice(0, 10),
-            nisn: String(r.NISN || '').trim(),
-            nama_siswa: String(r.Nama_Siswa || '').trim(),
-            kelas: String(r.Kelas || 'VIII-A').trim(),
-            kode_aturan: String(r.Kode_Aturan || 'KR-01').trim(),
-            nama_pelanggaran: String(r.Nama_Pelanggaran || 'Pelanggaran Tata Tertib').trim(),
-            kategori: String(r.Kategori || 'Ringan').trim(),
-            poin: Number(r.Poin) || 10,
-            pelapor: String(r.Pelapor || state.currentUser.name).trim(),
-            catatan_tindak_lanjut: String(r.Catatan_Tindak_Lanjut || '').trim(),
-            status_penanganan: String(r.Status_Penanganan || 'Tercatat').trim()
-          })).filter(x => x.nisn && x.nama_siswa);
-
-          if (IS_PREVIEW) {
-            items.forEach((it, idx) => state.db.pelanggaran.unshift({ id: 'pl-imp-' + Date.now() + '-' + idx, ...it }));
-            recalculateAllStudentPointsLocal();
-            savePreviewLocal();
-          } else if (supabase && items.length > 0) {
-            const { error } = await supabase.from('sipps_pelanggaran').insert(items);
-            if (error) throw error;
-            await loadAllDatabase(false);
-          }
-          renderActiveView();
-          showToast(`${items.length} baris data pelanggaran berhasil diimpor & disinkronkan!`, "success");
-        } catch (err) {
-          showToast("Gagal impor Excel Pelanggaran: " + err.message, "error");
-        }
-      };
-      reader.readAsArrayBuffer(file);
-    }
-
-    function exportExcelSiswa() {
-      const rows = state.db.siswa.map(s => ({
-        NISN: s.nisn,
-        Nama_Siswa: s.nama_siswa,
-        Kelas: s.kelas,
-        Jenis_Kelamin: s.jenis_kelamin || 'L',
-        Nama_Wali: s.nama_wali || '',
-        No_HP_Wali: s.no_hp_wali || '',
-        Password_Siswa: s.password_siswa || 'siswa123',
-        Password_Wali: s.password_wali || 'wali123',
-        Total_Poin: s.total_poin || 0,
-        Status_Pembinaan: s.status_pembinaan || 'Aman'
-      }));
-      const ws = XLSX.utils.json_to_sheet(rows);
-      const wb = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(wb, ws, "Identitas_Siswa");
-      XLSX.writeFile(wb, `Data_Identitas_Siswa_SMPN71.xlsx`);
-      showToast("Data identitas siswa berhasil diekspor ke Excel!", "success");
-    }
-
-    async function importExcelSiswa(event) {
-      const file = event.target.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = async (e) => {
-        try {
-          const wb = XLSX.read(new Uint8Array(e.target.result), { type: 'array' });
-          const json = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]]);
-          const items = json.map(r => ({
-            nisn: String(r.NISN || r.nisn || '').trim(),
-            nama_siswa: String(r.Nama_Siswa || r.nama_siswa || '').trim(),
-            kelas: String(r.Kelas || r.kelas || 'VII-A').trim(),
-            jenis_kelamin: String(r.Jenis_Kelamin || r.jenis_kelamin || 'L').trim(),
-            nama_wali: String(r.Nama_Wali || r.nama_wali || '').trim(),
-            no_hp_wali: String(r.No_HP_Wali || r.no_hp_wali || '').trim(),
-            password_siswa: String(r.Password_Siswa || 'siswa123').trim(),
-            password_wali: String(r.Password_Wali || 'wali123').trim()
-          })).filter(x => x.nisn && x.nama_siswa);
-
-          if (IS_PREVIEW) {
-            items.forEach((it, idx) => {
-              const existIdx = state.db.siswa.findIndex(s => s.nisn === it.nisn);
-              if (existIdx > -1) state.db.siswa[existIdx] = { ...state.db.siswa[existIdx], ...it };
-              else state.db.siswa.push({ id: 'sw-imp-' + Date.now() + '-' + idx, total_poin: 0, status_pembinaan: 'Aman / Disiplin Baik', ...it });
-            });
-            recalculateAllStudentPointsLocal();
-            savePreviewLocal();
-          } else if (supabase && items.length > 0) {
-            const { error } = await supabase.from('sipps_siswa').upsert(items, { onConflict: 'nisn' });
-            if (error) throw error;
-            await loadAllDatabase(false);
-          }
-          renderActiveView();
-          showToast(`${items.length} data identitas siswa berhasil diimpor & disinkronkan!`, "success");
-        } catch (err) {
-          showToast("Gagal impor Excel Siswa: " + err.message, "error");
-        }
-      };
-      reader.readAsArrayBuffer(file);
-    }
-
-    function exportExcelAturan() {
-      const rows = state.db.aturan.map(a => ({
-        Kode_Aturan: a.kode_aturan,
-        Kategori: a.kategori,
-        Nama_Pelanggaran: a.nama_pelanggaran,
-        Poin: a.poin,
-        Sanksi_Tindak_Lanjut: a.sanksi_tindak_lanjut
-      }));
-      const ws = XLSX.utils.json_to_sheet(rows);
-      const wb = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(wb, ws, "Katalog_Aturan");
-      XLSX.writeFile(wb, `Katalog_Aturan_Buku_Saku_SMPN71.xlsx`);
-      showToast("Katalog aturan berhasil diekspor ke Excel!", "success");
-    }
-
-    async function importExcelAturan(event) {
-      const file = event.target.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = async (e) => {
-        try {
-          const wb = XLSX.read(new Uint8Array(e.target.result), { type: 'array' });
-          const json = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]]);
-          const items = json.map(r => ({
-            kode_aturan: String(r.Kode_Aturan || '').trim().toUpperCase(),
-            kategori: String(r.Kategori || 'Ringan').trim(),
-            nama_pelanggaran: String(r.Nama_Pelanggaran || '').trim(),
-            poin: Number(r.Poin) || 10,
-            sanksi_tindak_lanjut: String(r.Sanksi_Tindak_Lanjut || '').trim()
-          })).filter(x => x.kode_aturan && x.nama_pelanggaran);
-
-          if (IS_PREVIEW) {
-            items.forEach((it, idx) => {
-              const existIdx = state.db.aturan.findIndex(a => a.kode_aturan === it.kode_aturan);
-              if (existIdx > -1) state.db.aturan[existIdx] = { ...state.db.aturan[existIdx], ...it };
-              else state.db.aturan.push({ id: 'at-imp-' + Date.now() + '-' + idx, ...it });
-            });
-            savePreviewLocal();
-          } else if (supabase && items.length > 0) {
-            const { error } = await supabase.from('sipps_aturan').upsert(items, { onConflict: 'kode_aturan' });
-            if (error) throw error;
-            await loadAllDatabase(false);
-          }
-          renderActiveView();
-          showToast(`${items.length} pasal aturan berhasil diimpor & disinkronkan!`, "success");
-        } catch (err) {
-          showToast("Gagal impor Excel Aturan: " + err.message, "error");
-        }
-      };
-      reader.readAsArrayBuffer(file);
-    }
-
-    // ====================================================================
-    // SETTINGS & IMAGE UPLOAD HANDLERS (ADMIN & GURU BK)
+    // SETTINGS & IMAGE UPLOAD HANDLERS (ADMIN, GURU BK & SISWA)
     // ====================================================================
     let pendingBkAvatarDataUri = null;
+    let pendingSiswaAvatarDataUri = null;
 
-    function handleBkAvatarUpload(event) {
+    async function handleBkAvatarUpload(event) {
       const file = event.target.files[0];
       if (!file) return;
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        pendingBkAvatarDataUri = e.target.result;
-        const previewEl = document.getElementById('preview-bk-avatar');
-        if (previewEl) previewEl.src = pendingBkAvatarDataUri;
-        showToast("Foto profil Guru BK siap disimpan. Klik Simpan & Sinkronkan.", "info");
+      pendingBkAvatarDataUri = await compressImageDataUrl(file, 320, 0.85);
+      const previewEl = document.getElementById('preview-bk-avatar');
+      if (previewEl) previewEl.src = pendingBkAvatarDataUri;
+      showToast("Foto profil Guru BK siap disimpan. Klik Simpan & Sinkronkan.", "info");
+    }
+
+    async function handleSiswaAvatarUpload(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      pendingSiswaAvatarDataUri = await compressImageDataUrl(file, 320, 0.85);
+      const previewEl = document.getElementById('preview-siswa-avatar');
+      if (previewEl) previewEl.src = pendingSiswaAvatarDataUri;
+      showToast("Foto profil Siswa siap disimpan. Klik Simpan & Sinkronkan.", "info");
+    }
+
+    async function saveSiswaProfileSettings(e, siswaId, oldNisn) {
+      e.preventDefault();
+      const nama_siswa = document.getElementById('sw-set-nama').value.trim();
+      const nisn = document.getElementById('sw-set-nisn').value.trim();
+      const kelas = document.getElementById('sw-set-kelas').value.trim();
+      const password_siswa = document.getElementById('sw-set-password').value.trim() || 'siswa123';
+
+      const existing = state.db.siswa.find(s => s.id === siswaId || s.nisn === oldNisn);
+      const avatar_url = pendingSiswaAvatarDataUri !== null ? pendingSiswaAvatarDataUri : (existing?.avatar_url || state.currentUser.avatar_url || '');
+
+      const payload = {
+        nama_siswa,
+        nisn,
+        kelas,
+        password_siswa,
+        avatar_url
       };
-      reader.readAsDataURL(file);
+
+      try {
+        if (IS_PREVIEW) {
+          const idx = state.db.siswa.findIndex(s => s.id === siswaId || s.nisn === oldNisn);
+          if (idx > -1) {
+            state.db.siswa[idx] = { ...state.db.siswa[idx], ...payload };
+          }
+          state.db.pelanggaran.forEach(p => {
+            if (p.nisn === oldNisn || p.siswa_id === siswaId) {
+              p.nisn = nisn;
+              p.nama_siswa = nama_siswa;
+              p.kelas = kelas;
+            }
+          });
+          recalculateAllStudentPointsLocal();
+          savePreviewLocal();
+        } else if (supabase) {
+          const { error } = await supabase.from('sipps_siswa').update(payload).eq('id', siswaId);
+          if (error) throw error;
+          if (oldNisn && oldNisn !== nisn) {
+            await supabase.from('sipps_pelanggaran').update({ nisn, nama_siswa, kelas }).eq('nisn', oldNisn);
+          } else {
+            await supabase.from('sipps_pelanggaran').update({ nama_siswa, kelas }).eq('nisn', nisn);
+          }
+          await loadAllDatabase(false);
+        }
+
+        state.currentUser.name = nama_siswa;
+        state.currentUser.nisn = nisn;
+        state.currentUser.identifier = nisn;
+        state.currentUser.kelas = kelas;
+        state.currentUser.avatar_url = avatar_url;
+        pendingSiswaAvatarDataUri = null;
+
+        document.getElementById('sidebar-user-name').textContent = nama_siswa;
+        const initials = nama_siswa.split(' ').slice(0, 2).map(w => w[0]).join('').toUpperCase();
+        document.getElementById('sidebar-user-avatar').textContent = initials || 'SW';
+        updateSidebarUserAvatar();
+        renderActiveView();
+        showToast("Pengaturan Profil & Akun Siswa berhasil disimpan dan disinkronkan!", "success");
+      } catch (err) {
+        showToast("Gagal menyimpan pengaturan Siswa: " + err.message, "error");
+      }
     }
 
     async function saveBkProfileSettings(e, staffId) {
@@ -3583,24 +3086,21 @@
       }
     }
 
-    function handleImageUpload(event, settingKey, previewElementId) {
+    async function handleImageUpload(event, settingKey, previewElementId) {
       const file = event.target.files[0];
       if (!file) return;
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const dataUri = e.target.result;
-        state.db.settings[settingKey] = dataUri;
-        if (previewElementId) {
-          const el = document.getElementById(previewElementId);
-          if (el) {
-            if (el.tagName === 'IMG') el.src = dataUri;
-            else el.style.backgroundImage = `url('${dataUri}')`;
-          }
+      const maxDim = settingKey === 'bg_url' || settingKey === 'kop_surat_url' ? 1280 : 360;
+      const dataUri = await compressImageDataUrl(file, maxDim, 0.85);
+      state.db.settings[settingKey] = dataUri;
+      if (previewElementId) {
+        const el = document.getElementById(previewElementId);
+        if (el) {
+          if (el.tagName === 'IMG') el.src = dataUri;
+          else el.style.backgroundImage = `url('${dataUri}')`;
         }
-        updateGlobalVisualSettings();
-        showToast("Gambar berhasil dimuat. Klik Simpan Pengaturan untuk menyinkronkan.", "info");
-      };
-      reader.readAsDataURL(file);
+      }
+      updateGlobalVisualSettings();
+      showToast("Gambar berhasil dimuat. Klik Simpan Pengaturan untuk menyinkronkan.", "info");
     }
 
     async function saveSettingsForm(e) {
@@ -3711,7 +3211,7 @@
         </form>
       `;
       document.getElementById('modal-overlay').classList.remove('hidden');
-      lucide.createIcons();
+      refreshIconsFast();
     }
 
     async function testSupabaseConnectionLive() {
@@ -3834,16 +3334,761 @@
 
     async function markAllNotifRead() {
       state.db.notifikasi.forEach(n => { n.is_read = true; });
-      if (IS_PREVIEW) savePreviewLocal();
-      else if (supabase) await supabase.from('sipps_notifikasi').update({ is_read: true }).eq('is_read', false);
+      if (IS_PREVIEW) {
+        savePreviewLocal();
+      } else if (supabase) {
+        await supabase.from('sipps_notifikasi').update({ is_read: true }).eq('is_read', false);
+      }
       renderNotificationDrawer();
-      if (state.activeMenu === 'notifikasi') renderActiveView();
-      showToast("Semua notifikasi ditandai telah dibaca.", "info");
+      showToast("Semua notifikasi telah ditandai dibaca.", "success");
     }
 
+    // ====================================================================
+    // CRUD MODALS (PELANGGARAN, SISWA, KELAS, STAFF, ATURAN, DELETE)
+    // ====================================================================
+    function openModalPelanggaran(editId = null) {
+      const existing = editId ? state.db.pelanggaran.find(p => p.id === editId) : null;
+      const today = new Date().toISOString().slice(0, 10);
+
+      document.getElementById('modal-title').textContent = existing ? 'Edit Catatan Pelanggaran Siswa' : 'Catat Poin Pelanggaran Baru';
+      document.getElementById('modal-body').innerHTML = `
+        <form onsubmit="window.app.savePelanggaranForm(event, '${editId || ''}')" class="space-y-4 text-xs">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label class="block font-bold text-slate-700 mb-1">Tanggal Kejadian</label>
+              <input type="date" id="form-pel-tanggal" required value="${existing ? existing.tanggal : today}" class="w-full px-3 py-2 rounded-xl border border-slate-200" />
+            </div>
+            <div>
+              <label class="block font-bold text-slate-700 mb-1">Status Penanganan</label>
+              <select id="form-pel-status" class="w-full px-3 py-2 rounded-xl border border-slate-200 font-semibold">
+                <option value="Tercatat" ${existing?.status_penanganan === 'Tercatat' ? 'selected' : ''}>Tercatat</option>
+                <option value="Dalam Pembinaan" ${existing?.status_penanganan === 'Dalam Pembinaan' ? 'selected' : ''}>Dalam Pembinaan BK</option>
+                <option value="Selesai" ${existing?.status_penanganan === 'Selesai' ? 'selected' : ''}>Selesai Ditangani</option>
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Pilih Siswa (NISN - Nama - Kelas)</label>
+            <select id="form-pel-siswa" required class="w-full px-3 py-2 rounded-xl border border-slate-200 font-semibold">
+              <option value="">-- Pilih Siswa --</option>
+              ${state.db.siswa.map(s => `<option value="${s.nisn}" ${existing?.nisn === s.nisn ? 'selected' : ''}>${s.nisn} — ${s.nama_siswa} (${s.kelas})</option>`).join('')}
+            </select>
+          </div>
+
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Pilih Pasal Pelanggaran Buku Saku</label>
+            <select id="form-pel-aturan" required class="w-full px-3 py-2 rounded-xl border border-slate-200 font-semibold">
+              <option value="">-- Pilih Aturan Tata Tertib --</option>
+              ${state.db.aturan.map(a => `<option value="${a.kode_aturan}" ${existing?.kode_aturan === a.kode_aturan ? 'selected' : ''}>[${a.kode_aturan}] ${a.nama_pelanggaran} (+${a.poin} Poin)</option>`).join('')}
+            </select>
+          </div>
+
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Catatan Pembinaan / Tindak Lanjut</label>
+            <textarea id="form-pel-catatan" rows="3" placeholder="Tulis hasil pembinaan atau tindak lanjut..." class="w-full p-3 rounded-xl border border-slate-200">${existing?.catatan_tindak_lanjut || ''}</textarea>
+          </div>
+
+          <div class="pt-2 flex justify-end gap-2">
+            <button type="button" onclick="window.app.closeModal()" class="px-4 py-2 rounded-xl bg-slate-100 text-slate-700 font-bold">Batal</button>
+            <button type="submit" class="px-5 py-2 rounded-xl bg-[#2A4756] text-white font-bold">Simpan & Kirim Notif</button>
+          </div>
+        </form>
+      `;
+      document.getElementById('modal-overlay').classList.remove('hidden');
+    }
+
+    async function savePelanggaranForm(e, editId) {
+      e.preventDefault();
+      const tanggal = document.getElementById('form-pel-tanggal').value;
+      const status_penanganan = document.getElementById('form-pel-status').value;
+      const nisn = document.getElementById('form-pel-siswa').value;
+      const kode_aturan = document.getElementById('form-pel-aturan').value;
+      const catatan_tindak_lanjut = document.getElementById('form-pel-catatan').value.trim();
+
+      const siswaObj = state.db.siswa.find(s => s.nisn === nisn);
+      const aturanObj = state.db.aturan.find(a => a.kode_aturan === kode_aturan);
+      if (!siswaObj || !aturanObj) return showToast("Pilih siswa dan pasal aturan dengan benar.", "error");
+
+      const payload = {
+        tanggal,
+        siswa_id: siswaObj.id,
+        nisn: siswaObj.nisn,
+        nama_siswa: siswaObj.nama_siswa,
+        kelas: siswaObj.kelas,
+        aturan_id: aturanObj.id,
+        kode_aturan: aturanObj.kode_aturan,
+        nama_pelanggaran: aturanObj.nama_pelanggaran,
+        kategori: aturanObj.kategori,
+        poin: Number(aturanObj.poin) || 10,
+        pelapor: state.currentUser.name,
+        catatan_tindak_lanjut,
+        status_penanganan
+      };
+
+      try {
+        if (IS_PREVIEW) {
+          if (editId) {
+            const idx = state.db.pelanggaran.findIndex(p => p.id === editId);
+            if (idx > -1) state.db.pelanggaran[idx] = { ...state.db.pelanggaran[idx], ...payload };
+          } else {
+            state.db.pelanggaran.unshift({ id: 'pl-' + Date.now(), ...payload });
+            state.db.notifikasi.unshift({
+              id: 'nt-' + Date.now(),
+              judul: `Pencatatan Pelanggaran (${aturanObj.kode_aturan})`,
+              isi_pesan: `Ananda ${siswaObj.nama_siswa} (${siswaObj.kelas}) tercatat melanggar aturan ${aturanObj.nama_pelanggaran} (+${aturanObj.poin} Poin).`,
+              tipe: 'Pelanggaran Otomatis',
+              target_role: 'Semua',
+              target_kelas: siswaObj.kelas,
+              target_nisn: siswaObj.nisn,
+              target_nama: siswaObj.nama_siswa,
+              pengirim: state.currentUser.name,
+              pengirim_role: state.currentUser.role,
+              pengirim_id: state.currentUser.identifier || 'admin',
+              is_read: false,
+              created_at: new Date().toISOString()
+            });
+          }
+          recalculateAllStudentPointsLocal();
+          savePreviewLocal();
+        } else if (supabase) {
+          if (editId) {
+            const { error } = await supabase.from('sipps_pelanggaran').update(payload).eq('id', editId);
+            if (error) throw error;
+          } else {
+            const { error } = await supabase.from('sipps_pelanggaran').insert([payload]);
+            if (error) throw error;
+            await supabase.from('sipps_notifikasi').insert([{
+              judul: `Pencatatan Pelanggaran (${aturanObj.kode_aturan})`,
+              isi_pesan: `Ananda ${siswaObj.nama_siswa} (${siswaObj.kelas}) tercatat melanggar aturan ${aturanObj.nama_pelanggaran} (+${aturanObj.poin} Poin).`,
+              tipe: 'Pelanggaran Otomatis',
+              target_role: 'Semua',
+              target_kelas: siswaObj.kelas,
+              target_nisn: siswaObj.nisn,
+              target_nama: siswaObj.nama_siswa,
+              pengirim: state.currentUser.name,
+              pengirim_role: state.currentUser.role,
+              pengirim_id: state.currentUser.identifier || 'admin',
+              is_read: false
+            }]);
+          }
+          await loadAllDatabase(false);
+        }
+
+        closeModal();
+        renderNotificationDrawer();
+        renderActiveView();
+        showToast("Data pelanggaran berhasil disimpan & disinkronkan!", "success");
+      } catch (err) {
+        showToast("Gagal menyimpan pelanggaran: " + err.message, "error");
+      }
+    }
+
+    function openModalSiswa(editId = null) {
+      const existing = editId ? state.db.siswa.find(s => s.id === editId) : null;
+      const classes = getUniqueClasses();
+      document.getElementById('modal-title').textContent = existing ? 'Edit Identitas Siswa' : 'Tambah Identitas Siswa Baru';
+      document.getElementById('modal-body').innerHTML = `
+        <form onsubmit="window.app.saveSiswaForm(event, '${editId || ''}')" class="space-y-3.5 text-xs">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label class="block font-bold text-slate-700 mb-1">NISN (ID Login Siswa & Wali)</label>
+              <input type="text" id="form-sw-nisn" required value="${existing?.nisn || ''}" placeholder="Contoh: 0091234561" class="w-full px-3 py-2 rounded-xl border border-slate-200 font-mono" />
+            </div>
+            <div>
+              <label class="block font-bold text-slate-700 mb-1">Kelas (Dari Master Kelas)</label>
+              <input type="text" id="form-sw-kelas" list="master-kelas-datalist" required placeholder="Contoh: VIII-A" value="${existing?.kelas || (classes[0] || 'VIII-A')}" class="w-full px-3 py-2 rounded-xl border border-slate-200 font-bold" />
+              <datalist id="master-kelas-datalist">
+                ${classes.map(c => `<option value="${c}">Kelas ${c}</option>`).join('')}
+              </datalist>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div class="sm:col-span-2">
+              <label class="block font-bold text-slate-700 mb-1">Nama Lengkap Siswa</label>
+              <input type="text" id="form-sw-nama" required value="${existing?.nama_siswa || ''}" class="w-full px-3 py-2 rounded-xl border border-slate-200" />
+            </div>
+            <div>
+              <label class="block font-bold text-slate-700 mb-1">Jenis Kelamin</label>
+              <select id="form-sw-jk" class="w-full px-3 py-2 rounded-xl border border-slate-200">
+                <option value="L" ${existing?.jenis_kelamin === 'L' ? 'selected' : ''}>Laki-laki (L)</option>
+                <option value="P" ${existing?.jenis_kelamin === 'P' ? 'selected' : ''}>Perempuan (P)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label class="block font-bold text-slate-700 mb-1">Nama Orang Tua / Wali</label>
+              <input type="text" id="form-sw-wali" value="${existing?.nama_wali || ''}" class="w-full px-3 py-2 rounded-xl border border-slate-200" />
+            </div>
+            <div>
+              <label class="block font-bold text-slate-700 mb-1">No. HP / WhatsApp Wali</label>
+              <input type="text" id="form-sw-hp" value="${existing?.no_hp_wali || ''}" class="w-full px-3 py-2 rounded-xl border border-slate-200 font-mono" />
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3 rounded-2xl bg-slate-50 border border-slate-200">
+            <div>
+              <label class="block font-bold text-slate-700 mb-1">Kata Sandi Login Siswa</label>
+              <input type="text" id="form-sw-pass-siswa" required value="${existing?.password_siswa || 'siswa123'}" class="w-full px-3 py-2 rounded-xl bg-white border border-slate-200 font-mono" />
+            </div>
+            <div>
+              <label class="block font-bold text-slate-700 mb-1">Kata Sandi Login Wali Murid</label>
+              <input type="text" id="form-sw-pass-wali" required value="${existing?.password_wali || 'wali123'}" class="w-full px-3 py-2 rounded-xl bg-white border border-slate-200 font-mono" />
+            </div>
+          </div>
+
+          <div class="pt-2 flex justify-end gap-2">
+            <button type="button" onclick="window.app.closeModal()" class="px-4 py-2 rounded-xl bg-slate-100 text-slate-700 font-bold">Batal</button>
+            <button type="submit" class="px-5 py-2 rounded-xl bg-[#2A4756] text-white font-bold">Simpan Identitas Siswa</button>
+          </div>
+        </form>
+      `;
+      document.getElementById('modal-overlay').classList.remove('hidden');
+    }
+
+    async function saveSiswaForm(e, editId) {
+      e.preventDefault();
+      const payload = {
+        nisn: document.getElementById('form-sw-nisn').value.trim(),
+        nama_siswa: document.getElementById('form-sw-nama').value.trim(),
+        kelas: document.getElementById('form-sw-kelas').value.trim(),
+        jenis_kelamin: document.getElementById('form-sw-jk').value,
+        nama_wali: document.getElementById('form-sw-wali').value.trim(),
+        no_hp_wali: document.getElementById('form-sw-hp').value.trim(),
+        password_siswa: document.getElementById('form-sw-pass-siswa').value.trim(),
+        password_wali: document.getElementById('form-sw-pass-wali').value.trim()
+      };
+
+      try {
+        if (IS_PREVIEW) {
+          if (editId) {
+            const idx = state.db.siswa.findIndex(s => s.id === editId);
+            if (idx > -1) state.db.siswa[idx] = { ...state.db.siswa[idx], ...payload };
+          } else {
+            state.db.siswa.push({ id: 'sw-' + Date.now(), total_poin: 0, status_pembinaan: 'Aman / Disiplin Baik', ...payload });
+          }
+          recalculateAllStudentPointsLocal();
+          savePreviewLocal();
+        } else if (supabase) {
+          if (editId) {
+            const { error } = await supabase.from('sipps_siswa').update(payload).eq('id', editId);
+            if (error) throw error;
+          } else {
+            const { error } = await supabase.from('sipps_siswa').insert([payload]);
+            if (error) throw error;
+          }
+          await loadAllDatabase(false);
+        }
+        closeModal();
+        renderActiveView();
+        showToast("Identitas siswa berhasil disimpan & disinkronkan!", "success");
+      } catch (err) {
+        showToast("Gagal menyimpan siswa: " + err.message, "error");
+      }
+    }
+
+    function openModalKelas(editId = null) {
+      const existing = editId ? state.db.kelas.find(k => k.id === editId) : null;
+      document.getElementById('modal-title').textContent = existing ? 'Edit Master Data Kelas' : 'Tambah Master Kelas Baru';
+      document.getElementById('modal-body').innerHTML = `
+        <form onsubmit="window.app.saveKelasForm(event, '${editId || ''}')" class="space-y-3.5 text-xs">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label class="block font-bold text-slate-700 mb-1">Kode Kelas (Singkat)</label>
+              <input type="text" id="form-kls-kode" required placeholder="Contoh: VII-A atau VIII-B" value="${existing?.kode_kelas || ''}" class="w-full px-3 py-2 rounded-xl border border-slate-200 font-bold uppercase" />
+            </div>
+            <div>
+              <label class="block font-bold text-slate-700 mb-1">Tingkat Kelas</label>
+              <select id="form-kls-tingkat" class="w-full px-3 py-2 rounded-xl border border-slate-200 font-semibold">
+                <option value="VII" ${existing?.tingkat === 'VII' ? 'selected' : ''}>Tingkat VII (Kelas 7)</option>
+                <option value="VIII" ${existing?.tingkat === 'VIII' ? 'selected' : ''}>Tingkat VIII (Kelas 8)</option>
+                <option value="IX" ${existing?.tingkat === 'IX' ? 'selected' : ''}>Tingkat IX (Kelas 9)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div class="sm:col-span-2">
+              <label class="block font-bold text-slate-700 mb-1">Nama Rombongan Belajar</label>
+              <input type="text" id="form-kls-nama" required placeholder="Contoh: Kelas VIII-A Unggulan" value="${existing?.nama_kelas || ''}" class="w-full px-3 py-2 rounded-xl border border-slate-200" />
+            </div>
+            <div>
+              <label class="block font-bold text-slate-700 mb-1">Kapasitas Siswa</label>
+              <input type="number" id="form-kls-kapasitas" required min="1" value="${existing?.kapasitas || 36}" class="w-full px-3 py-2 rounded-xl border border-slate-200 font-bold" />
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label class="block font-bold text-slate-700 mb-1">Nama Wali Kelas</label>
+              <input type="text" id="form-kls-wali" placeholder="Nama lengkap & gelar" value="${existing?.wali_kelas || ''}" class="w-full px-3 py-2 rounded-xl border border-slate-200" />
+            </div>
+            <div>
+              <label class="block font-bold text-slate-700 mb-1">NIP Wali Kelas</label>
+              <input type="text" id="form-kls-nip" placeholder="NIP Wali Kelas" value="${existing?.nip_wali_kelas || ''}" class="w-full px-3 py-2 rounded-xl border border-slate-200 font-mono" />
+            </div>
+          </div>
+
+          <div class="pt-2 flex justify-end gap-2">
+            <button type="button" onclick="window.app.closeModal()" class="px-4 py-2 rounded-xl bg-slate-100 text-slate-700 font-bold">Batal</button>
+            <button type="submit" class="px-5 py-2 rounded-xl bg-[#2A4756] text-white font-bold">Simpan & Sinkronkan Kelas</button>
+          </div>
+        </form>
+      `;
+      document.getElementById('modal-overlay').classList.remove('hidden');
+    }
+
+    async function saveKelasForm(e, editId) {
+      e.preventDefault();
+      const payload = {
+        kode_kelas: document.getElementById('form-kls-kode').value.trim().toUpperCase(),
+        tingkat: document.getElementById('form-kls-tingkat').value,
+        nama_kelas: document.getElementById('form-kls-nama').value.trim(),
+        kapasitas: Number(document.getElementById('form-kls-kapasitas').value) || 36,
+        wali_kelas: document.getElementById('form-kls-wali').value.trim(),
+        nip_wali_kelas: document.getElementById('form-kls-nip').value.trim()
+      };
+
+      try {
+        if (IS_PREVIEW) {
+          if (editId) {
+            const idx = state.db.kelas.findIndex(k => k.id === editId);
+            if (idx > -1) state.db.kelas[idx] = { ...state.db.kelas[idx], ...payload };
+          } else {
+            state.db.kelas.push({ id: 'kl-' + Date.now(), ...payload });
+          }
+          savePreviewLocal();
+        } else if (supabase) {
+          if (editId) {
+            const { error } = await supabase.from('sipps_kelas').update(payload).eq('id', editId);
+            if (error) throw error;
+          } else {
+            const { error } = await supabase.from('sipps_kelas').insert([payload]);
+            if (error) throw error;
+          }
+          await loadAllDatabase(false);
+        }
+        closeModal();
+        renderActiveView();
+        showToast("Data Master Kelas berhasil disimpan & disinkronkan!", "success");
+      } catch (err) {
+        showToast("Gagal menyimpan master kelas: " + err.message, "error");
+      }
+    }
+
+    function openModalStaff(editId = null) {
+      const existing = editId ? state.db.staff.find(s => s.id === editId) : null;
+      document.getElementById('modal-title').textContent = existing ? 'Edit Data Pengguna Guru BK' : 'Tambah Pengguna Guru BK Baru';
+      document.getElementById('modal-body').innerHTML = `
+        <form onsubmit="window.app.saveStaffForm(event, '${editId || ''}')" class="space-y-3.5 text-xs">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label class="block font-bold text-slate-700 mb-1">NIP Guru BK</label>
+              <input type="text" id="form-st-nip" required placeholder="Contoh: 198504112010012003" value="${existing?.nip || ''}" class="w-full px-3 py-2 rounded-xl border border-slate-200 font-mono" />
+            </div>
+            <div>
+              <label class="block font-bold text-slate-700 mb-1">Jabatan / Penugasan</label>
+              <input type="text" id="form-st-jabatan" required placeholder="Contoh: Koordinator Guru BK" value="${existing?.jabatan || 'Guru Bimbingan Konseling'}" class="w-full px-3 py-2 rounded-xl border border-slate-200 font-semibold" />
+            </div>
+          </div>
+
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Nama Lengkap & Gelar Guru BK</label>
+            <input type="text" id="form-st-nama" required placeholder="Contoh: Dra. Rina Kartika, S.Pd., Kons." value="${existing?.nama || ''}" class="w-full px-3 py-2 rounded-xl border border-slate-200 font-bold" />
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3.5 rounded-2xl bg-slate-50 border border-slate-200">
+            <div>
+              <label class="block font-bold text-slate-700 mb-1">Username Login Guru BK</label>
+              <input type="text" id="form-st-username" required placeholder="Contoh: bk71" value="${existing?.username || ''}" class="w-full px-3 py-2 rounded-xl bg-white border border-slate-200 font-mono font-bold" />
+            </div>
+            <div>
+              <label class="block font-bold text-slate-700 mb-1">Kata Sandi Login</label>
+              <input type="text" id="form-st-password" required placeholder="Minimal 5 karakter" value="${existing?.password || 'bk123'}" class="w-full px-3 py-2 rounded-xl bg-white border border-slate-200 font-mono" />
+            </div>
+          </div>
+
+          <div class="pt-2 flex justify-end gap-2">
+            <button type="button" onclick="window.app.closeModal()" class="px-4 py-2 rounded-xl bg-slate-100 text-slate-700 font-bold">Batal</button>
+            <button type="submit" class="px-5 py-2 rounded-xl bg-[#2A4756] text-white font-bold">Simpan & Sinkronkan Guru BK</button>
+          </div>
+        </form>
+      `;
+      document.getElementById('modal-overlay').classList.remove('hidden');
+    }
+
+    async function saveStaffForm(e, editId) {
+      e.preventDefault();
+      const payload = {
+        nip: document.getElementById('form-st-nip').value.trim(),
+        nama: document.getElementById('form-st-nama').value.trim(),
+        jabatan: document.getElementById('form-st-jabatan').value.trim(),
+        username: document.getElementById('form-st-username').value.trim(),
+        password: document.getElementById('form-st-password').value.trim(),
+        role: 'bk'
+      };
+
+      try {
+        if (IS_PREVIEW) {
+          if (editId) {
+            const idx = state.db.staff.findIndex(s => s.id === editId);
+            if (idx > -1) state.db.staff[idx] = { ...state.db.staff[idx], ...payload };
+          } else {
+            state.db.staff.push({ id: 'st-' + Date.now(), ...payload });
+          }
+          savePreviewLocal();
+        } else if (supabase) {
+          if (editId) {
+            const { error } = await supabase.from('sipps_staff').update(payload).eq('id', editId);
+            if (error) throw error;
+          } else {
+            const { error } = await supabase.from('sipps_staff').insert([payload]);
+            if (error) throw error;
+          }
+          await loadAllDatabase(false);
+        }
+        closeModal();
+        renderActiveView();
+        showToast("Akun Pengguna Guru BK berhasil disimpan & disinkronkan!", "success");
+      } catch (err) {
+        showToast("Gagal menyimpan akun Guru BK: " + err.message, "error");
+      }
+    }
+
+    function openModalAturan(editId = null) {
+      const existing = editId ? state.db.aturan.find(a => a.id === editId) : null;
+      document.getElementById('modal-title').textContent = existing ? 'Edit Pasal Aturan Buku Saku' : 'Tambah Pasal Aturan & Poin';
+      document.getElementById('modal-body').innerHTML = `
+        <form onsubmit="window.app.saveAturanForm(event, '${editId || ''}')" class="space-y-3.5 text-xs">
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div>
+              <label class="block font-bold text-slate-700 mb-1">Kode Pasal</label>
+              <input type="text" id="form-at-kode" required placeholder="KR-02" value="${existing?.kode_aturan || ''}" class="w-full px-3 py-2 rounded-xl border border-slate-200 font-mono font-bold" />
+            </div>
+            <div>
+              <label class="block font-bold text-slate-700 mb-1">Kategori</label>
+              <select id="form-at-kategori" class="w-full px-3 py-2 rounded-xl border border-slate-200 font-semibold">
+                <option value="Ringan" ${existing?.kategori === 'Ringan' ? 'selected' : ''}>Ringan</option>
+                <option value="Sedang" ${existing?.kategori === 'Sedang' ? 'selected' : ''}>Sedang</option>
+                <option value="Berat" ${existing?.kategori === 'Berat' ? 'selected' : ''}>Berat</option>
+              </select>
+            </div>
+            <div>
+              <label class="block font-bold text-slate-700 mb-1">Bobot Poin</label>
+              <input type="number" id="form-at-poin" required min="1" value="${existing?.poin || 10}" class="w-full px-3 py-2 rounded-xl border border-slate-200 font-bold" />
+            </div>
+          </div>
+
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Nama / Uraian Pelanggaran Tata Tertib</label>
+            <input type="text" id="form-at-nama" required value="${existing?.nama_pelanggaran || ''}" class="w-full px-3 py-2 rounded-xl border border-slate-200" />
+          </div>
+
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Sanksi & Pedoman Tindak Lanjut Buku Saku</label>
+            <textarea id="form-at-sanksi" rows="3" class="w-full p-3 rounded-xl border border-slate-200">${existing?.sanksi_tindak_lanjut || ''}</textarea>
+          </div>
+
+          <div class="pt-2 flex justify-end gap-2">
+            <button type="button" onclick="window.app.closeModal()" class="px-4 py-2 rounded-xl bg-slate-100 text-slate-700 font-bold">Batal</button>
+            <button type="submit" class="px-5 py-2 rounded-xl bg-[#2A4756] text-white font-bold">Simpan Pasal Aturan</button>
+          </div>
+        </form>
+      `;
+      document.getElementById('modal-overlay').classList.remove('hidden');
+    }
+
+    async function saveAturanForm(e, editId) {
+      e.preventDefault();
+      const payload = {
+        kode_aturan: document.getElementById('form-at-kode').value.trim(),
+        kategori: document.getElementById('form-at-kategori').value,
+        poin: Number(document.getElementById('form-at-poin').value) || 10,
+        nama_pelanggaran: document.getElementById('form-at-nama').value.trim(),
+        sanksi_tindak_lanjut: document.getElementById('form-at-sanksi').value.trim()
+      };
+
+      try {
+        if (IS_PREVIEW) {
+          if (editId) {
+            const idx = state.db.aturan.findIndex(a => a.id === editId);
+            if (idx > -1) state.db.aturan[idx] = { ...state.db.aturan[idx], ...payload };
+          } else {
+            state.db.aturan.push({ id: 'at-' + Date.now(), ...payload });
+          }
+          savePreviewLocal();
+        } else if (supabase) {
+          if (editId) {
+            const { error } = await supabase.from('sipps_aturan').update(payload).eq('id', editId);
+            if (error) throw error;
+          } else {
+            const { error } = await supabase.from('sipps_aturan').insert([payload]);
+            if (error) throw error;
+          }
+          await loadAllDatabase(false);
+        }
+        closeModal();
+        renderActiveView();
+        showToast("Katalog aturan berhasil disimpan & disinkronkan!", "success");
+      } catch (err) {
+        showToast("Gagal menyimpan aturan: " + err.message, "error");
+      }
+    }
+
+    function confirmDelete(entityType, id, label) {
+      document.getElementById('modal-title').textContent = 'Konfirmasi Hapus Data';
+      document.getElementById('modal-body').innerHTML = `
+        <div class="space-y-4 text-xs">
+          <div class="p-4 rounded-2xl bg-red-50 border border-red-200 text-red-800">
+            Apakah Anda yakin ingin menghapus data <b>"${label}"</b>? Tindakan ini akan langsung menyinkronkan perubahan ke database.
+          </div>
+          <div class="flex justify-end gap-2">
+            <button type="button" onclick="window.app.closeModal()" class="px-4 py-2 rounded-xl bg-slate-100 text-slate-700 font-bold">Batal</button>
+            <button type="button" onclick="window.app.executeDelete('${entityType}', '${id}')" class="px-5 py-2 rounded-xl bg-red-600 hover:bg-red-700 text-white font-bold">Ya, Hapus Sekarang</button>
+          </div>
+        </div>
+      `;
+      document.getElementById('modal-overlay').classList.remove('hidden');
+    }
+
+    async function executeDelete(entityType, id) {
+      try {
+        const tableMap = {
+          pelanggaran: 'sipps_pelanggaran',
+          siswa: 'sipps_siswa',
+          kelas: 'sipps_kelas',
+          staff: 'sipps_staff',
+          aturan: 'sipps_aturan',
+          notifikasi: 'sipps_notifikasi'
+        };
+        if (IS_PREVIEW) {
+          state.db[entityType] = state.db[entityType].filter(item => item.id !== id);
+          recalculateAllStudentPointsLocal();
+          savePreviewLocal();
+        } else if (supabase) {
+          const { error } = await supabase.from(tableMap[entityType]).delete().eq('id', id);
+          if (error) throw error;
+          await loadAllDatabase(false);
+        }
+        closeModal();
+        renderNotificationDrawer();
+        renderActiveView();
+        showToast("Data berhasil dihapus dan disinkronkan.", "success");
+      } catch (err) {
+        showToast("Gagal menghapus: " + err.message, "error");
+      }
+    }
+
+    // ====================================================================
+    // EXCEL (.XLSX) IMPORT & EXPORT SYNCHRONIZED HANDLERS
+    // ====================================================================
+    function exportExcelPelanggaran() {
+      const rows = state.db.pelanggaran.map(p => ({
+        Tanggal: p.tanggal,
+        NISN: p.nisn,
+        Nama_Siswa: p.nama_siswa,
+        Kelas: p.kelas,
+        Kode_Aturan: p.kode_aturan,
+        Nama_Pelanggaran: p.nama_pelanggaran,
+        Kategori: p.kategori,
+        Poin: p.poin,
+        Pelapor: p.pelapor,
+        Catatan_Tindak_Lanjut: p.catatan_tindak_lanjut,
+        Status_Penanganan: p.status_penanganan
+      }));
+      const ws = XLSX.utils.json_to_sheet(rows);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "Data_Pelanggaran");
+      XLSX.writeFile(wb, `SIPPS_SMPN71_Data_Pelanggaran_${new Date().toISOString().slice(0,10)}.xlsx`);
+      showToast("Data Pelanggaran berhasil diekspor ke format Excel (.xlsx)!", "success");
+    }
+
+    async function importExcelPelanggaran(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      try {
+        const data = await file.arrayBuffer();
+        const workbook = XLSX.read(data);
+        const sheet = workbook.Sheets[workbook.SheetNames[0]];
+        const jsonRows = XLSX.utils.sheet_to_json(sheet);
+        if (!jsonRows.length) throw new Error("File Excel kosong.");
+
+        const formatted = jsonRows.map((r, i) => ({
+          id: 'pl-imp-' + Date.now() + '-' + i,
+          tanggal: r.Tanggal || new Date().toISOString().slice(0, 10),
+          nisn: String(r.NISN || '').trim(),
+          nama_siswa: String(r.Nama_Siswa || 'Siswa').trim(),
+          kelas: String(r.Kelas || 'VIII-A').trim(),
+          kode_aturan: String(r.Kode_Aturan || 'KR-01').trim(),
+          nama_pelanggaran: String(r.Nama_Pelanggaran || 'Pelanggaran Tata Tertib').trim(),
+          kategori: String(r.Kategori || 'Ringan').trim(),
+          poin: Number(r.Poin) || 10,
+          pelapor: String(r.Pelapor || state.currentUser.name).trim(),
+          catatan_tindak_lanjut: String(r.Catatan_Tindak_Lanjut || 'Import Excel').trim(),
+          status_penanganan: String(r.Status_Penanganan || 'Tercatat').trim()
+        })).filter(r => r.nisn !== '');
+
+        if (IS_PREVIEW) {
+          state.db.pelanggaran = [...formatted, ...state.db.pelanggaran];
+          recalculateAllStudentPointsLocal();
+          savePreviewLocal();
+        } else if (supabase) {
+          const cleanInsert = formatted.map(({ id, ...rest }) => rest);
+          const { error } = await supabase.from('sipps_pelanggaran').insert(cleanInsert);
+          if (error) throw error;
+          await loadAllDatabase(false);
+        }
+        renderActiveView();
+        showToast(`${formatted.length} baris pelanggaran dari Excel berhasil diimpor & disinkronkan!`, "success");
+      } catch (err) {
+        showToast("Gagal Import Excel Pelanggaran: " + err.message, "error");
+      } finally {
+        event.target.value = '';
+      }
+    }
+
+    function exportExcelSiswa() {
+      const rows = state.db.siswa.map(s => ({
+        NISN: s.nisn,
+        Nama_Siswa: s.nama_siswa,
+        Kelas: s.kelas,
+        Jenis_Kelamin: s.jenis_kelamin,
+        Nama_Wali: s.nama_wali,
+        No_HP_Wali: s.no_hp_wali,
+        Password_Siswa: s.password_siswa,
+        Password_Wali: s.password_wali,
+        Total_Poin: s.total_poin,
+        Status_Pembinaan: s.status_pembinaan
+      }));
+      const ws = XLSX.utils.json_to_sheet(rows);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "Identitas_Siswa");
+      XLSX.writeFile(wb, `SIPPS_SMPN71_Identitas_Siswa_${new Date().toISOString().slice(0,10)}.xlsx`);
+      showToast("Data Identitas Siswa berhasil diekspor ke format Excel (.xlsx)!", "success");
+    }
+
+    async function importExcelSiswa(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      try {
+        const data = await file.arrayBuffer();
+        const workbook = XLSX.read(data);
+        const sheet = workbook.Sheets[workbook.SheetNames[0]];
+        const jsonRows = XLSX.utils.sheet_to_json(sheet);
+        if (!jsonRows.length) throw new Error("File Excel kosong.");
+
+        const formatted = jsonRows.map((r, i) => ({
+          id: 'sw-imp-' + Date.now() + '-' + i,
+          nisn: String(r.NISN || '').trim(),
+          nama_siswa: String(r.Nama_Siswa || '').trim(),
+          kelas: String(r.Kelas || 'VII-A').trim(),
+          jenis_kelamin: String(r.Jenis_Kelamin || 'L').trim(),
+          nama_wali: String(r.Nama_Wali || '').trim(),
+          no_hp_wali: String(r.No_HP_Wali || '').trim(),
+          password_siswa: String(r.Password_Siswa || 'siswa123').trim(),
+          password_wali: String(r.Password_Wali || 'wali123').trim(),
+          total_poin: Number(r.Total_Poin) || 0,
+          status_pembinaan: String(r.Status_Pembinaan || 'Aman / Disiplin Baik').trim()
+        })).filter(r => r.nisn !== '' && r.nama_siswa !== '');
+
+        if (IS_PREVIEW) {
+          formatted.forEach(item => {
+            const idx = state.db.siswa.findIndex(ex => ex.nisn === item.nisn);
+            if (idx > -1) state.db.siswa[idx] = { ...state.db.siswa[idx], ...item };
+            else state.db.siswa.push(item);
+          });
+          recalculateAllStudentPointsLocal();
+          savePreviewLocal();
+        } else if (supabase) {
+          const cleanUpsert = formatted.map(({ id, ...rest }) => rest);
+          const { error } = await supabase.from('sipps_siswa').upsert(cleanUpsert, { onConflict: 'nisn' });
+          if (error) throw error;
+          await loadAllDatabase(false);
+        }
+        renderActiveView();
+        showToast(`${formatted.length} data identitas siswa berhasil diimpor massal & disinkronkan!`, "success");
+      } catch (err) {
+        showToast("Gagal Import Excel Siswa: " + err.message, "error");
+      } finally {
+        event.target.value = '';
+      }
+    }
+
+    function exportExcelAturan() {
+      const rows = state.db.aturan.map(a => ({
+        Kode_Aturan: a.kode_aturan,
+        Kategori: a.kategori,
+        Nama_Pelanggaran: a.nama_pelanggaran,
+        Poin: a.poin,
+        Sanksi_Tindak_Lanjut: a.sanksi_tindak_lanjut
+      }));
+      const ws = XLSX.utils.json_to_sheet(rows);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "Katalog_Aturan");
+      XLSX.writeFile(wb, `SIPPS_SMPN71_Buku_Saku_Aturan_${new Date().toISOString().slice(0,10)}.xlsx`);
+      showToast("Katalog Aturan & Buku Saku berhasil diekspor ke Excel (.xlsx)!", "success");
+    }
+
+    async function importExcelAturan(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      try {
+        const data = await file.arrayBuffer();
+        const workbook = XLSX.read(data);
+        const sheet = workbook.Sheets[workbook.SheetNames[0]];
+        const jsonRows = XLSX.utils.sheet_to_json(sheet);
+        if (!jsonRows.length) throw new Error("File Excel kosong.");
+
+        const formatted = jsonRows.map((r, i) => ({
+          id: 'at-imp-' + Date.now() + '-' + i,
+          kode_aturan: String(r.Kode_Aturan || `AT-${i+1}`).trim(),
+          kategori: String(r.Kategori || 'Ringan').trim(),
+          nama_pelanggaran: String(r.Nama_Pelanggaran || '').trim(),
+          poin: Number(r.Poin) || 10,
+          sanksi_tindak_lanjut: String(r.Sanksi_Tindak_Lanjut || '').trim()
+        })).filter(r => r.nama_pelanggaran !== '');
+
+        if (IS_PREVIEW) {
+          formatted.forEach(item => {
+            const idx = state.db.aturan.findIndex(ex => ex.kode_aturan === item.kode_aturan);
+            if (idx > -1) state.db.aturan[idx] = { ...state.db.aturan[idx], ...item };
+            else state.db.aturan.push(item);
+          });
+          savePreviewLocal();
+        } else if (supabase) {
+          const cleanUpsert = formatted.map(({ id, ...rest }) => rest);
+          const { error } = await supabase.from('sipps_aturan').upsert(cleanUpsert, { onConflict: 'kode_aturan' });
+          if (error) throw error;
+          await loadAllDatabase(false);
+        }
+        renderActiveView();
+        showToast(`${formatted.length} pasal aturan buku saku berhasil diimpor & disinkronkan!`, "success");
+      } catch (err) {
+        showToast("Gagal Import Excel Aturan: " + err.message, "error");
+      } finally {
+        event.target.value = '';
+      }
+    }
+
+    let filterDebounceTimer = null;
     function setFilter(key, val) {
       state.filters[key] = val;
-      renderActiveView();
+      if (key.endsWith('Search')) {
+        if (filterDebounceTimer) clearTimeout(filterDebounceTimer);
+        filterDebounceTimer = setTimeout(() => {
+          renderActiveView();
+          const activeEl = document.activeElement;
+          if (activeEl && activeEl.tagName === 'INPUT') {
+            const len = activeEl.value.length;
+            try { activeEl.setSelectionRange(len, len); } catch {}
+          }
+        }, 120);
+      } else {
+        renderActiveView();
+      }
     }
 
     function handleGlobalSearch(val) {
@@ -3896,6 +4141,7 @@
       navigate,
       syncAllData: loadAllDatabase,
       setFilter,
+      handleRekapKelasChange,
       handleGlobalSearch,
       openModalPelanggaran,
       savePelanggaranForm,
@@ -3925,6 +4171,8 @@
       handleImageUpload,
       handleBkAvatarUpload,
       saveBkProfileSettings,
+      handleSiswaAvatarUpload,
+      saveSiswaProfileSettings,
       saveSettingsForm,
       toggleMaintenanceModeSetting,
       checkMaintenanceStatus,
