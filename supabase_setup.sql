@@ -8,11 +8,11 @@ CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 -- 1. TABEL PENGATURAN SISTEM, FOTO PROFIL ADMIN & MODE MAINTENANCE
 CREATE TABLE IF NOT EXISTS public.sipps_settings (
   id int8 PRIMARY KEY DEFAULT 1,
-  app_name text NOT NULL DEFAULT 'SIPPS SMPN 71 Bandung',
+  app_name text NOT NULL DEFAULT 'SIPPS SMPN 71 Bdg',
   school_name text NOT NULL DEFAULT 'SMP Negeri 71 Bandung',
-  school_address text DEFAULT 'Jl. Pendidikan Raya No. 71, Kota Bandung, Jawa Barat 40111 • Telp. (022) 7100071',
-  kepsek_name text DEFAULT 'Drs. H. Ahmad Suryana, M.Pd.',
-  kepsek_nip text DEFAULT '19680512 199403 1 005',
+  school_address text DEFAULT 'Jl. Manglayang 1 No.1, Pasir Biru, Kec. Cibiru, Kota Bandung, Jawa Barat 40615',
+  kepsek_name text DEFAULT 'Nur''aeni Puspitasari, S.S., M.Ak.',
+  kepsek_nip text DEFAULT '198202102009022004',
   logo_url text DEFAULT '',
   bg_url text DEFAULT '',
   kop_surat_url text DEFAULT '',
@@ -25,8 +25,8 @@ CREATE TABLE IF NOT EXISTS public.sipps_settings (
 
 ALTER TABLE public.sipps_settings ADD COLUMN IF NOT EXISTS admin_avatar_url text DEFAULT '';
 
-INSERT INTO public.sipps_settings (id, app_name, school_name, is_maintenance, maintenance_message)
-VALUES (1, 'SIPPS SMPN 71 Bandung', 'SMP Negeri 71 Bandung', false, 'Mohon maaf atas ketidaknyamanan ini, kami sedang melakukan peningkatan layanan untuk Anda.')
+INSERT INTO public.sipps_settings (id, app_name, school_name, school_address, kepsek_name, kepsek_nip, is_maintenance, maintenance_message)
+VALUES (1, 'SIPPS SMPN 71 Bdg', 'SMP Negeri 71 Bandung', 'Jl. Manglayang 1 No.1, Pasir Biru, Kec. Cibiru, Kota Bandung, Jawa Barat 40615', 'Nur''aeni Puspitasari, S.S., M.Ak.', '198202102009022004', false, 'Mohon maaf atas ketidaknyamanan ini, kami sedang melakukan peningkatan layanan untuk Anda.')
 ON CONFLICT (id) DO NOTHING;
 
 -- 2. TABEL AKUN PETUGAS / GURU BK (LOGIN NON-ADMIN HYBRID)
@@ -178,15 +178,22 @@ FOR ALL TO anon, authenticated USING (true) WITH CHECK (true);
 -- AKUN AWAL DEFAULT PETUGAS BK & ADMIN FALLBACK
 INSERT INTO public.sipps_staff (nip, nama, username, password, role, jabatan)
 VALUES
-  ('198001012005011001', 'Administrator Utama SIPPS', 'admin@smpn71.sch.id', 'admin123', 'admin', 'Administrator Sistem'),
-  ('198504112010012003', 'Dra. Rina Kartika, S.Pd., Kons.', 'bk71', 'bk123', 'bk', 'Koordinator Guru BK')
+  ('198001012005011001', 'admin', 'admin@smpn71.sch.id', 'admin123', 'admin', 'Administrator Sistem'),
+  ('199805032025212115', 'Aimi Kulsum, S.Hum., Gr', '199805032025212115', 'bk123', 'bk', 'Koordinator Guru BK'),
+  ('199405052023212024', 'Nisa Anisa Respati, S.Pd., Gr', '199405052023212024', 'wakasek123', 'bk', 'Wakasek Kesiswaan')
 ON CONFLICT (nip) DO NOTHING;
 
 -- DATA AWAL MASTER KELAS DEFAULT
 INSERT INTO public.sipps_kelas (kode_kelas, nama_kelas, tingkat, wali_kelas, nip_wali_kelas, kapasitas)
 VALUES
-  ('VIII-A', 'VIII-A', 'VIII', 'Hj. Dewi Sartika, S.Pd.', '198203142008012004', 36),
-  ('IX-B', 'IX-B', 'IX', 'Drs. Bambang Hermawan', '197911022006041002', 36)
+  ('IX-A', '9A', 'IX', 'Dippa Restu Putra Utama, S.Pd., Gr', '199801212024211001', 33),
+  ('IX-B', '9B', 'IX', 'Eva Devalusiana, S.Pd., Gr', '198304052023212020', 33),
+  ('IX-C', '9C', 'IX', 'Nisa Anisa Respati, S.Pd., Gr', '199405052023212024', 33),
+  ('VII-A', '7A', 'VII', 'Yeni Febrianti, S.Pd., Gr', '4550770671230292', 34),
+  ('VII-B', '7B', 'VII', 'Febby Febrianti, S.Pd., Gr', '1547777678230092', 34),
+  ('VII-C', '7C', 'VII', 'Aimi Kulsum, S.Hum., Gr', '199805032025212115', 34),
+  ('VII-D', '7D', 'VII', 'Yandi Imanudin, S.Pd', '197201302024211001', 34),
+  ('VIII-A', '8A', 'VIII', 'Intan Permatasari, S.Pd., Gr', '199406102024212005', 36)
 ON CONFLICT (kode_kelas) DO NOTHING;
 
 -- AKTIFKAN SUPABASE REALTIME SECARA AMAN
