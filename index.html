@@ -207,7 +207,7 @@
 
   <!-- ROOT FULLSCREEN CONTAINER -->
   <div id="sipps-root-wrapper" style="--canvas-opacity: 0.88;">
-    <div class="absolute inset-0 bg-gradient-to-b from-[#2B3B46]/60 via-[#2E404D]/55 to-[#1E2B34]/70 pointer-events-none"></div>
+    <div class="absolute inset-0 bg-[#2B3B46]/40 pointer-events-none"></div>
 
     <div id="preview-banner" class="hidden"></div>
 
@@ -513,8 +513,8 @@
         saved = null;
       }
 
-      const hasBakedUrl = SUPABASE_URL && SUPABASE_URL !== "https://gekubioxgyqqzvswxujy.supabase.co" && SUPABASE_URL.startsWith('http');
-      const hasBakedKey = SUPABASE_PUBLISHABLE_KEY && SUPABASE_PUBLISHABLE_KEY !== "sb_publishable_17aStgaM9FI__bVC6A7bnQ_GUDkXjUN" && SUPABASE_PUBLISHABLE_KEY !== "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdla3ViaW94Z3lxcXp2c3d4dWp5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI4NDgzMzYsImV4cCI6MjEwODQyNDMzNn0.G_6Dph6TWtvllKc70DwWFlSyr68NN_E3TmRM3Wzzq3I";
+      const hasBakedUrl = SUPABASE_URL && SUPABASE_URL !== "URL_SUPABASE_ANDA" && SUPABASE_URL.startsWith('http');
+      const hasBakedKey = SUPABASE_PUBLISHABLE_KEY && SUPABASE_PUBLISHABLE_KEY !== "PUBLISHABLE_KEY_ANDA" && SUPABASE_PUBLISHABLE_KEY !== "ANON_KEY_ANDA";
 
       const url = hasBakedUrl ? SUPABASE_URL.trim() : (urlParam || (saved?.url || "").trim());
       const key = hasBakedKey ? SUPABASE_PUBLISHABLE_KEY.trim() : (keyParam || (saved?.publishableKey || saved?.anonKey || "").trim());
@@ -2960,7 +2960,10 @@
 
     function openModalPelanggaran(id = null) {
       const p = id ? (state.db.pelanggaran || []).find(item => item.id === id) : null;
-      const siswaOpts = (state.db.siswa || []).map(s => `<option value="${s.nisn}" ${p && p.nisn === s.nisn ? 'selected' : ''}>${s.nama_siswa} (${s.kelas})</option>`).join('');
+      const kelasList = getUniqueClasses();
+      const selectedKelas = p ? (p.kelas || 'semua') : (state.pelanggaranFilterKelas !== 'semua' ? state.pelanggaranFilterKelas : 'semua');
+      const filteredSiswaList = (state.db.siswa || []).filter(s => selectedKelas === 'semua' || s.kelas === selectedKelas);
+      const siswaOpts = filteredSiswaList.map(s => `<option value="${s.nisn}" ${p && p.nisn === s.nisn ? 'selected' : ''}>${s.nama_siswa} (${s.kelas})</option>`).join('');
       const aturanOpts = (state.db.aturan || []).map(a => `<option value="${a.id}" ${p && p.aturan_id === a.id ? 'selected' : ''}>${a.kode_aturan} - ${a.nama_pelanggaran} (+${a.poin} Poin)</option>`).join('');
 
       openModal(p ? "Edit Catatan Pelanggaran" : "Catat Pelanggaran Baru", `
@@ -2979,12 +2982,21 @@
               </select>
             </div>
           </div>
-          <div>
-            <label class="block text-xs font-bold text-slate-700 mb-1">Pilih Siswa</label>
-            <select id="form-pel-nisn" required class="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs font-semibold text-slate-800">
-              <option value="">-- Pilih Siswa --</option>
-              ${siswaOpts}
-            </select>
+          <div class="grid grid-cols-1 sm:grid-cols-12 gap-3">
+            <div class="sm:col-span-5">
+              <label class="block text-xs font-bold text-slate-700 mb-1">Pilih Kelas</label>
+              <select id="form-pel-kelas" onchange="window.app.filterSiswaInPelanggaranModal(this.value)" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs font-semibold text-slate-800">
+                <option value="semua" ${selectedKelas === 'semua' ? 'selected' : ''}>-- Semua Kelas --</option>
+                ${kelasList.map(k => `<option value="${k}" ${selectedKelas === k ? 'selected' : ''}>Kelas ${k}</option>`).join('')}
+              </select>
+            </div>
+            <div class="sm:col-span-7">
+              <label class="block text-xs font-bold text-slate-700 mb-1">Pilih Siswa</label>
+              <select id="form-pel-nisn" onchange="window.app.syncKelasFromSelectedSiswa(this.value)" required class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs font-semibold text-slate-800">
+                <option value="">-- Pilih Siswa (${filteredSiswaList.length} Siswa) --</option>
+                ${siswaOpts}
+              </select>
+            </div>
           </div>
           <div>
             <label class="block text-xs font-bold text-slate-700 mb-1">Pilih Pasal Aturan Buku Saku (Atau Isi Manual di Bawah)</label>
@@ -3024,6 +3036,23 @@
           </button>
         </form>
       `);
+    }
+
+    function filterSiswaInPelanggaranModal(selectedKelas) {
+      const siswaSelect = document.getElementById('form-pel-nisn');
+      if (!siswaSelect) return;
+      const filtered = (state.db.siswa || []).filter(s => !selectedKelas || selectedKelas === 'semua' || s.kelas === selectedKelas);
+      siswaSelect.innerHTML = `<option value="">-- Pilih Siswa (${filtered.length} Siswa) --</option>` +
+        filtered.map(s => `<option value="${s.nisn}">${s.nama_siswa} (${s.kelas})</option>`).join('');
+    }
+
+    function syncKelasFromSelectedSiswa(nisn) {
+      if (!nisn) return;
+      const found = (state.db.siswa || []).find(s => s.nisn === nisn);
+      const kelasSelect = document.getElementById('form-pel-kelas');
+      if (found && kelasSelect && kelasSelect.value === 'semua') {
+        kelasSelect.value = found.kelas;
+      }
     }
 
     function fillAturanPelanggaranForm(aturanId) {
@@ -3344,35 +3373,40 @@
 
     function openModalStaff(id = null) {
       const st = id ? (state.db.staff || []).find(item => item.id === id) : null;
-      openModal(st ? "Edit Guru BK" : "Tambah Guru BK Baru", `
+      openModal(st ? "Edit Data Pengguna Guru BK" : "Tambah Data Pengguna Guru BK", `
         <form onsubmit="window.app.handleSaveStaff(event, '${id || ''}')" class="space-y-4">
-          <div class="grid grid-cols-2 gap-4">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label class="block text-xs font-bold text-slate-700 mb-1">NIP</label>
-              <input type="text" id="form-st-nip" value="${st ? st.nip : ''}" required class="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs font-semibold text-slate-800" />
+              <label class="block text-xs font-bold text-slate-700 mb-1.5">NIP Guru BK</label>
+              <input type="text" id="form-st-nip" value="${st ? st.nip : ''}" required class="w-full px-4 py-2.5 rounded-xl bg-white border border-slate-200 text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#6B8E9B]" />
             </div>
             <div>
-              <label class="block text-xs font-bold text-slate-700 mb-1">Jabatan</label>
-              <input type="text" id="form-st-jabatan" value="${st ? (st.jabatan || 'Guru BK') : 'Guru BK'}" required class="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs font-semibold text-slate-800" />
+              <label class="block text-xs font-bold text-slate-700 mb-1.5">Jabatan / Penugasan</label>
+              <input type="text" id="form-st-jabatan" value="${st ? (st.jabatan || 'Guru BK') : 'Guru BK'}" required class="w-full px-4 py-2.5 rounded-xl bg-white border border-slate-200 text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#6B8E9B]" />
             </div>
           </div>
           <div>
-            <label class="block text-xs font-bold text-slate-700 mb-1">Nama Lengkap & Gelar</label>
-            <input type="text" id="form-st-nama" value="${st ? st.nama : ''}" required class="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs font-semibold text-slate-800" />
+            <label class="block text-xs font-bold text-slate-700 mb-1.5">Nama Lengkap & Gelar Guru BK</label>
+            <input type="text" id="form-st-nama" value="${st ? st.nama : ''}" required class="w-full px-4 py-2.5 rounded-xl bg-white border border-slate-200 text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#6B8E9B]" />
           </div>
-          <div class="grid grid-cols-2 gap-4">
+          <div class="p-4 rounded-2xl bg-slate-50/70 border border-slate-200/80 grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label class="block text-xs font-bold text-slate-700 mb-1">Username Login</label>
-              <input type="text" id="form-st-user" value="${st ? st.username : ''}" required class="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs font-semibold text-slate-800" />
+              <label class="block text-xs font-bold text-slate-700 mb-1.5">Username Login Guru BK</label>
+              <input type="text" id="form-st-user" value="${st ? st.username : ''}" required class="w-full px-4 py-2.5 rounded-xl bg-white border border-slate-200 text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#6B8E9B]" />
             </div>
             <div>
-              <label class="block text-xs font-bold text-slate-700 mb-1">Password</label>
-              <input type="password" id="form-st-pass" value="${st ? st.password : 'bk123'}" required class="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs font-semibold text-slate-800" />
+              <label class="block text-xs font-bold text-slate-700 mb-1.5">Kata Sandi Login</label>
+              <input type="text" id="form-st-pass" value="${st ? st.password : 'bk123'}" required class="w-full px-4 py-2.5 rounded-xl bg-white border border-slate-200 text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#6B8E9B]" />
             </div>
           </div>
-          <button type="submit" class="w-full py-3 rounded-xl bg-[#2A4756] text-white text-xs font-extrabold uppercase tracking-wider shadow">
-            Simpan Guru BK
-          </button>
+          <div class="flex items-center justify-end gap-2.5 pt-2">
+            <button type="button" onclick="window.app.closeModal()" class="px-5 py-2.5 rounded-full bg-white hover:bg-slate-100 border border-slate-200 text-xs font-bold text-slate-600 transition">
+              Batal
+            </button>
+            <button type="submit" class="px-6 py-2.5 rounded-full bg-[#223845] hover:bg-[#182933] text-white text-xs font-extrabold shadow-sm transition">
+              Simpan & Sinkronkan Guru BK
+            </button>
+          </div>
         </form>
       `);
     }
@@ -3898,6 +3932,8 @@
       toggleNotifDrawer,
       markAllNotifRead,
       openModalPelanggaran,
+      filterSiswaInPelanggaranModal,
+      syncKelasFromSelectedSiswa,
       fillAturanPelanggaranForm,
       handleSavePelanggaran,
       deletePelanggaran,
