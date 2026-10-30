@@ -8,7 +8,7 @@ CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 -- 1. TABEL PENGATURAN SISTEM, FOTO PROFIL ADMIN & MODE MAINTENANCE
 CREATE TABLE IF NOT EXISTS public.sipps_settings (
   id int8 PRIMARY KEY DEFAULT 1,
-  app_name text NOT NULL DEFAULT 'SIPPS SMP Negeri 71 Bandung',
+  app_name text NOT NULL DEFAULT 'SIPPS SMPN 71 Bandung',
   school_name text NOT NULL DEFAULT 'SMP Negeri 71 Bandung',
   school_address text DEFAULT 'Jl. Pendidikan Raya No. 71, Kota Bandung, Jawa Barat 40111 • Telp. (022) 7100071',
   kepsek_name text DEFAULT 'Drs. H. Ahmad Suryana, M.Pd.',
@@ -26,7 +26,7 @@ CREATE TABLE IF NOT EXISTS public.sipps_settings (
 ALTER TABLE public.sipps_settings ADD COLUMN IF NOT EXISTS admin_avatar_url text DEFAULT '';
 
 INSERT INTO public.sipps_settings (id, app_name, school_name, is_maintenance, maintenance_message)
-VALUES (1, 'SIPPS SMP Negeri 71 Bandung', 'SMP Negeri 71 Bandung', false, 'Mohon maaf atas ketidaknyamanan ini, kami sedang melakukan peningkatan layanan untuk Anda.')
+VALUES (1, 'SIPPS SMPN 71 Bandung', 'SMP Negeri 71 Bandung', false, 'Mohon maaf atas ketidaknyamanan ini, kami sedang melakukan peningkatan layanan untuk Anda.')
 ON CONFLICT (id) DO NOTHING;
 
 -- 2. TABEL AKUN PETUGAS / GURU BK (LOGIN NON-ADMIN HYBRID)
@@ -185,8 +185,8 @@ ON CONFLICT (nip) DO NOTHING;
 -- DATA AWAL MASTER KELAS DEFAULT
 INSERT INTO public.sipps_kelas (kode_kelas, nama_kelas, tingkat, wali_kelas, nip_wali_kelas, kapasitas)
 VALUES
-  ('VIII-A', 'Kelas VIII-A', 'VIII', 'Hj. Dewi Sartika, S.Pd.', '198203142008012004', 36),
-  ('IX-B', 'Kelas IX-B', 'IX', 'Drs. Bambang Hermawan', '197911022006041002', 36)
+  ('VIII-A', 'VIII-A', 'VIII', 'Hj. Dewi Sartika, S.Pd.', '198203142008012004', 36),
+  ('IX-B', 'IX-B', 'IX', 'Drs. Bambang Hermawan', '197911022006041002', 36)
 ON CONFLICT (kode_kelas) DO NOTHING;
 
 -- AKTIFKAN SUPABASE REALTIME SECARA AMAN
