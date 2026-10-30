@@ -55,12 +55,14 @@ CREATE TABLE IF NOT EXISTS public.sipps_siswa (
   no_hp_wali text,
   password_siswa text NOT NULL DEFAULT 'siswa123',
   password_wali text NOT NULL DEFAULT 'wali123',
+  avatar_url text DEFAULT '',
   total_poin int4 NOT NULL DEFAULT 0,
   status_pembinaan text DEFAULT 'Aman / Disiplin Baik',
   created_at timestamptz DEFAULT now()
 );
 
 ALTER TABLE public.sipps_siswa DROP COLUMN IF EXISTS nis;
+ALTER TABLE public.sipps_siswa ADD COLUMN IF NOT EXISTS avatar_url text DEFAULT '';
 
 -- 4. TABEL KATALOG ATURAN & BUKU SAKU TATA TERTIB
 CREATE TABLE IF NOT EXISTS public.sipps_aturan (
@@ -125,50 +127,14 @@ CREATE TABLE IF NOT EXISTS public.sipps_kelas (
 );
 
 -- ============================================================================
--- TRIGGER OTOMATIS HITUNG AKUMULASI POIN & STATUS PEMBINAAN SISWA
+-- INDEXING DATABASE UNTUK PERFORMA QUERY SUPER CEPAT & ANTI-LAG
 -- ============================================================================
-CREATE OR REPLACE FUNCTION public.fn_recalculate_poin_siswa()
-RETURNS TRIGGER AS $$
-DECLARE
-  v_nisn text;
-  v_total int4;
-  v_status text;
-BEGIN
-  IF (TG_OP = 'DELETE') THEN
-    v_nisn := OLD.nisn;
-  ELSE
-    v_nisn := NEW.nisn;
-  END IF;
-
-  SELECT COALESCE(SUM(poin), 0) INTO v_total
-  FROM public.sipps_pelanggaran
-  WHERE nisn = v_nisn;
-
-  IF v_total >= 75 THEN
-    v_status := 'Panggilan Orang Tua / Skorsing';
-  ELSIF v_total >= 50 THEN
-    v_status := 'Peringatan BK II';
-  ELSIF v_total >= 30 THEN
-    v_status := 'Peringatan BK I';
-  ELSIF v_total >= 10 THEN
-    v_status := 'Pembinaan Wali Kelas';
-  ELSE
-    v_status := 'Aman / Disiplin Baik';
-  END IF;
-
-  UPDATE public.sipps_siswa
-  SET total_poin = v_total,
-      status_pembinaan = v_status
-  WHERE nisn = v_nisn;
-
-  RETURN NULL;
-END;
-$$ LANGUAGE plpgsql;
-
-DROP TRIGGER IF EXISTS trg_recalculate_poin_siswa ON public.sipps_pelanggaran;
-CREATE TRIGGER trg_recalculate_poin_siswa
-AFTER INSERT OR UPDATE OR DELETE ON public.sipps_pelanggaran
-FOR EACH ROW EXECUTE FUNCTION public.fn_recalculate_poin_siswa();
+CREATE INDEX IF NOT EXISTS idx_sipps_siswa_kelas ON public.sipps_siswa(kelas);
+CREATE INDEX IF NOT EXISTS idx_sipps_siswa_nisn ON public.sipps_siswa(nisn);
+CREATE INDEX IF NOT EXISTS idx_sipps_pelanggaran_nisn ON public.sipps_pelanggaran(nisn);
+CREATE INDEX IF NOT EXISTS idx_sipps_pelanggaran_kelas ON public.sipps_pelanggaran(kelas);
+CREATE INDEX IF NOT EXISTS idx_sipps_pelanggaran_tanggal ON public.sipps_pelanggaran(tanggal DESC);
+CREATE INDEX IF NOT EXISTS idx_sipps_notifikasi_target ON public.sipps_notifikasi(target_kelas, target_nisn);
 
 -- ============================================================================
 -- KONFIGURASI ROW LEVEL SECURITY (RLS) UNTUK ARSITEKTUR HYBRID LOGIN
