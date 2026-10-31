@@ -46,7 +46,48 @@
   <!-- html2pdf.js for Real-time A4 PDF Download -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
+  <!-- Instant Visual Settings Cache Bootstrap (Tampilan Terbaru Langsung Muncul Bebas Kedip/Lag) -->
+  <script>
+    (function() {
+      try {
+        var rawVisual = localStorage.getItem('SIPPS_71_VISUAL_CACHE_V3') || localStorage.getItem('SIPPS_71_VISUAL_CACHE_V2') || localStorage.getItem('SIPPS_71_VISUAL_CACHE');
+        var v = null;
+        if (rawVisual) {
+          try { v = JSON.parse(rawVisual); } catch(e){}
+        }
+        if (!v) {
+          var rawDb = localStorage.getItem('SIPPS_71_PREVIEW_DB_V3') || localStorage.getItem('SIPPS_71_PREVIEW_DB_V2');
+          if (rawDb) {
+            try { var parsedDb = JSON.parse(rawDb); if (parsedDb && parsedDb.settings) v = parsedDb.settings; } catch(e){}
+          }
+        }
+        if (v) {
+          window.__SIPPS_CACHED_VISUAL = v;
+          var op = v.canvas_opacity || 0.88;
+          var bg = (v.bg_url && v.bg_url.trim() !== '') ? v.bg_url : 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=1920&q=80';
+          var s = document.createElement('style');
+          s.id = 'sipps-instant-visual-styles';
+          s.textContent = '#sipps-root-wrapper { --canvas-opacity: ' + op + ' !important; background-image: url("' + bg + '") !important; }';
+          document.head.appendChild(s);
+        }
+      } catch(e) {}
+    })();
+  </script>
+
   <style>
+    .no-scrollbar::-webkit-scrollbar {
+      display: none !important;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none !important;
+      scrollbar-width: none !important;
+    }
+    .mobile-nav-btn {
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+
     html, body {
       width: 100vw;
       height: 100dvh;
@@ -54,6 +95,7 @@
       padding: 0;
       overflow: hidden;
       overscroll-behavior: none;
+      -webkit-tap-highlight-color: transparent;
     }
 
     #sipps-root-wrapper {
@@ -217,9 +259,19 @@
         <div class="text-center mb-5">
           <div class="relative inline-block mb-3">
             <img id="login-app-logo" src="data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20120%20120%22%3E%3Crect%20width%3D%22120%22%20height%3D%22120%22%20rx%3D%2226%22%20fill%3D%22%23FFFFFF%22%2F%3E%3Cpath%20d%3D%22M60%2012%20L100%2028%20L94%2078%20C94%2094%2076%20104%2060%20109%20C44%20104%2026%2094%2026%2078%20L20%2028%20Z%22%20fill%3D%22%230284C7%22%20stroke%3D%22%231E293B%22%20stroke-width%3D%223%22%2F%3E%3Cpolygon%20points%3D%2260%2C18%2092%2C38%2082%2C82%2038%2C82%2028%2C38%22%20fill%3D%22%2338BDF8%22%20stroke%3D%22%23FACC15%22%20stroke-width%3D%222.5%22%2F%3E%3Cpath%20d%3D%22M26%2082%20Q60%2094%2094%2082%20L90%2095%20Q60%20107%2030%2095%20Z%22%20fill%3D%22%23FACC15%22%20stroke%3D%22%231E293B%22%20stroke-width%3D%221.5%22%2F%3E%3Cpath%20d%3D%22M44%2064%20L60%2055%20L76%2064%20L76%2048%20L60%2039%20L44%2048%20Z%22%20fill%3D%22%23FFFFFF%22%2F%3E%3Ccircle%20cx%3D%2260%22%20cy%3D%2232%22%20r%3D%225%22%20fill%3D%22%23FACC15%22%2F%3E%3Ctext%20x%3D%2260%22%20y%3D%2293%22%20text-anchor%3D%22middle%22%20fill%3D%22%230F172A%22%20font-family%3D%22Arial%2C%20sans-serif%22%20font-weight%3D%22900%22%20font-size%3D%228.5%22%3ETUT%20WURI%20HANDAYANI%3C%2Ftext%3E%3C%2Fsvg%3E" alt="Logo SMPN 71 Bandung" class="w-16 h-16 rounded-2xl object-contain bg-white p-1.5 mx-auto shadow-md border border-slate-200/80" />
+            <script>
+              if (window.__SIPPS_CACHED_VISUAL && window.__SIPPS_CACHED_VISUAL.logo_url && !window.__SIPPS_CACHED_VISUAL.logo_url.includes('placehold.co')) {
+                document.getElementById('login-app-logo').src = window.__SIPPS_CACHED_VISUAL.logo_url;
+              }
+            </script>
             <span id="login-maint-badge" class="hidden absolute -top-2 -right-12 px-2 py-0.5 rounded-full bg-amber-500 text-white text-[9px] font-extrabold uppercase shadow">Maint ON</span>
           </div>
           <h1 id="login-app-title" class="text-xl sm:text-[22px] font-extrabold text-[#1E293B] tracking-tight">SIPPS SMPN 71 Bandung</h1>
+          <script>
+            if (window.__SIPPS_CACHED_VISUAL && window.__SIPPS_CACHED_VISUAL.app_name) {
+              document.getElementById('login-app-title').textContent = window.__SIPPS_CACHED_VISUAL.app_name;
+            }
+          </script>
           <p class="text-[11.5px] text-slate-500 mt-1 font-medium">Sistem Informasi Poin Pelanggaran & Pembinaan Siswa</p>
         </div>
 
@@ -384,13 +436,20 @@
         <!-- MAIN SURFACE -->
         <main class="flex-1 h-full glass-canvas rounded-none lg:rounded-l-[28px] flex flex-col overflow-hidden relative">
           
-          <header class="px-4 sm:px-7 pt-4 pb-3.5 flex flex-wrap items-center justify-between gap-3 border-b border-slate-200/60 shrink-0">
-            <div>
-              <div class="flex items-center gap-2.5">
-                <h1 id="header-page-title" class="text-lg sm:text-2xl font-extrabold text-slate-800 tracking-tight">Beranda Analitik</h1>
-                <span id="header-maint-indicator" class="hidden px-2.5 py-0.5 rounded-full bg-amber-500 text-white text-[10px] font-extrabold uppercase tracking-wider">Maintenance ON</span>
+          <header class="px-3 sm:px-7 pt-3.5 pb-3 flex flex-wrap items-center justify-between gap-2.5 border-b border-slate-200/60 shrink-0">
+            <div class="flex items-center gap-2 sm:gap-3 overflow-hidden">
+              <!-- HAMBURGER MENU BUTTON UNTUK MOBILE & TABLET -->
+              <button onclick="window.app.toggleMobileDrawer(true)" class="lg:hidden w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-white/90 hover:bg-white border border-slate-200/80 flex items-center justify-center text-slate-700 shadow-xs transition active:scale-95 shrink-0" title="Buka Menu Lengkap">
+                <i data-lucide="menu" class="w-4 h-4"></i>
+              </button>
+
+              <div class="overflow-hidden">
+                <div class="flex items-center gap-2">
+                  <h1 id="header-page-title" class="text-base sm:text-xl lg:text-2xl font-extrabold text-slate-800 tracking-tight truncate">Beranda Analitik</h1>
+                  <span id="header-maint-indicator" class="hidden px-2 py-0.5 rounded-full bg-amber-500 text-white text-[9px] font-extrabold uppercase tracking-wider shrink-0">Maint ON</span>
+                </div>
+                <p id="header-page-subtitle" class="text-[10px] sm:text-xs text-slate-500 truncate max-w-[200px] sm:max-w-md">Ringkasan analitik kedisiplinan & poin pelanggaran siswa secara real-time</p>
               </div>
-              <p id="header-page-subtitle" class="text-[11px] sm:text-xs text-slate-500">Ringkasan analitik kedisiplinan & poin pelanggaran siswa secara real-time</p>
             </div>
 
             <div class="flex items-center gap-2">
@@ -410,19 +469,59 @@
                 </button>
               </div>
 
-              <button onclick="window.app.handleLogout()" title="Keluar" class="lg:hidden w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-red-50 border border-red-200 text-red-600 flex items-center justify-center">
+              <button onclick="window.app.handleLogout()" title="Keluar Sesi" class="lg:hidden w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-red-50 hover:bg-red-100 border border-red-200 text-red-600 flex items-center justify-center transition">
                 <i data-lucide="log-out" class="w-4 h-4"></i>
               </button>
             </div>
           </header>
 
-          <div id="main-view-container" class="flex-1 overflow-y-auto px-4 sm:px-7 py-4 pb-24 lg:pb-6"></div>
+          <div id="main-view-container" class="flex-1 overflow-y-auto px-4 sm:px-7 py-4 pb-28 lg:pb-6"></div>
 
         </main>
       </div>
 
-      <nav id="mobile-nav-list" class="mobile-bottom-nav fixed bottom-0 left-0 right-0 z-40 h-16 glass-frame text-white items-center justify-around px-1 shadow-2xl border-t border-white/20"></nav>
+      <!-- BOTTOM NAVIGATION DOCK (RESPONSIF MOBILE & TABLET DENGAN SCROLL HALUS) -->
+      <nav id="mobile-nav-list" class="mobile-bottom-nav fixed bottom-0 left-0 right-0 z-40 h-[68px] glass-frame text-white shadow-2xl border-t border-white/20 px-2 py-1 flex items-center justify-start md:justify-center overflow-x-auto no-scrollbar scroll-smooth gap-1.5"></nav>
     </div>
+
+    <!-- MOBILE SIDEBAR DRAWER (UNTUK AKSES SEMUA FITUR DI MOBILE & TABLET) -->
+    <div id="mobile-drawer-backdrop" onclick="window.app.toggleMobileDrawer(false)" class="hidden fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs transition-opacity duration-300"></div>
+    <aside id="mobile-sidebar-drawer" class="fixed top-0 left-0 bottom-0 z-50 w-[84vw] max-w-[310px] glass-frame bg-[#2B3B47]/95 backdrop-blur-2xl shadow-2xl border-r border-white/20 transform -translate-x-full transition-transform duration-300 flex flex-col justify-between py-5 px-3.5 text-white select-none">
+      <div class="overflow-hidden flex flex-col">
+        <div class="flex items-center justify-between pb-3.5 border-b border-white/15 mb-3">
+          <div class="flex items-center gap-2.5 overflow-hidden">
+            <div class="w-10 h-10 rounded-2xl bg-white/15 border border-white/20 flex items-center justify-center shrink-0 shadow-inner">
+              <img id="mobile-drawer-logo" src="data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20120%20120%22%3E%3Crect%20width%3D%22120%22%20height%3D%22120%22%20rx%3D%2226%22%20fill%3D%22%23FFFFFF%22%2F%3E%3Cpath%20d%3D%22M60%2012%20L100%2028%20L94%2078%20C94%2094%2076%20104%2060%20109%20C44%20104%2026%2094%2026%2078%20L20%2028%20Z%22%20fill%3D%22%230284C7%22%20stroke%3D%22%231E293B%22%20stroke-width%3D%223%22%2F%3E%3Cpolygon%20points%3D%2260%2C18%2092%2C38%2082%2C82%2038%2C82%2028%2C38%22%20fill%3D%22%2338BDF8%22%20stroke%3D%22%23FACC15%22%20stroke-width%3D%222.5%22%2F%3E%3Cpath%20d%3D%22M26%2082%20Q60%2094%2094%2082%20L90%2095%20Q60%20107%2030%2095%20Z%22%20fill%3D%22%23FACC15%22%20stroke%3D%22%231E293B%22%20stroke-width%3D%221.5%22%2F%3E%3Cpath%20d%3D%22M44%2064%20L60%2055%20L76%2064%20L76%2048%20L60%2039%20L44%2048%20Z%22%20fill%3D%22%23FFFFFF%22%2F%3E%3Ccircle%20cx%3D%2260%22%20cy%3D%2232%22%20r%3D%225%22%20fill%3D%22%23FACC15%22%2F%3E%3Ctext%20x%3D%2260%22%20y%3D%2293%22%20text-anchor%3D%22middle%22%20fill%3D%22%230F172A%22%20font-family%3D%22Arial%2C%20sans-serif%22%20font-weight%3D%22900%22%20font-size%3D%228.5%22%3ETUT%20WURI%20HANDAYANI%3C%2Ftext%3E%3C%2Fsvg%3E" alt="Logo" class="w-8 h-8 rounded-xl object-contain bg-white p-0.5" />
+            </div>
+            <div class="overflow-hidden">
+              <div id="mobile-drawer-app-name" class="text-xs font-extrabold tracking-tight text-white truncate">SIPPS SMPN 71 Bandung</div>
+              <div id="mobile-drawer-role-badge" class="text-[10px] text-sky-200 font-medium truncate">Administrator</div>
+            </div>
+          </div>
+          <button onclick="window.app.toggleMobileDrawer(false)" class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-slate-300">
+            <i data-lucide="x" class="w-4 h-4"></i>
+          </button>
+        </div>
+
+        <nav id="mobile-drawer-nav-list" class="space-y-1.5 overflow-y-auto max-h-[calc(100dvh-230px)] pr-1"></nav>
+      </div>
+
+      <div class="pt-3 border-t border-white/15 space-y-2">
+        <div class="flex items-center gap-2.5 p-2 rounded-2xl bg-white/10">
+          <div id="mobile-drawer-user-avatar" class="w-9 h-9 rounded-full bg-[#F5DFD3] text-[#2A4756] font-extrabold text-xs flex items-center justify-center shrink-0 border-2 border-white/60">
+            AD
+          </div>
+          <div class="overflow-hidden flex-1">
+            <div class="text-[9.5px] text-slate-300">Pengguna Aktif:</div>
+            <div id="mobile-drawer-user-name" class="text-xs font-bold text-white truncate">Admin Utama</div>
+          </div>
+        </div>
+        <button onclick="window.app.toggleMobileDrawer(false); window.app.handleLogout();" class="w-full py-2.5 px-3 rounded-2xl bg-red-500/25 hover:bg-red-500/40 text-red-200 text-xs font-bold transition flex items-center justify-center gap-2">
+          <i data-lucide="log-out" class="w-4 h-4"></i>
+          <span>Keluar Sesi</span>
+        </button>
+      </div>
+    </aside>
 
     <!-- NOTIFICATION DRAWER -->
     <div id="notif-drawer-backdrop" onclick="window.app.toggleNotifDrawer(false)" class="hidden fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-xs"></div>
@@ -546,6 +645,23 @@
       }
     }
 
+    let realtimeDebounceTimer = null;
+    let lastLocalSaveTimestamp = 0;
+
+    function markLocalSaveAction() {
+      lastLocalSaveTimestamp = Date.now();
+    }
+
+    function debouncedRealtimeSync(delay = 450) {
+      if (Date.now() - lastLocalSaveTimestamp < 1200) {
+        return; // Lewati echo realtime dari aksi lokal yang baru saja disimpan
+      }
+      if (realtimeDebounceTimer) clearTimeout(realtimeDebounceTimer);
+      realtimeDebounceTimer = setTimeout(() => {
+        syncAllData(false);
+      }, delay);
+    }
+
     function setupRealtimeSubscription() {
       if (!supabase) return;
       try {
@@ -555,7 +671,7 @@
         realtimeChannel = supabase
           .channel('sipps-realtime-sync')
           .on('postgres_changes', { event: '*', schema: 'public' }, () => {
-            syncAllData(false);
+            debouncedRealtimeSync(450);
           })
           .subscribe();
       } catch {}
@@ -749,6 +865,16 @@
 
     function updateGlobalVisualSettings() {
       const cfg = state.db.settings || DEFAULT_SETTINGS;
+      try {
+        safeStorage.setItem('SIPPS_71_VISUAL_CACHE_V3', JSON.stringify({
+          app_name: cfg.app_name,
+          logo_url: cfg.logo_url,
+          bg_url: cfg.bg_url,
+          canvas_opacity: cfg.canvas_opacity,
+          is_maintenance: cfg.is_maintenance
+        }));
+      } catch (e) {}
+
       const rootWrapper = document.getElementById('sipps-root-wrapper');
       if (rootWrapper) {
         rootWrapper.style.setProperty('--canvas-opacity', cfg.canvas_opacity || 0.88);
@@ -759,16 +885,16 @@
       const logoSrc = (cfg.logo_url && cfg.logo_url.trim() !== '' && !cfg.logo_url.includes('placehold.co'))
         ? cfg.logo_url
         : OFFICIAL_SMPN71_LOGO;
-      ['login-app-logo', 'sidebar-app-logo'].forEach(id => {
+      ['login-app-logo', 'sidebar-app-logo', 'mobile-drawer-logo'].forEach(id => {
         const el = document.getElementById(id);
         if (el) el.src = logoSrc;
       });
 
-      const loginTitle = document.getElementById('login-app-title');
-      if (loginTitle) loginTitle.textContent = cfg.app_name || DEFAULT_SETTINGS.app_name;
-
-      const sidebarName = document.getElementById('sidebar-app-name');
-      if (sidebarName) sidebarName.textContent = cfg.app_name || DEFAULT_SETTINGS.app_name;
+      const appTitle = cfg.app_name || DEFAULT_SETTINGS.app_name;
+      ['login-app-title', 'sidebar-app-name', 'mobile-drawer-app-name'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = appTitle;
+      });
 
       const maintBadge = document.getElementById('login-maint-badge');
       const maintIndicator = document.getElementById('header-maint-indicator');
@@ -1023,7 +1149,7 @@
       if (role === 'admin') {
         return [
           { id: 'dashboard', label: 'Beranda', icon: 'home' },
-          { id: 'pelanggaran', label: 'Poin & Riwayat', icon: 'clipboard-list' },
+          { id: 'pelanggaran', label: 'Point & Riwayat', icon: 'clipboard-list' },
           { id: 'siswa', label: 'Identitas Siswa', icon: 'users' },
           { id: 'kelas', label: 'Master Kelas', icon: 'layout-grid' },
           { id: 'staff', label: 'Data Guru BK', icon: 'user-check' },
@@ -1035,7 +1161,7 @@
       } else if (role === 'bk') {
         return [
           { id: 'dashboard', label: 'Beranda', icon: 'home' },
-          { id: 'pelanggaran', label: 'Poin & Riwayat', icon: 'clipboard-list' },
+          { id: 'pelanggaran', label: 'Point & Riwayat', icon: 'clipboard-list' },
           { id: 'siswa', label: 'Identitas Siswa', icon: 'users' },
           { id: 'aturan', label: 'Katalog Aturan', icon: 'book-open' },
           { id: 'notifikasi', label: 'Pesan & Notif', icon: 'message-square' },
@@ -1084,14 +1210,40 @@
         ? (state.db.settings.admin_avatar_url || u.avatar_url || '')
         : (u.avatar_url || '');
 
+      const avatarLetters = (u.nama || u.nama_siswa || 'US').substring(0, 2).toUpperCase();
+
       if (avatarUrl) {
-        photoEl.src = avatarUrl;
-        photoEl.classList.remove('hidden');
-        avatarEl.classList.add('hidden');
+        if (photoEl) {
+          photoEl.src = avatarUrl;
+          photoEl.classList.remove('hidden');
+        }
+        if (avatarEl) avatarEl.classList.add('hidden');
       } else {
-        photoEl.classList.add('hidden');
-        avatarEl.classList.remove('hidden');
-        avatarEl.textContent = (u.nama || u.nama_siswa || 'US').substring(0, 2).toUpperCase();
+        if (photoEl) photoEl.classList.add('hidden');
+        if (avatarEl) {
+          avatarEl.classList.remove('hidden');
+          avatarEl.textContent = avatarLetters;
+        }
+      }
+
+      // Sinkronisasi profil pada Mobile Drawer Navigation
+      const mAppName = document.getElementById('mobile-drawer-app-name');
+      if (mAppName) mAppName.textContent = state.db.settings.app_name || 'SIPPS SMPN 71 Bandung';
+      const mRoleBadge = document.getElementById('mobile-drawer-role-badge');
+      if (mRoleBadge) mRoleBadge.textContent = roleNameMap[u.role] || 'Pengguna';
+      const mUserName = document.getElementById('mobile-drawer-user-name');
+      if (mUserName) mUserName.textContent = u.nama || u.nama_siswa || 'Pengguna';
+      const mAvatar = document.getElementById('mobile-drawer-user-avatar');
+      if (mAvatar) {
+        if (avatarUrl) {
+          mAvatar.innerHTML = `<img src="${avatarUrl}" class="w-full h-full object-cover rounded-full" />`;
+        } else {
+          mAvatar.textContent = avatarLetters;
+        }
+      }
+      const mLogo = document.getElementById('mobile-drawer-logo');
+      if (mLogo && state.db.settings.logo_url && !state.db.settings.logo_url.includes('placehold.co')) {
+        mLogo.src = state.db.settings.logo_url;
       }
     }
 
@@ -1100,6 +1252,7 @@
       const menus = getRoleMenus(state.currentUser.role);
       const desktopNav = document.getElementById('desktop-nav-list');
       const mobileNav = document.getElementById('mobile-nav-list');
+      const mobileDrawerNav = document.getElementById('mobile-drawer-nav-list');
 
       if (desktopNav) {
         desktopNav.innerHTML = menus.map(m => {
@@ -1114,21 +1267,72 @@
       }
 
       if (mobileNav) {
-        const mobileSlice = menus.slice(0, 6);
-        mobileNav.innerHTML = mobileSlice.map(m => {
+        const mobileItems = menus.map(m => {
           const active = state.currentView === m.id;
           return `
-            <button onclick="window.app.navigate('${m.id}')" class="flex flex-col items-center justify-center py-1 px-2 rounded-xl transition ${active ? 'text-sky-300 font-extrabold' : 'text-slate-300'}">
-              <i data-lucide="${m.icon}" class="w-5 h-5"></i>
-              <span class="text-[9.5px] mt-0.5 truncate max-w-[60px]">${m.label}</span>
+            <button onclick="window.app.navigate('${m.id}')" data-nav-id="${m.id}" class="mobile-nav-btn flex flex-col items-center justify-center py-1.5 px-2.5 sm:px-3 rounded-2xl shrink-0 min-w-[66px] sm:min-w-[72px] transition-all ${active ? 'bg-gradient-to-b from-[#2A4756] to-[#1E3340] text-sky-300 font-extrabold shadow-md ring-1 ring-sky-400/40' : 'text-slate-300 hover:text-white hover:bg-white/10'}">
+              <i data-lucide="${m.icon}" class="w-4 h-4 mb-0.5 ${active ? 'text-sky-300' : 'text-slate-300'}"></i>
+              <span class="text-[9px] sm:text-[9.5px] leading-tight whitespace-nowrap">${m.label}</span>
             </button>
           `;
         }).join('');
+
+        const logoutBtn = `
+          <button onclick="window.app.handleLogout()" class="mobile-nav-btn flex flex-col items-center justify-center py-1.5 px-2.5 sm:px-3 rounded-2xl shrink-0 min-w-[66px] sm:min-w-[72px] transition-all text-red-300 hover:text-red-100 hover:bg-red-500/20">
+            <i data-lucide="log-out" class="w-4 h-4 mb-0.5 text-red-400"></i>
+            <span class="text-[9px] sm:text-[9.5px] leading-tight whitespace-nowrap">Keluar</span>
+          </button>
+        `;
+
+        mobileNav.innerHTML = mobileItems + logoutBtn;
+
+        setTimeout(() => {
+          const activeBtn = mobileNav.querySelector(`[data-nav-id="${state.currentView}"]`);
+          if (activeBtn) {
+            activeBtn.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+          }
+        }, 40);
       }
+
+      if (mobileDrawerNav) {
+        const drawerItems = menus.map(m => {
+          const active = state.currentView === m.id;
+          return `
+            <button onclick="window.app.toggleMobileDrawer(false); window.app.navigate('${m.id}')" class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-2xl text-xs font-bold transition ${active ? 'bg-[#233946] text-white shadow-md' : 'text-slate-200 hover:bg-white/10 hover:text-white'}">
+              <i data-lucide="${m.icon}" class="w-4 h-4 shrink-0 ${active ? 'text-sky-300' : 'text-slate-300'}"></i>
+              <span class="text-xs truncate">${m.label}</span>
+            </button>
+          `;
+        }).join('');
+        mobileDrawerNav.innerHTML = drawerItems;
+      }
+
       refreshIconsFast();
     }
 
+    function toggleMobileDrawer(forceState) {
+      const drawer = document.getElementById('mobile-sidebar-drawer');
+      const backdrop = document.getElementById('mobile-drawer-backdrop');
+      if (!drawer || !backdrop) return;
+      const isClosed = drawer.classList.contains('-translate-x-full');
+      const shouldOpen = typeof forceState === 'boolean' ? forceState : isClosed;
+      if (shouldOpen) {
+        drawer.classList.remove('-translate-x-full');
+        backdrop.classList.remove('hidden');
+        renderNavigationMenus();
+      } else {
+        drawer.classList.add('-translate-x-full');
+        backdrop.classList.add('hidden');
+      }
+    }
+
     function navigate(viewId) {
+      if (state.currentUser) {
+        const allowedMenus = getRoleMenus(state.currentUser.role).map(m => m.id);
+        if (!allowedMenus.includes(viewId)) {
+          viewId = allowedMenus[0] || 'dashboard';
+        }
+      }
       state.currentView = viewId;
       renderNavigationMenus();
       renderActiveView();
@@ -1200,6 +1404,10 @@
           if (titleEl) titleEl.textContent = 'Pengaturan Profil Guru BK';
           if (subEl) subEl.textContent = 'Perbarui identitas, foto profil, dan akun login Guru BK';
           container.innerHTML = renderBkSettingsViewHTML();
+        } else if (role === 'wali') {
+          if (titleEl) titleEl.textContent = 'Pengaturan Profil Wali Murid';
+          if (subEl) subEl.textContent = 'Informasi akun wali murid dan data anak terdaftar';
+          container.innerHTML = renderWaliSettingsViewHTML();
         } else {
           if (titleEl) titleEl.textContent = 'Pengaturan Profil Siswa';
           if (subEl) subEl.textContent = 'Perbarui foto profil, identitas, dan kata sandi login siswa';
@@ -2117,7 +2325,7 @@
                   <p class="font-bold">Koordinator Bimbingan Konseling / Petugas</p>
                   <div class="h-16"></div>
                   <p class="font-bold underline">${state.currentUser?.nama || 'admin'}</p>
-                  <p>ID/NIP. ${state.currentUser?.nip || state.currentUser?.username || 'admin@gmail.com'}</p>
+                  <p>NIP. ${state.currentUser?.nip || state.currentUser?.username || 'admin@gmail.com'}</p>
                 </div>
               </div>
             </div>
@@ -2134,59 +2342,124 @@
     }
 
     function renderNotifikasiChatViewHTML() {
-      const activeTarget = state.activeChatTarget || 'semua_wali';
-      const activeTab = state.chatCategoryTab || 'semua';
+      const u = state.currentUser;
+      const isStudentOrWali = (u.role === 'siswa' || u.role === 'wali');
       const q = (state.chatSearchQuery || '').toLowerCase();
 
       const kelasList = getUniqueClasses();
       const siswaList = state.db.siswa || [];
       const bkList = (state.db.staff || []).filter(st => st.role === 'bk');
 
-      const allContacts = [
-        { id: 'semua_wali', label: 'Semua Wali Murid', sub: 'Kirim pesan chatting serentak ke seluruh Wali Murid SMPN 71', badge: 'Semua Wali Murid', badgeClass: 'bg-[#F5DFD3] text-[#2A4756]', avatarText: 'ALL', avatarBg: 'bg-[#EB8A5E]', category: 'massal' },
-        { id: 'semua_siswa', label: 'Semua Siswa', sub: 'Kirim pesan chatting serentak ke seluruh Siswa SMPN 71', badge: 'Semua Siswa', badgeClass: 'bg-amber-100 text-amber-800', avatarText: 'ALL', avatarBg: 'bg-[#6B8E9B]', category: 'massal' },
-        { id: 'semua_bk', label: 'Semua Guru BK', sub: 'Koordinasi cepat dengan seluruh Guru Bimbingan Konseling', badge: 'Semua Guru BK', badgeClass: 'bg-amber-100 text-amber-800', avatarText: 'ALL', avatarBg: 'bg-[#6B8E9B]', category: 'massal' },
-        ...kelasList.map(k => ({
-          id: 'kelas_' + k,
-          label: 'Siswa & Wali Kelas ' + k,
-          sub: 'Kirim pesan ke seluruh Siswa & Wali Murid Kelas ' + k,
-          badge: 'Kelas ' + k,
-          badgeClass: 'bg-amber-100 text-amber-800',
-          avatarText: 'ALL',
-          avatarBg: 'bg-[#6B8E9B]',
-          category: 'massal'
-        })),
-        ...siswaList.map(s => ({
-          id: 'wali_' + s.nisn,
-          label: (s.nama_wali && s.nama_wali !== '-' ? s.nama_wali : 'Wali dari ' + s.nama_siswa),
-          sub: `Wali Murid dari ${s.nama_siswa} (Kelas ${s.kelas})`,
-          badge: 'Wali ' + s.kelas,
-          badgeClass: 'bg-[#F5DFD3] text-[#2A4756]',
-          avatarText: 'WL',
-          avatarBg: 'bg-[#EB8A5E]',
-          category: 'wali'
-        })),
-        ...siswaList.map(s => ({
-          id: 'siswa_' + s.nisn,
-          label: s.nama_siswa,
-          sub: `Siswa Kelas ${s.kelas} • NISN: ${s.nisn}`,
-          badge: 'Siswa ' + s.kelas,
-          badgeClass: 'bg-sky-100 text-sky-800',
-          avatarText: (s.nama_siswa || 'S').substring(0, 2).toUpperCase(),
-          avatarBg: 'bg-[#6B8E9B]',
-          category: 'siswa'
-        })),
-        ...bkList.map(b => ({
-          id: 'bk_' + b.nip,
-          label: b.nama,
-          sub: `${b.jabatan || 'Guru BK'} • NIP: ${b.nip}`,
-          badge: 'Guru BK',
-          badgeClass: 'bg-emerald-100 text-emerald-800',
-          avatarText: (b.nama || 'BK').substring(0, 2).toUpperCase(),
-          avatarBg: 'bg-[#2A4756]',
-          category: 'bk'
-        }))
+      let allContacts = [];
+
+      if (isStudentOrWali) {
+        // SISWA & WALI MURID: Hanya bisa chat dan balas chat ke Guru BK dan Admin saja
+        allContacts = [
+          {
+            id: 'admin_utama',
+            label: 'Administrator Sistem',
+            sub: 'Layanan administrasi, bantuan & pengaduan sekolah',
+            badge: 'Admin',
+            badgeClass: 'bg-indigo-100 text-indigo-800',
+            avatarText: 'AD',
+            avatarBg: 'bg-[#2A4756]',
+            category: 'admin'
+          },
+          {
+            id: 'semua_bk',
+            label: 'Tim Guru BK (Konseling)',
+            sub: 'Konsultasi bimbingan konseling & kedisiplinan sekolah',
+            badge: 'Guru BK',
+            badgeClass: 'bg-emerald-100 text-emerald-800',
+            avatarText: 'BK',
+            avatarBg: 'bg-[#6B8E9B]',
+            category: 'bk'
+          },
+          ...bkList.map(b => ({
+            id: 'bk_' + b.nip,
+            label: b.nama,
+            sub: `${b.jabatan || 'Guru BK'} • NIP: ${b.nip}`,
+            badge: 'Guru BK',
+            badgeClass: 'bg-emerald-100 text-emerald-800',
+            avatarText: (b.nama || 'BK').substring(0, 2).toUpperCase(),
+            avatarBg: 'bg-[#2A4756]',
+            category: 'bk'
+          }))
+        ];
+      } else {
+        // ADMIN & GURU BK: Akses broadcast dan chat per siswa/wali/kelas/bk
+        allContacts = [
+          { id: 'semua_wali', label: 'Semua Wali Murid', sub: 'Kirim pesan chatting serentak ke seluruh Wali Murid SMPN 71', badge: 'Semua Wali Murid', badgeClass: 'bg-[#F5DFD3] text-[#2A4756]', avatarText: 'ALL', avatarBg: 'bg-[#EB8A5E]', category: 'massal' },
+          { id: 'semua_siswa', label: 'Semua Siswa', sub: 'Kirim pesan chatting serentak ke seluruh Siswa SMPN 71', badge: 'Semua Siswa', badgeClass: 'bg-amber-100 text-amber-800', avatarText: 'ALL', avatarBg: 'bg-[#6B8E9B]', category: 'massal' },
+          { id: 'semua_bk', label: 'Semua Guru BK', sub: 'Koordinasi cepat dengan seluruh Guru Bimbingan Konseling', badge: 'Semua Guru BK', badgeClass: 'bg-amber-100 text-amber-800', avatarText: 'ALL', avatarBg: 'bg-[#6B8E9B]', category: 'massal' },
+          ...kelasList.map(k => ({
+            id: 'kelas_' + k,
+            label: 'Siswa & Wali Kelas ' + k,
+            sub: 'Kirim pesan ke seluruh Siswa & Wali Murid Kelas ' + k,
+            badge: 'Kelas ' + k,
+            badgeClass: 'bg-amber-100 text-amber-800',
+            avatarText: 'ALL',
+            avatarBg: 'bg-[#6B8E9B]',
+            category: 'massal'
+          })),
+          ...siswaList.map(s => ({
+            id: 'wali_' + s.nisn,
+            label: (s.nama_wali && s.nama_wali !== '-' ? s.nama_wali : 'Wali dari ' + s.nama_siswa),
+            sub: `Wali Murid dari ${s.nama_siswa} (Kelas ${s.kelas})`,
+            badge: 'Wali ' + s.kelas,
+            badgeClass: 'bg-[#F5DFD3] text-[#2A4756]',
+            avatarText: 'WL',
+            avatarBg: 'bg-[#EB8A5E]',
+            category: 'wali'
+          })),
+          ...siswaList.map(s => ({
+            id: 'siswa_' + s.nisn,
+            label: s.nama_siswa,
+            sub: `Siswa Kelas ${s.kelas} • NISN: ${s.nisn}`,
+            badge: 'Siswa ' + s.kelas,
+            badgeClass: 'bg-sky-100 text-sky-800',
+            avatarText: (s.nama_siswa || 'S').substring(0, 2).toUpperCase(),
+            avatarBg: 'bg-[#6B8E9B]',
+            category: 'siswa'
+          })),
+          ...bkList.map(b => ({
+            id: 'bk_' + b.nip,
+            label: b.nama,
+            sub: `${b.jabatan || 'Guru BK'} • NIP: ${b.nip}`,
+            badge: 'Guru BK',
+            badgeClass: 'bg-emerald-100 text-emerald-800',
+            avatarText: (b.nama || 'BK').substring(0, 2).toUpperCase(),
+            avatarBg: 'bg-[#2A4756]',
+            category: 'bk'
+          }))
+        ];
+      }
+
+      const availableTabs = isStudentOrWali ? [
+        { id: 'semua', label: 'Semua' },
+        { id: 'bk', label: 'Guru BK' },
+        { id: 'admin', label: 'Admin' }
+      ] : [
+        { id: 'semua', label: 'Semua' },
+        { id: 'massal', label: 'Massal' },
+        { id: 'wali', label: 'Wali' },
+        { id: 'siswa', label: 'Siswa' },
+        { id: 'bk', label: 'BK' }
       ];
+
+      let activeTab = state.chatCategoryTab || 'semua';
+      if (isStudentOrWali && !['semua', 'bk', 'admin'].includes(activeTab)) {
+        activeTab = 'semua';
+      }
+
+      let activeTarget = state.activeChatTarget;
+      if (isStudentOrWali && (!activeTarget || !allContacts.some(c => c.id === activeTarget))) {
+        activeTarget = allContacts[0] ? allContacts[0].id : 'admin_utama';
+        state.activeChatTarget = activeTarget;
+      } else if (!activeTarget || !allContacts.some(c => c.id === activeTarget)) {
+        activeTarget = 'semua_wali';
+        state.activeChatTarget = activeTarget;
+      }
 
       const filteredContacts = allContacts.filter(c => {
         const mTab = activeTab === 'semua' || c.category === activeTab;
@@ -2196,7 +2469,38 @@
 
       const selectedContactObj = allContacts.find(c => c.id === activeTarget) || allContacts[0];
 
+      // SINKRONISASI FILTER PERCAKAPAN DUA ARAH (KIRIM & BALAS CHAT)
       const chatMessages = (state.db.notifikasi || []).filter(n => {
+        if (isStudentOrWali) {
+          const myNisn = state.currentUser.nisn;
+          const isWali = state.currentUser.role === 'wali';
+
+          if (activeTarget === 'admin_utama' || activeTarget === 'admin') {
+            const sentByMe = (n.pengirim_id === myNisn || n.pengirim === state.currentUser.nama) && (n.target_role === 'admin' || n.target_role === 'Administrator');
+            const sentByAdminToMe = (n.pengirim_role === 'admin') && (
+              n.target_nisn === myNisn ||
+              (isWali && (n.target_role === 'Wali Murid' || n.target_role === 'Semua Wali Murid' || n.target_role === 'Semua')) ||
+              (!isWali && (n.target_role === 'Siswa' || n.target_role === 'Semua Siswa' || n.target_role === 'Semua'))
+            );
+            return sentByMe || sentByAdminToMe;
+          }
+
+          if (activeTarget === 'semua_bk' || activeTarget.startsWith('bk_')) {
+            const targetNip = activeTarget.startsWith('bk_') ? activeTarget.replace('bk_', '') : null;
+            const sentByMe = (n.pengirim_id === myNisn || n.pengirim === state.currentUser.nama) && (
+              n.target_role === 'Guru BK' || n.target_role === 'bk' || (targetNip && (n.target_nisn === targetNip || n.target_nama === targetNip))
+            );
+            const sentByBkToMe = (n.pengirim_role === 'bk' || n.tipe === 'Pelanggaran Otomatis') && (
+              n.target_nisn === myNisn ||
+              (isWali && (n.target_role === 'Wali Murid' || n.target_role === 'Semua Wali Murid')) ||
+              (!isWali && (n.target_role === 'Siswa' || n.target_role === 'Semua Siswa'))
+            ) && (!targetNip || n.pengirim_id === targetNip || n.pengirim === targetNip);
+            return sentByMe || sentByBkToMe;
+          }
+          return false;
+        }
+
+        // Pengguna Admin & Guru BK
         if (activeTarget === 'semua_wali') return n.target_role === 'Wali Murid' && (!n.target_nisn);
         if (activeTarget === 'semua_siswa') return n.target_role === 'Siswa' && (!n.target_nisn);
         if (activeTarget === 'semua_bk') return n.target_role === 'Guru BK';
@@ -2206,21 +2510,21 @@
         }
         if (activeTarget.startsWith('wali_')) {
           const nisn = activeTarget.replace('wali_', '');
-          return n.target_nisn === nisn && n.target_role === 'Wali Murid';
+          return (n.target_nisn === nisn && (n.target_role === 'Wali Murid' || n.target_role === 'Semua')) || (n.pengirim_id === nisn && n.pengirim_role === 'wali');
         }
         if (activeTarget.startsWith('siswa_')) {
           const nisn = activeTarget.replace('siswa_', '');
-          return n.target_nisn === nisn;
+          return (n.target_nisn === nisn && (n.target_role === 'Siswa' || n.target_role === 'Semua' || n.tipe === 'Pelanggaran Otomatis')) || (n.pengirim_id === nisn && n.pengirim_role === 'siswa');
         }
         if (activeTarget.startsWith('bk_')) {
           const nip = activeTarget.replace('bk_', '');
-          return n.target_nisn === nip;
+          return n.target_nisn === nip || (n.pengirim_id === nip && n.pengirim_role === 'bk');
         }
         return false;
       });
 
       return `
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 h-[calc(100dvh-145px)] min-h-[500px]">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 h-[calc(100dvh-155px)] min-h-[500px]">
           <!-- Daftar Tujuan Penerima Chatting -->
           <div class="lg:col-span-4 rounded-[26px] bg-white/95 border border-white shadow-sm p-4 flex flex-col overflow-hidden">
             <div class="flex items-center justify-between mb-2.5">
@@ -2233,17 +2537,11 @@
 
             <div class="relative mb-2.5">
               <i data-lucide="search" class="w-3.5 h-3.5 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
-              <input type="text" id="input-search-chat" value="${state.chatSearchQuery || ''}" oninput="window.app.setChatSearchQuery(this.value)" placeholder="Cari Semua Wali, Siswa, Kelas, BK..." class="w-full pl-9 pr-3 py-2 rounded-full bg-slate-50 border border-slate-200 text-xs text-slate-700 focus:outline-none" />
+              <input type="text" id="input-search-chat" value="${state.chatSearchQuery || ''}" oninput="window.app.setChatSearchQuery(this.value)" placeholder="Cari ${isStudentOrWali ? 'Guru BK, Admin...' : 'Semua Wali, Siswa, Kelas, BK...'}" class="w-full pl-9 pr-3 py-2 rounded-full bg-slate-50 border border-slate-200 text-xs text-slate-700 focus:outline-none" />
             </div>
 
-            <div class="grid grid-cols-5 gap-1 p-1 rounded-xl bg-slate-100 mb-3 text-[11px] font-bold">
-              ${[
-                { id: 'semua', label: 'Semua' },
-                { id: 'massal', label: 'Massal' },
-                { id: 'wali', label: 'Wali' },
-                { id: 'siswa', label: 'Siswa' },
-                { id: 'bk', label: 'BK' }
-              ].map(t => `
+            <div class="grid grid-cols-${availableTabs.length} gap-1 p-1 rounded-xl bg-slate-100 mb-3 text-[11px] font-bold">
+              ${availableTabs.map(t => `
                 <button type="button" onclick="window.app.setChatCategoryTab('${t.id}')" class="py-1.5 rounded-lg transition ${activeTab === t.id ? 'bg-[#253946] text-white shadow-xs' : 'text-slate-600 hover:text-slate-900'}">${t.label}</button>
               `).join('')}
             </div>
@@ -2285,15 +2583,15 @@
                 </div>
               </div>
               <span class="px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-[10.5px] font-extrabold flex items-center gap-1.5 shrink-0">
-                <span class="w-2 h-2 rounded-full bg-emerald-500"></span> Tampil di Notifikasi
+                <span class="w-2 h-2 rounded-full bg-emerald-500"></span> Live Real-Time
               </span>
             </div>
 
-            <div class="flex-1 overflow-y-auto p-6 flex flex-col justify-center">
+            <div id="chat-messages-scroll-area" class="flex-1 overflow-y-auto p-5 sm:p-6 flex flex-col justify-end">
               ${chatMessages.length > 0 ? `
-                <div class="space-y-3 my-auto w-full">
+                <div class="space-y-3 w-full">
                   ${chatMessages.slice().reverse().map(m => {
-                    const isMe = state.currentUser && m.pengirim === state.currentUser.nama;
+                    const isMe = state.currentUser && (m.pengirim === state.currentUser.nama || m.pengirim_id === (state.currentUser.nisn || state.currentUser.nip || state.currentUser.id));
                     return `
                       <div class="flex flex-col ${isMe ? 'items-end' : 'items-start'}">
                         <div class="max-w-md rounded-2xl p-3.5 shadow-xs ${isMe ? 'bg-[#253946] text-white rounded-br-xs' : 'bg-slate-100 text-slate-800 rounded-bl-xs'}">
@@ -2304,7 +2602,7 @@
                               <button onclick="window.app.deleteNotifikasiItem('${m.id}')" title="Hapus Pesan" class="opacity-60 hover:opacity-100"><i data-lucide="trash-2" class="w-3 h-3"></i></button>
                             </div>
                           </div>
-                          <p class="text-xs leading-relaxed">${m.isi_pesan}</p>
+                          <p class="text-xs leading-relaxed whitespace-pre-wrap">${m.isi_pesan}</p>
                         </div>
                       </div>
                     `;
@@ -2315,18 +2613,18 @@
                   <div class="w-12 h-12 rounded-2xl bg-slate-100 text-[#6B8E9B] flex items-center justify-center mx-auto mb-3">
                     <i data-lucide="send" class="w-5 h-5"></i>
                   </div>
-                  <h4 class="text-xs font-extrabold text-slate-700">Mulai Live Chatting ke ${selectedContactObj.label}</h4>
+                  <h4 class="text-xs font-extrabold text-slate-700">Mulai Percakapan ke ${selectedContactObj.label}</h4>
                   <p class="text-[11px] text-slate-400 mt-1 leading-relaxed">
-                    Pesan yang Anda kirim akan langsung diterima oleh tujuan dan tampil otomatis di lonceng Notifikasi Real-Time.
+                    Pesan yang Anda kirim akan langsung diterima oleh tujuan dan tersinkronisasi otomatis ke database Supabase.
                   </p>
                 </div>
               `}
             </div>
 
             <form onsubmit="window.app.handleSendChatMessage(event)" class="p-3.5 border-t border-slate-100 flex items-center gap-2.5">
-              <input type="text" id="chat-input-message" required placeholder="Ketik pesan ke ${selectedContactObj.label}..." class="flex-1 px-4 py-2.5 rounded-full bg-slate-100/90 border border-slate-200/80 text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#6B8E9B]" />
-              <button type="submit" class="px-5 py-2.5 rounded-full bg-[#223845] hover:bg-[#172730] text-white text-xs font-extrabold flex items-center justify-center gap-1.5 shrink-0 shadow-sm transition">
-                <span>Kirim Pesan</span>
+              <input type="text" id="chat-input-message" autocomplete="off" required placeholder="Ketik pesan chatting ke ${selectedContactObj.label}..." class="flex-1 px-4 py-2.5 rounded-full bg-slate-100/90 border border-slate-200/80 text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#6B8E9B]" />
+              <button type="submit" class="px-5 py-2.5 rounded-full bg-[#223845] hover:bg-[#172730] text-white text-xs font-extrabold flex items-center justify-center gap-1.5 shrink-0 shadow-sm transition active:scale-95">
+                <span>Kirim</span>
                 <i data-lucide="send" class="w-3.5 h-3.5"></i>
               </button>
             </form>
@@ -2349,12 +2647,13 @@
 
     async function deleteNotifikasiItem(id) {
       state.db.notifikasi = (state.db.notifikasi || []).filter(n => n.id !== id);
-      if (supabase) {
-        try { await supabase.from('sipps_notifikasi').delete().eq('id', id); } catch {}
-      }
+      markLocalSaveAction();
       savePreviewLocal();
       updateUnreadNotifBadge();
       renderActiveView();
+      if (supabase) {
+        supabase.from('sipps_notifikasi').delete().eq('id', id).then(() => {}).catch(() => {});
+      }
     }
 
     function renderAdminSettingsViewHTML() {
@@ -2608,7 +2907,6 @@
     function renderSiswaSettingsViewHTML() {
       const u = state.currentUser || {};
       const mySiswa = (state.db.siswa || []).find(s => s.nisn === u.nisn) || u;
-      const kelasOpts = getUniqueClasses();
       return `
         <div class="max-w-xl mx-auto rounded-[28px] glass-card p-6 sm:p-8 shadow-xl space-y-5">
           <div class="flex items-center gap-4">
@@ -2617,7 +2915,7 @@
             </div>
             <div>
               <h3 class="text-base font-extrabold text-slate-800">Pengaturan Akun & Profil Siswa</h3>
-              <p class="text-xs text-slate-500">Perbarui foto profil, identitas, kelas, dan kata sandi login</p>
+              <p class="text-xs text-slate-500">Perbarui foto profil, identitas, dan kata sandi login</p>
             </div>
           </div>
 
@@ -2638,10 +2936,14 @@
             </div>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label class="block text-xs font-bold text-slate-700 mb-1">Kelas</label>
-                <select id="set-siswa-kelas" class="w-full px-4 py-2.5 rounded-xl bg-white border border-slate-200 text-xs font-semibold text-slate-800">
-                  ${kelasOpts.map(k => `<option value="${k}" ${mySiswa.kelas === k ? 'selected' : ''}>${k}</option>`).join('')}
-                </select>
+                <label class="block text-xs font-bold text-slate-700 mb-1">Kelas Terdaftar</label>
+                <div class="relative">
+                  <input type="text" id="set-siswa-kelas" value="${mySiswa.kelas || '-'}" readonly class="w-full px-4 py-2.5 rounded-xl bg-slate-100 border border-slate-200 text-xs font-bold text-slate-700 select-none cursor-not-allowed pr-24" />
+                  <span class="absolute right-3 top-1/2 -translate-y-1/2 px-2 py-0.5 rounded-md bg-slate-200 text-[10px] font-bold text-slate-600 flex items-center gap-1">
+                    <i data-lucide="lock" class="w-3 h-3"></i> Terkunci
+                  </span>
+                </div>
+                <p class="text-[10px] text-slate-400 mt-1">Kelas resmi siswa dikunci sesuai data rombel sekolah.</p>
               </div>
               <div>
                 <label class="block text-xs font-bold text-slate-700 mb-1">Password Login</label>
@@ -2650,6 +2952,68 @@
             </div>
             <button type="submit" class="w-full py-3 rounded-xl bg-[#2A4756] hover:bg-[#1E3542] text-white text-xs font-extrabold uppercase tracking-wider shadow">
               Simpan Profil Siswa
+            </button>
+          </form>
+        </div>
+      `;
+    }
+
+    function renderWaliSettingsViewHTML() {
+      const u = state.currentUser || {};
+      const mySiswa = (state.db.siswa || []).find(s => s.nisn === u.nisn) || u;
+      return `
+        <div class="max-w-xl mx-auto rounded-[28px] glass-card p-6 sm:p-8 shadow-xl space-y-5">
+          <div class="flex items-center gap-4">
+            <div class="w-16 h-16 rounded-full bg-[#F5DFD3] text-[#2A4756] font-extrabold text-lg flex items-center justify-center overflow-hidden border-2 border-white shadow">
+              ${mySiswa.avatar_url ? `<img src="${mySiswa.avatar_url}" class="w-full h-full object-cover" />` : (mySiswa.nama_wali || 'W').substring(0,2).toUpperCase()}
+            </div>
+            <div>
+              <h3 class="text-base font-extrabold text-slate-800">Pengaturan Akun Wali Murid</h3>
+              <p class="text-xs text-slate-500">Informasi akun wali murid dan data anak terdaftar</p>
+            </div>
+          </div>
+
+          <form onsubmit="window.app.handleSaveWaliProfile(event)" class="space-y-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">Nama Siswa (Anak)</label>
+                <input type="text" value="${mySiswa.nama_siswa || ''}" readonly class="w-full px-4 py-2.5 rounded-xl bg-slate-100 border border-slate-200 text-xs font-bold text-slate-700 cursor-not-allowed select-none" />
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">NISN Siswa</label>
+                <input type="text" value="${mySiswa.nisn || ''}" readonly class="w-full px-4 py-2.5 rounded-xl bg-slate-100 border border-slate-200 text-xs font-mono font-bold text-slate-700 cursor-not-allowed select-none" />
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-xs font-bold text-slate-700 mb-1">Kelas Siswa Terdaftar</label>
+              <div class="relative">
+                <input type="text" id="set-wali-kelas" value="${mySiswa.kelas || '-'}" readonly class="w-full px-4 py-2.5 rounded-xl bg-slate-100 border border-slate-200 text-xs font-bold text-slate-700 cursor-not-allowed select-none pr-24" />
+                <span class="absolute right-3 top-1/2 -translate-y-1/2 px-2 py-0.5 rounded-md bg-slate-200 text-[10px] font-bold text-slate-600 flex items-center gap-1">
+                  <i data-lucide="lock" class="w-3 h-3"></i> Terkunci
+                </span>
+              </div>
+              <p class="text-[10.5px] text-slate-400 mt-1">Kelas anak hanya sesuai kelas terdaftar di sekolah, tidak dapat memilih/memfilter kelas lain.</p>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">Nama Wali Murid</label>
+                <input type="text" id="set-wali-nama" value="${mySiswa.nama_wali || u.nama || ''}" required class="w-full px-4 py-2.5 rounded-xl bg-white border border-slate-200 text-xs font-semibold text-slate-800" />
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">No. WhatsApp / HP Wali</label>
+                <input type="text" id="set-wali-hp" value="${mySiswa.no_hp_wali || ''}" class="w-full px-4 py-2.5 rounded-xl bg-white border border-slate-200 text-xs font-semibold text-slate-800" />
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-xs font-bold text-slate-700 mb-1">Password Login Wali Murid</label>
+              <input type="password" id="set-wali-pass" value="${mySiswa.password_wali || 'wali123'}" required class="w-full px-4 py-2.5 rounded-xl bg-white border border-slate-200 text-xs font-semibold text-slate-800" />
+            </div>
+
+            <button type="submit" class="w-full py-3 rounded-xl bg-[#2A4756] hover:bg-[#1E3542] text-white text-xs font-extrabold uppercase tracking-wider shadow">
+              Simpan Profil Wali Murid
             </button>
           </form>
         </div>
@@ -2820,16 +3184,17 @@
         state.db.settings.maintenance_message = maintMsgInput.value.trim();
       }
 
+      markLocalSaveAction();
       savePreviewLocal();
-      if (supabase) {
-        try {
-          await supabase.from('sipps_settings').upsert([state.db.settings]);
-          await syncAllData(false);
-        } catch {}
-      }
       updateGlobalVisualSettings();
       renderActiveView();
       showToast("Pengaturan sistem & visual berhasil disimpan dan disinkronkan!", "success");
+
+      if (supabase) {
+        supabase.from('sipps_settings').upsert([state.db.settings]).then(() => {}).catch(err => {
+          console.warn("Sync settings gagal:", err);
+        });
+      }
     }
 
     async function handleSaveSiswaProfile(e) {
@@ -2837,7 +3202,7 @@
       const oldNisn = state.currentUser?.nisn;
       const nama = document.getElementById('set-siswa-nama').value.trim();
       const nisn = document.getElementById('set-siswa-nisn').value.trim();
-      const kelas = document.getElementById('set-siswa-kelas').value;
+      const kelas = (state.currentUser?.kelas || document.getElementById('set-siswa-kelas')?.value || '').trim();
       const pass = document.getElementById('set-siswa-pass').value.trim();
 
       if (state.currentUser) {
@@ -2854,17 +3219,63 @@
           foundS.password_siswa = pass;
           foundS.avatar_url = state.currentUser.avatar_url || foundS.avatar_url;
         }
+
+        markLocalSaveAction();
+        savePreviewLocal();
+        updateSidebarAndHeaderProfile();
+        renderActiveView();
+        showToast("Profil siswa berhasil diperbarui & disinkronkan!", "success");
+
         if (supabase) {
-          try {
-            await supabase.from('sipps_siswa').update({ nama_siswa: nama, nisn, kelas, password_siswa: pass, avatar_url: state.currentUser.avatar_url }).eq('nisn', oldNisn);
-          } catch {}
+          supabase.from('sipps_siswa').update({
+            nama_siswa: nama,
+            nisn,
+            kelas,
+            password_siswa: pass,
+            avatar_url: state.currentUser.avatar_url
+          }).eq('nisn', oldNisn).then(() => {}).catch(err => {
+            console.warn("Sync profil siswa gagal:", err);
+          });
         }
       }
+    }
 
-      savePreviewLocal();
-      updateSidebarAndHeaderProfile();
-      renderActiveView();
-      showToast("Profil siswa berhasil diperbarui & disinkronkan!", "success");
+    async function handleSaveWaliProfile(e) {
+      e.preventDefault();
+      const myNisn = state.currentUser?.nisn;
+      const namaWali = document.getElementById('set-wali-nama').value.trim();
+      const hpWali = document.getElementById('set-wali-hp').value.trim();
+      const passWali = document.getElementById('set-wali-pass').value.trim();
+
+      if (state.currentUser) {
+        state.currentUser.nama_wali = namaWali;
+        state.currentUser.nama = namaWali;
+        state.currentUser.no_hp_wali = hpWali;
+        state.currentUser.password_wali = passWali;
+
+        const foundS = (state.db.siswa || []).find(s => s.nisn === myNisn || s.id === state.currentUser.id);
+        if (foundS) {
+          foundS.nama_wali = namaWali;
+          foundS.no_hp_wali = hpWali;
+          foundS.password_wali = passWali;
+        }
+
+        markLocalSaveAction();
+        savePreviewLocal();
+        updateSidebarAndHeaderProfile();
+        renderActiveView();
+        showToast("Profil Wali Murid berhasil diperbarui & disinkronkan!", "success");
+
+        if (supabase) {
+          supabase.from('sipps_siswa').update({
+            nama_wali: namaWali,
+            no_hp_wali: hpWali,
+            password_wali: passWali
+          }).eq('nisn', myNisn).then(() => {}).catch(err => {
+            console.warn("Sync profil wali gagal:", err);
+          });
+        }
+      }
     }
 
     async function handleSaveBkProfile(e) {
@@ -2893,17 +3304,25 @@
           foundBk.avatar_url = state.currentUser.avatar_url || foundBk.avatar_url;
         }
 
+        markLocalSaveAction();
+        savePreviewLocal();
+        updateSidebarAndHeaderProfile();
+        renderActiveView();
+        showToast("Profil Guru BK berhasil diperbarui & disinkronkan!", "success");
+
         if (supabase) {
-          try {
-            await supabase.from('sipps_staff').update({ nama, nip, jabatan, username, password, avatar_url: state.currentUser.avatar_url }).eq('nip', oldNip);
-          } catch {}
+          supabase.from('sipps_staff').update({
+            nama,
+            nip,
+            jabatan,
+            username,
+            password,
+            avatar_url: state.currentUser.avatar_url
+          }).eq('nip', oldNip).then(() => {}).catch(err => {
+            console.warn("Sync profil BK gagal:", err);
+          });
         }
       }
-
-      savePreviewLocal();
-      updateSidebarAndHeaderProfile();
-      renderActiveView();
-      showToast("Profil Guru BK berhasil diperbarui & disinkronkan!", "success");
     }
 
     function downloadLockedProductionHtml() {
@@ -3080,6 +3499,9 @@
       const siswaObj = (state.db.siswa || []).find(s => s.nisn === nisn);
       if (!siswaObj) return;
 
+      let newPel = null;
+      let newNotif = null;
+
       if (id) {
         const existing = (state.db.pelanggaran || []).find(item => item.id === id);
         if (existing) {
@@ -3093,12 +3515,9 @@
           existing.poin = poin;
           existing.nama_pelanggaran = nama_pelanggaran;
           existing.catatan_tindak_lanjut = catatan;
-          if (supabase) {
-            try { await supabase.from('sipps_pelanggaran').update(existing).eq('id', id); } catch {}
-          }
         }
       } else {
-        const newPel = {
+        newPel = {
           id: 'pel_' + Date.now(),
           tanggal,
           siswa_id: siswaObj.id,
@@ -3115,12 +3534,10 @@
           status_penanganan,
           created_at: new Date().toISOString()
         };
+        state.db.pelanggaran = state.db.pelanggaran || [];
         state.db.pelanggaran.unshift(newPel);
-        if (supabase) {
-          try { await supabase.from('sipps_pelanggaran').insert([newPel]); } catch {}
-        }
 
-        const newNotif = {
+        newNotif = {
           id: 'notif_' + Date.now(),
           judul: 'Notifikasi Pelanggaran Poin',
           isi_pesan: `Ananda ${siswaObj.nama_siswa} (${siswaObj.kelas}) tercatat melakukan pelanggaran: ${nama_pelanggaran} (+${poin} Poin).`,
@@ -3131,13 +3548,12 @@
           target_nama: siswaObj.nama_siswa,
           pengirim: state.currentUser ? state.currentUser.nama : 'Guru BK',
           pengirim_role: state.currentUser ? state.currentUser.role : 'bk',
+          pengirim_id: state.currentUser ? (state.currentUser.nip || state.currentUser.id || '') : '',
           is_read: false,
           created_at: new Date().toISOString()
         };
+        state.db.notifikasi = state.db.notifikasi || [];
         state.db.notifikasi.unshift(newNotif);
-        if (supabase) {
-          try { await supabase.from('sipps_notifikasi').insert([newNotif]); } catch {}
-        }
       }
 
       // Recalculate student total points accurately
@@ -3150,34 +3566,55 @@
       else if (totalPts > 0) siswaObj.status_pembinaan = 'Peringatan Ringan';
       else siswaObj.status_pembinaan = 'Aman / Disiplin Baik';
 
-      if (supabase) {
-        try {
-          await supabase.from('sipps_siswa').update({ total_poin: siswaObj.total_poin, status_pembinaan: siswaObj.status_pembinaan }).eq('nisn', siswaObj.nisn);
-        } catch {}
-      }
-
+      markLocalSaveAction();
       savePreviewLocal();
       updateUnreadNotifBadge();
       closeModal();
       renderActiveView();
       showToast("Catatan pelanggaran berhasil disimpan & disinkronkan!", "success");
+
+      if (supabase) {
+        const promises = [];
+        if (id) {
+          const existing = (state.db.pelanggaran || []).find(item => item.id === id);
+          if (existing) promises.push(supabase.from('sipps_pelanggaran').update(existing).eq('id', id));
+        } else {
+          if (newPel) promises.push(supabase.from('sipps_pelanggaran').insert([newPel]));
+          if (newNotif) promises.push(supabase.from('sipps_notifikasi').insert([newNotif]));
+        }
+        promises.push(supabase.from('sipps_siswa').update({ total_poin: siswaObj.total_poin, status_pembinaan: siswaObj.status_pembinaan }).eq('nisn', siswaObj.nisn));
+
+        Promise.all(promises).catch(err => {
+          console.warn("Background sync pelanggaran error:", err);
+        });
+      }
     }
 
     async function deletePelanggaran(id) {
-      const idx = state.db.pelanggaran.findIndex(p => p.id === id);
+      const idx = (state.db.pelanggaran || []).findIndex(p => p.id === id);
       if (idx !== -1) {
         const p = state.db.pelanggaran[idx];
         const s = (state.db.siswa || []).find(item => item.nisn === p.nisn);
         if (s) {
           s.total_poin = Math.max(0, (Number(s.total_poin) || 0) - Number(p.poin));
+          if (s.total_poin > 40) s.status_pembinaan = 'Panggilan Orang Tua';
+          else if (s.total_poin > 20) s.status_pembinaan = 'Peringatan Sedang';
+          else if (s.total_poin > 0) s.status_pembinaan = 'Peringatan Ringan';
+          else s.status_pembinaan = 'Aman / Disiplin Baik';
         }
         state.db.pelanggaran.splice(idx, 1);
-        if (supabase) {
-          try { await supabase.from('sipps_pelanggaran').delete().eq('id', id); } catch {}
-        }
+        markLocalSaveAction();
         savePreviewLocal();
         renderActiveView();
-        showToast("Catatan pelanggaran dihapus.", "info");
+        showToast("Catatan pelanggaran dihapus & disinkronkan.", "info");
+
+        if (supabase) {
+          const promises = [supabase.from('sipps_pelanggaran').delete().eq('id', id)];
+          if (s) {
+            promises.push(supabase.from('sipps_siswa').update({ total_poin: s.total_poin, status_pembinaan: s.status_pembinaan }).eq('nisn', s.nisn));
+          }
+          Promise.all(promises).catch(err => console.warn("Sync delete pelanggaran error:", err));
+        }
       }
     }
 
@@ -3229,20 +3666,21 @@
       const wali = document.getElementById('form-s-wali').value.trim();
       const hp = document.getElementById('form-s-hp').value.trim();
 
+      let targetItem = null;
+      let isNew = false;
+
       if (id) {
-        const s = (state.db.siswa || []).find(item => item.id === id);
-        if (s) {
-          s.nisn = nisn;
-          s.kelas = kelas;
-          s.nama_siswa = nama;
-          s.nama_wali = wali;
-          s.no_hp_wali = hp;
-          if (supabase) {
-            try { await supabase.from('sipps_siswa').update({ nisn, kelas, nama_siswa: nama, nama_wali: wali, no_hp_wali: hp }).eq('id', id); } catch {}
-          }
+        targetItem = (state.db.siswa || []).find(item => item.id === id);
+        if (targetItem) {
+          targetItem.nisn = nisn;
+          targetItem.kelas = kelas;
+          targetItem.nama_siswa = nama;
+          targetItem.nama_wali = wali;
+          targetItem.no_hp_wali = hp;
         }
       } else {
-        const newS = {
+        isNew = true;
+        targetItem = {
           id: 'sis_' + Date.now(),
           nisn,
           kelas,
@@ -3257,26 +3695,35 @@
           status_pembinaan: 'Aman / Disiplin Baik',
           created_at: new Date().toISOString()
         };
-        state.db.siswa.push(newS);
-        if (supabase) {
-          try { await supabase.from('sipps_siswa').insert([newS]); } catch {}
-        }
+        state.db.siswa = state.db.siswa || [];
+        state.db.siswa.push(targetItem);
       }
 
+      markLocalSaveAction();
       savePreviewLocal();
       closeModal();
       renderActiveView();
-      showToast("Data identitas siswa berhasil disimpan!", "success");
+      showToast("Data identitas siswa berhasil disimpan & disinkronkan!", "success");
+
+      if (supabase && targetItem) {
+        if (isNew) {
+          supabase.from('sipps_siswa').insert([targetItem]).then(() => {}).catch(err => console.warn("Sync insert siswa gagal:", err));
+        } else {
+          supabase.from('sipps_siswa').update({ nisn, kelas, nama_siswa: nama, nama_wali: wali, no_hp_wali: hp }).eq('id', id).then(() => {}).catch(err => console.warn("Sync update siswa gagal:", err));
+        }
+      }
     }
 
     async function deleteSiswa(id) {
       state.db.siswa = (state.db.siswa || []).filter(s => s.id !== id);
-      if (supabase) {
-        try { await supabase.from('sipps_siswa').delete().eq('id', id); } catch {}
-      }
+      markLocalSaveAction();
       savePreviewLocal();
       renderActiveView();
-      showToast("Data siswa dihapus.", "info");
+      showToast("Data siswa dihapus & disinkronkan.", "info");
+
+      if (supabase) {
+        supabase.from('sipps_siswa').delete().eq('id', id).then(() => {}).catch(err => console.warn("Sync delete siswa gagal:", err));
+      }
     }
 
     function openModalKelas(id = null) {
@@ -3326,20 +3773,21 @@
       const wali = document.getElementById('form-k-wali').value.trim();
       const nip = document.getElementById('form-k-nip').value.trim();
 
+      let targetItem = null;
+      let isNew = false;
+
       if (id) {
-        const k = (state.db.kelas || []).find(item => item.id === id);
-        if (k) {
-          k.kode_kelas = kode;
-          k.tingkat = tingkat;
-          k.nama_kelas = nama;
-          k.wali_kelas = wali;
-          k.nip_wali_kelas = nip;
-          if (supabase) {
-            try { await supabase.from('sipps_kelas').update({ kode_kelas: kode, tingkat, nama_kelas: nama, wali_kelas: wali, nip_wali_kelas: nip }).eq('id', id); } catch {}
-          }
+        targetItem = (state.db.kelas || []).find(item => item.id === id);
+        if (targetItem) {
+          targetItem.kode_kelas = kode;
+          targetItem.tingkat = tingkat;
+          targetItem.nama_kelas = nama;
+          targetItem.wali_kelas = wali;
+          targetItem.nip_wali_kelas = nip;
         }
       } else {
-        const newK = {
+        isNew = true;
+        targetItem = {
           id: 'kls_' + Date.now(),
           kode_kelas: kode,
           nama_kelas: nama,
@@ -3349,26 +3797,35 @@
           kapasitas: 36,
           created_at: new Date().toISOString()
         };
-        state.db.kelas.push(newK);
-        if (supabase) {
-          try { await supabase.from('sipps_kelas').insert([newK]); } catch {}
-        }
+        state.db.kelas = state.db.kelas || [];
+        state.db.kelas.push(targetItem);
       }
 
+      markLocalSaveAction();
       savePreviewLocal();
       closeModal();
       renderActiveView();
-      showToast("Master kelas berhasil disimpan!", "success");
+      showToast("Master kelas berhasil disimpan & disinkronkan!", "success");
+
+      if (supabase && targetItem) {
+        if (isNew) {
+          supabase.from('sipps_kelas').insert([targetItem]).then(() => {}).catch(err => console.warn("Sync insert kelas gagal:", err));
+        } else {
+          supabase.from('sipps_kelas').update({ kode_kelas: kode, tingkat, nama_kelas: nama, wali_kelas: wali, nip_wali_kelas: nip }).eq('id', id).then(() => {}).catch(err => console.warn("Sync update kelas gagal:", err));
+        }
+      }
     }
 
     async function deleteKelas(id) {
       state.db.kelas = (state.db.kelas || []).filter(k => k.id !== id);
-      if (supabase) {
-        try { await supabase.from('sipps_kelas').delete().eq('id', id); } catch {}
-      }
+      markLocalSaveAction();
       savePreviewLocal();
       renderActiveView();
-      showToast("Master kelas dihapus.", "info");
+      showToast("Master kelas dihapus & disinkronkan.", "info");
+
+      if (supabase) {
+        supabase.from('sipps_kelas').delete().eq('id', id).then(() => {}).catch(err => console.warn("Sync delete kelas gagal:", err));
+      }
     }
 
     function openModalStaff(id = null) {
@@ -3419,20 +3876,21 @@
       const username = document.getElementById('form-st-user').value.trim();
       const password = document.getElementById('form-st-pass').value.trim();
 
+      let targetItem = null;
+      let isNew = false;
+
       if (id) {
-        const st = (state.db.staff || []).find(item => item.id === id);
-        if (st) {
-          st.nip = nip;
-          st.nama = nama;
-          st.jabatan = jabatan;
-          st.username = username;
-          st.password = password;
-          if (supabase) {
-            try { await supabase.from('sipps_staff').update({ nip, nama, jabatan, username, password }).eq('id', id); } catch {}
-          }
+        targetItem = (state.db.staff || []).find(item => item.id === id);
+        if (targetItem) {
+          targetItem.nip = nip;
+          targetItem.nama = nama;
+          targetItem.jabatan = jabatan;
+          targetItem.username = username;
+          targetItem.password = password;
         }
       } else {
-        const newSt = {
+        isNew = true;
+        targetItem = {
           id: 'st_' + Date.now(),
           nip,
           nama,
@@ -3443,26 +3901,35 @@
           avatar_url: '',
           created_at: new Date().toISOString()
         };
-        state.db.staff.push(newSt);
-        if (supabase) {
-          try { await supabase.from('sipps_staff').insert([newSt]); } catch {}
-        }
+        state.db.staff = state.db.staff || [];
+        state.db.staff.push(targetItem);
       }
 
+      markLocalSaveAction();
       savePreviewLocal();
       closeModal();
       renderActiveView();
-      showToast("Data Guru BK berhasil disimpan!", "success");
+      showToast("Data Guru BK berhasil disimpan & disinkronkan!", "success");
+
+      if (supabase && targetItem) {
+        if (isNew) {
+          supabase.from('sipps_staff').insert([targetItem]).then(() => {}).catch(err => console.warn("Sync insert staff gagal:", err));
+        } else {
+          supabase.from('sipps_staff').update({ nip, nama, jabatan, username, password }).eq('id', id).then(() => {}).catch(err => console.warn("Sync update staff gagal:", err));
+        }
+      }
     }
 
     async function deleteStaff(id) {
       state.db.staff = (state.db.staff || []).filter(st => st.id !== id);
-      if (supabase) {
-        try { await supabase.from('sipps_staff').delete().eq('id', id); } catch {}
-      }
+      markLocalSaveAction();
       savePreviewLocal();
       renderActiveView();
-      showToast("Data Guru BK dihapus.", "info");
+      showToast("Data Guru BK dihapus & disinkronkan.", "info");
+
+      if (supabase) {
+        supabase.from('sipps_staff').delete().eq('id', id).then(() => {}).catch(err => console.warn("Sync delete staff gagal:", err));
+      }
     }
 
     function openModalAturan(id = null) {
@@ -3512,20 +3979,21 @@
       const poin = Number(document.getElementById('form-at-poin').value) || 10;
       const sanksi = document.getElementById('form-at-sanksi').value.trim();
 
+      let targetItem = null;
+      let isNew = false;
+
       if (id) {
-        const a = (state.db.aturan || []).find(item => item.id === id);
-        if (a) {
-          a.kode_aturan = kode;
-          a.kategori = kategori;
-          a.nama_pelanggaran = nama;
-          a.poin = poin;
-          a.sanksi_tindak_lanjut = sanksi;
-          if (supabase) {
-            try { await supabase.from('sipps_aturan').update({ kode_aturan: kode, kategori, nama_pelanggaran: nama, poin, sanksi_tindak_lanjut: sanksi }).eq('id', id); } catch {}
-          }
+        targetItem = (state.db.aturan || []).find(item => item.id === id);
+        if (targetItem) {
+          targetItem.kode_aturan = kode;
+          targetItem.kategori = kategori;
+          targetItem.nama_pelanggaran = nama;
+          targetItem.poin = poin;
+          targetItem.sanksi_tindak_lanjut = sanksi;
         }
       } else {
-        const newA = {
+        isNew = true;
+        targetItem = {
           id: 'at_' + Date.now(),
           kode_aturan: kode,
           kategori,
@@ -3534,26 +4002,35 @@
           sanksi_tindak_lanjut: sanksi,
           created_at: new Date().toISOString()
         };
-        state.db.aturan.push(newA);
-        if (supabase) {
-          try { await supabase.from('sipps_aturan').insert([newA]); } catch {}
-        }
+        state.db.aturan = state.db.aturan || [];
+        state.db.aturan.push(targetItem);
       }
 
+      markLocalSaveAction();
       savePreviewLocal();
       closeModal();
       renderActiveView();
-      showToast("Katalog aturan berhasil disimpan!", "success");
+      showToast("Katalog aturan berhasil disimpan & disinkronkan!", "success");
+
+      if (supabase && targetItem) {
+        if (isNew) {
+          supabase.from('sipps_aturan').insert([targetItem]).then(() => {}).catch(err => console.warn("Sync insert aturan gagal:", err));
+        } else {
+          supabase.from('sipps_aturan').update({ kode_aturan: kode, kategori, nama_pelanggaran: nama, poin, sanksi_tindak_lanjut: sanksi }).eq('id', id).then(() => {}).catch(err => console.warn("Sync update aturan gagal:", err));
+        }
+      }
     }
 
     async function deleteAturan(id) {
       state.db.aturan = (state.db.aturan || []).filter(a => a.id !== id);
-      if (supabase) {
-        try { await supabase.from('sipps_aturan').delete().eq('id', id); } catch {}
-      }
+      markLocalSaveAction();
       savePreviewLocal();
       renderActiveView();
-      showToast("Aturan dihapus.", "info");
+      showToast("Aturan dihapus & disinkronkan.", "info");
+
+      if (supabase) {
+        supabase.from('sipps_aturan').delete().eq('id', id).then(() => {}).catch(err => console.warn("Sync delete aturan gagal:", err));
+      }
     }
 
     // ====================================================================
@@ -3570,22 +4047,40 @@
       const msg = (msgEl?.value || '').trim();
       if (!msg) return;
 
-      const target = state.activeChatTarget || 'semua_wali';
+      const u = state.currentUser || {};
+      const isStudentOrWali = (u.role === 'siswa' || u.role === 'wali');
+
+      let target = state.activeChatTarget;
+      if (!target) {
+        target = isStudentOrWali ? 'admin_utama' : 'semua_wali';
+      }
+
       let targetRole = 'Semua';
       let targetKelas = 'Semua Kelas';
       let targetNisn = '';
       let targetNama = '';
       let title = 'Pesan Live Chatting';
 
-      if (target === 'semua_wali') {
+      if (target === 'admin_utama' || target === 'admin') {
+        targetRole = 'Administrator';
+        targetNama = 'Administrator Sistem';
+        title = u.role === 'wali' ? `Pesan Wali Murid (${u.nama})` : u.role === 'siswa' ? `Pesan Siswa (${u.nama})` : 'Pesan Administrator';
+      } else if (target === 'semua_bk') {
+        targetRole = 'Guru BK';
+        targetNama = 'Tim Guru BK';
+        title = u.role === 'wali' ? `Konsultasi Wali ke BK (${u.nama})` : u.role === 'siswa' ? `Konsultasi Siswa ke BK (${u.nama})` : 'Koordinasi Guru BK';
+      } else if (target.startsWith('bk_')) {
+        targetNisn = target.replace('bk_', '');
+        const foundBk = (state.db.staff || []).find(st => st.nip === targetNisn);
+        targetRole = 'Guru BK';
+        targetNama = foundBk ? foundBk.nama : 'Guru BK';
+        title = u.role === 'wali' ? `Konsultasi Wali ke ${targetNama}` : u.role === 'siswa' ? `Konsultasi Siswa ke ${targetNama}` : `Pesan ke ${targetNama}`;
+      } else if (target === 'semua_wali') {
         targetRole = 'Wali Murid';
         title = 'Pesan Broadcast Wali Murid';
       } else if (target === 'semua_siswa') {
         targetRole = 'Siswa';
         title = 'Pesan Broadcast Siswa';
-      } else if (target === 'semua_bk') {
-        targetRole = 'Guru BK';
-        title = 'Koordinasi Guru BK';
       } else if (target.startsWith('kelas_')) {
         targetKelas = target.replace('kelas_', '');
         targetRole = 'Semua';
@@ -3604,12 +4099,6 @@
         targetKelas = foundS ? foundS.kelas : '';
         targetNama = foundS ? foundS.nama_siswa : '';
         title = 'Pesan kepada Siswa';
-      } else if (target.startsWith('bk_')) {
-        targetNisn = target.replace('bk_', '');
-        const foundBk = (state.db.staff || []).find(st => st.nip === targetNisn);
-        targetRole = 'Guru BK';
-        targetNama = foundBk ? foundBk.nama : 'Guru BK';
-        title = 'Pesan kepada Guru BK';
       }
 
       const newNotif = {
@@ -3621,22 +4110,27 @@
         target_kelas: targetKelas,
         target_nisn: targetNisn,
         target_nama: targetNama,
-        pengirim: state.currentUser ? state.currentUser.nama : 'admin',
-        pengirim_role: state.currentUser ? state.currentUser.role : 'admin',
-        pengirim_id: state.currentUser ? (state.currentUser.id || '') : '',
+        pengirim: u.nama || (u.role === 'admin' ? 'Administrator' : 'Pengguna'),
+        pengirim_role: u.role || 'admin',
+        pengirim_id: u.nisn || u.nip || u.id || '',
         is_read: false,
         created_at: new Date().toISOString()
       };
 
+      if (msgEl) msgEl.value = '';
+      markLocalSaveAction();
+      state.db.notifikasi = state.db.notifikasi || [];
       state.db.notifikasi.unshift(newNotif);
-      if (supabase) {
-        try { await supabase.from('sipps_notifikasi').insert([newNotif]); } catch {}
-      }
-
       savePreviewLocal();
       updateUnreadNotifBadge();
       renderActiveView();
-      showToast("Pesan chatting terkirim dan masuk ke notifikasi!", "success");
+      showToast("Pesan chatting terkirim dan disinkronkan!", "success");
+
+      if (supabase) {
+        supabase.from('sipps_notifikasi').insert([newNotif]).then(() => {}).catch(err => {
+          console.warn("Sync notifikasi chatting gagal:", err);
+        });
+      }
     }
 
     function toggleNotifDrawer(forceState) {
@@ -3974,7 +4468,9 @@
       handleImageUpload,
       handleSaveSystemSettings,
       handleSaveSiswaProfile,
+      handleSaveWaliProfile,
       handleSaveBkProfile,
+      toggleMobileDrawer,
       toggleMaintenanceModeSetting,
       previewMaintenanceScreen,
       openSupabaseConfigModal,
