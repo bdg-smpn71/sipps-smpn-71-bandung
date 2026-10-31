@@ -70,6 +70,18 @@
           s.textContent = '#sipps-root-wrapper { --canvas-opacity: ' + op + ' !important; background-image: url("' + bg + '") !important; }';
           document.head.appendChild(s);
         }
+
+        // Instant Theme Application (Mencegah Layar Berkedip / FOUC Saat Refresh)
+        var savedTheme = localStorage.getItem('SIPPS_71_THEME') || 'light';
+        var isDark = false;
+        if (savedTheme === 'dark') {
+          isDark = true;
+        } else if (savedTheme === 'system') {
+          isDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        }
+        if (isDark) {
+          document.documentElement.classList.add('dark-theme');
+        }
       } catch(e) {}
     })();
   </script>
@@ -86,6 +98,12 @@
       touch-action: manipulation;
       -webkit-tap-highlight-color: transparent;
       user-select: none;
+    }
+
+    /* Animasi transisi halus ketika berpindah tema */
+    body, #sipps-root-wrapper, .glass-canvas, .glass-card, .glass-frame, .glass-login-card,
+    header, aside, nav, table, th, td, input, select, textarea, button, .modal-box {
+      transition: background-color 0.25s ease, color 0.20s ease, border-color 0.25s ease, box-shadow 0.25s ease;
     }
 
     html, body {
@@ -111,11 +129,11 @@
       background-size: cover;
       background-position: center;
       background-repeat: no-repeat;
-      transition: background-image 0.4s ease;
+      transition: background-image 0.4s ease, background-color 0.25s ease;
     }
 
     .glass-frame {
-      background: rgba(62, 84, 99, 0.85);
+      background: rgba(62, 84, 99, var(--canvas-opacity, 0.85));
       backdrop-filter: blur(22px);
       -webkit-backdrop-filter: blur(22px);
       border: 1px solid rgba(255, 255, 255, 0.18);
@@ -129,7 +147,7 @@
     }
 
     .glass-card {
-      background: rgba(255, 255, 255, 0.88);
+      background: rgba(255, 255, 255, var(--canvas-opacity, 0.88));
       backdrop-filter: blur(16px);
       -webkit-backdrop-filter: blur(16px);
       border: 1px solid rgba(255, 255, 255, 0.65);
@@ -144,11 +162,176 @@
     }
 
     .glass-login-card {
-      background: rgba(236, 240, 243, 0.94);
+      background: rgba(236, 240, 243, var(--canvas-opacity, 0.94));
       backdrop-filter: blur(28px);
       -webkit-backdrop-filter: blur(28px);
       border: 1px solid rgba(255, 255, 255, 0.78);
       box-shadow: 0 28px 70px -15px rgba(15, 23, 42, 0.48);
+    }
+
+    /* ==================================================================== */
+    /* DESAIN TEMA GELAP (DARK MODE) - #121212 / #181A20 & #1E222B          */
+    /* ==================================================================== */
+    html.dark-theme,
+    body.dark-theme {
+      background-color: #121212 !important;
+      color: #E2E8F0 !important;
+    }
+
+    body.dark-theme #sipps-root-wrapper {
+      background-color: #121212 !important;
+      color: #E2E8F0 !important;
+    }
+
+    body.dark-theme .glass-canvas {
+      background: rgba(24, 26, 32, var(--canvas-opacity, 0.92)) !important;
+      border-color: rgba(255, 255, 255, 0.08) !important;
+      color: #E2E8F0 !important;
+    }
+
+    body.dark-theme .glass-card {
+      background: rgba(30, 34, 43, var(--canvas-opacity, 0.92)) !important;
+      border-color: rgba(255, 255, 255, 0.08) !important;
+      box-shadow: 0 12px 32px -8px rgba(0, 0, 0, 0.45) !important;
+      color: #E2E8F0 !important;
+    }
+
+    body.dark-theme .glass-login-card {
+      background: rgba(30, 34, 43, var(--canvas-opacity, 0.95)) !important;
+      border-color: rgba(255, 255, 255, 0.12) !important;
+      box-shadow: 0 28px 70px -15px rgba(0, 0, 0, 0.70) !important;
+      color: #E2E8F0 !important;
+    }
+
+    body.dark-theme .glass-frame {
+      background: rgba(24, 26, 32, var(--canvas-opacity, 0.95)) !important;
+      border-color: rgba(255, 255, 255, 0.12) !important;
+    }
+
+    body.dark-theme .glass-subcard {
+      background: rgba(255, 255, 255, 0.06) !important;
+      border-color: rgba(255, 255, 255, 0.10) !important;
+    }
+
+    /* Typography & Contrast in Dark Mode */
+    body.dark-theme .text-slate-800,
+    body.dark-theme .text-slate-700 {
+      color: #F1F5F9 !important;
+    }
+    body.dark-theme .text-slate-600 {
+      color: #CBD5E1 !important;
+    }
+    body.dark-theme .text-slate-500 {
+      color: #94A3B8 !important;
+    }
+    body.dark-theme .text-slate-400 {
+      color: #64748B !important;
+    }
+    body.dark-theme .text-\[\#2A4756\] {
+      color: #93C5FD !important;
+    }
+
+    /* Panels, Controls, Modals & Drawers in Dark Mode */
+    body.dark-theme .bg-white {
+      background-color: #1E222B !important;
+    }
+    body.dark-theme .bg-white\/95,
+    body.dark-theme .bg-white\/90,
+    body.dark-theme .bg-white\/85,
+    body.dark-theme .bg-white\/80,
+    body.dark-theme .bg-white\/70 {
+      background-color: rgba(30, 34, 43, 0.95) !important;
+    }
+    body.dark-theme .bg-slate-50,
+    body.dark-theme .bg-slate-50\/90,
+    body.dark-theme .bg-slate-50\/80,
+    body.dark-theme .bg-slate-50\/70,
+    body.dark-theme .bg-slate-100 {
+      background-color: #15181F !important;
+    }
+    body.dark-theme .bg-slate-200 {
+      background-color: #272C38 !important;
+    }
+
+    body.dark-theme .border-slate-100,
+    body.dark-theme .border-slate-200,
+    body.dark-theme .border-slate-200\/80,
+    body.dark-theme .border-slate-200\/70,
+    body.dark-theme .border-slate-200\/60 {
+      border-color: rgba(255, 255, 255, 0.08) !important;
+    }
+
+    body.dark-theme input:not([type="range"]):not([type="checkbox"]):not([type="radio"]),
+    body.dark-theme select,
+    body.dark-theme textarea {
+      background-color: #15181F !important;
+      color: #F1F5F9 !important;
+      border-color: rgba(255, 255, 255, 0.14) !important;
+    }
+    body.dark-theme input::placeholder,
+    body.dark-theme textarea::placeholder {
+      color: #64748B !important;
+    }
+
+    body.dark-theme table th {
+      background-color: #15181F !important;
+      color: #CBD5E1 !important;
+      border-color: rgba(255, 255, 255, 0.08) !important;
+    }
+    body.dark-theme table td {
+      border-color: rgba(255, 255, 255, 0.06) !important;
+      color: #E2E8F0 !important;
+    }
+    body.dark-theme table tr:hover td {
+      background-color: rgba(255, 255, 255, 0.03) !important;
+    }
+
+    body.dark-theme #notif-drawer,
+    body.dark-theme #mobile-sidebar-drawer {
+      background-color: #181A20 !important;
+      border-color: rgba(255, 255, 255, 0.12) !important;
+    }
+
+    body.dark-theme #modal-overlay > div {
+      background-color: #1E222B !important;
+      border-color: rgba(255, 255, 255, 0.12) !important;
+    }
+
+    body.dark-theme .bg-\[\#F5DFD3\] {
+      background-color: #2D2522 !important;
+      color: #F8FAFC !important;
+    }
+    body.dark-theme .bg-\[\#F5DFD3\] .text-\[\#2A4756\] {
+      color: #FDBA74 !important;
+    }
+
+    body.dark-theme header button.bg-white\/85,
+    body.dark-theme header button.bg-white {
+      background-color: #1E222B !important;
+      border-color: rgba(255, 255, 255, 0.12) !important;
+      color: #F1F5F9 !important;
+    }
+
+    body.dark-theme #global-search-input {
+      background-color: #15181F !important;
+      color: #F1F5F9 !important;
+      border-color: rgba(255, 255, 255, 0.12) !important;
+    }
+
+    body.dark-theme .bg-\[\#DCE2E8\] {
+      background-color: #15181F !important;
+    }
+    body.dark-theme .role-tab:not(.bg-\[\#314553\]) {
+      color: #94A3B8 !important;
+    }
+    body.dark-theme .role-tab.bg-\[\#314553\] {
+      background-color: #2A4756 !important;
+      color: #FFFFFF !important;
+    }
+
+    body.dark-theme #notif-drawer-items .bg-sky-50\/50 {
+      background-color: rgba(30, 58, 138, 0.22) !important;
+      border-color: rgba(56, 189, 248, 0.3) !important;
     }
 
     ::-webkit-scrollbar {
@@ -457,6 +640,11 @@
                 <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
                 <input type="text" id="global-search-input" oninput="window.app.handleGlobalSearch(this.value)" placeholder="Cari siswa / NISN / kelas..." class="pl-9 pr-4 py-2 rounded-full bg-white/85 border border-slate-200/80 text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#6B8E9B] w-52 transition" />
               </div>
+
+              <!-- Quick Theme Toggle (Terang / Gelap) -->
+              <button id="header-theme-toggle" onclick="window.app.toggleThemeQuick()" title="Ubah Tema (Terang / Gelap)" class="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white/85 hover:bg-white border border-slate-200/80 flex items-center justify-center text-slate-700 transition shadow-sm">
+                <i data-lucide="sun" id="header-theme-icon" class="w-4 h-4"></i>
+              </button>
 
               <button onclick="window.app.syncAllData(true)" title="Sinkronkan Database Sekarang" class="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white/85 hover:bg-white border border-slate-200/80 flex items-center justify-center text-slate-700 transition shadow-sm">
                 <i data-lucide="refresh-cw" id="icon-sync-header" class="w-4 h-4"></i>
@@ -1117,6 +1305,8 @@
       }
       state.currentUser = null;
       clearLoginInputs();
+      toggleNotifDrawer(false);
+      updateUnreadNotifBadge();
 
       document.getElementById('app-shell').classList.add('hidden');
       if (!checkMaintenanceRedirect()) {
@@ -1426,6 +1616,8 @@
       const totalKasus = (state.db.pelanggaran || []).length;
       const totalAturan = (state.db.aturan || []).length;
       const siswaDisiplin = (state.db.siswa || []).filter(s => (Number(s.total_poin) || 0) === 0).length;
+      const siswaMelanggar = (state.db.siswa || []).filter(s => (Number(s.total_poin) || 0) > 0).length;
+      const rasioPelanggaran = totalSiswa > 0 ? ((siswaMelanggar / totalSiswa) * 100).toFixed(1) : '0,0';
       const indeksDisiplin = totalSiswa > 0 ? Math.max(50, Math.round((siswaDisiplin / totalSiswa) * 100)) : 92;
       const totalPoinTercatat = (state.db.pelanggaran || []).reduce((acc, p) => acc + (Number(p.poin) || 0), 0);
 
@@ -1458,7 +1650,7 @@
                     </div>
                     <div>
                       <div class="text-[10px] text-sky-100">Rasio Pelanggaran</div>
-                      <div class="text-base font-extrabold">${totalSiswa ? ((totalKasus / totalSiswa) * 10).toFixed(1) : '0,0'} %</div>
+                      <div class="text-base font-extrabold">${rasioPelanggaran} %</div>
                     </div>
                   </div>
                 </div>
@@ -1584,25 +1776,35 @@
             <!-- Sebaran Kelas -->
             <div class="rounded-[26px] glass-card p-5 flex flex-col justify-between">
               <div>
-                <h3 class="text-sm font-extrabold text-slate-800 mb-3">Sebaran Rombongan Kelas</h3>
-                <div class="space-y-2.5">
-                  ${uniqueClasses.slice(0, 4).map(kls => {
+                <div class="flex items-center justify-between mb-3">
+                  <h3 class="text-sm font-extrabold text-slate-800">Sebaran Rombongan Kelas</h3>
+                  <span class="px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 font-extrabold text-[10px]">${uniqueClasses.length} Rombel</span>
+                </div>
+                <div class="space-y-2 max-h-[220px] overflow-y-auto pr-1">
+                  ${uniqueClasses.length > 0 ? uniqueClasses.map(kls => {
                     const countS = (state.db.siswa || []).filter(s => s.kelas === kls).length;
+                    const countPelanggaranKls = (state.db.pelanggaran || []).filter(p => p.kelas === kls).length;
                     return `
-                      <div class="p-2.5 rounded-2xl bg-slate-50 border border-slate-200/60 flex items-center justify-between">
+                      <div class="p-2.5 rounded-2xl bg-slate-50 border border-slate-200/60 flex items-center justify-between hover:bg-slate-100/80 transition">
                         <div class="flex items-center gap-2">
                           <span class="w-2.5 h-2.5 rounded-full bg-[#6B8E9B]"></span>
                           <span class="text-xs font-extrabold text-slate-800">Kelas ${kls}</span>
                         </div>
-                        <span class="text-[11px] font-bold text-slate-600">${countS} Siswa</span>
+                        <div class="flex items-center gap-1.5">
+                          <span class="text-[11px] font-bold text-slate-600">${countS} Siswa</span>
+                          ${countPelanggaranKls > 0 ? `<span class="px-1.5 py-0.5 rounded-md bg-rose-50 text-rose-600 text-[10px] font-bold">${countPelanggaranKls} Kasus</span>` : `<span class="px-1.5 py-0.5 rounded-md bg-emerald-50 text-emerald-600 text-[10px] font-bold">Tertib</span>`}
+                        </div>
                       </div>
                     `;
-                  }).join('')}
+                  }).join('') : '<div class="text-xs text-slate-400 text-center py-4">Belum ada data rombongan kelas</div>'}
                 </div>
               </div>
-              <div class="mt-4 pt-2 border-t border-slate-100 flex items-center gap-2 text-[11px] font-bold text-slate-500">
-                <span class="w-2.5 h-2.5 rounded-full bg-[#6B8E9B]"></span>
-                <span>SMP Negeri 71 Bandung</span>
+              <div class="mt-4 pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] font-bold text-slate-500">
+                <div class="flex items-center gap-2">
+                  <span class="w-2.5 h-2.5 rounded-full bg-[#6B8E9B]"></span>
+                  <span>SMP Negeri 71 Bandung</span>
+                </div>
+                <button onclick="window.app.navigate('kelas')" class="text-[#6B8E9B] hover:underline text-[10.5px]">Kelola Kelas</button>
               </div>
             </div>
           </div>
@@ -2325,7 +2527,7 @@
                   <p class="font-bold">Koordinator Bimbingan Konseling / Petugas</p>
                   <div class="h-16"></div>
                   <p class="font-bold underline">${state.currentUser?.nama || 'admin'}</p>
-                  <p>NIP. ${state.currentUser?.nip || state.currentUser?.username || 'admin@gmail.com'}</p>
+                  <p>ID/NIP. ${state.currentUser?.nip || state.currentUser?.username || 'admin@gmail.com'}</p>
                 </div>
               </div>
             </div>
@@ -2743,9 +2945,80 @@
                 </div>
               </div>
 
-              <div class="pt-1">
-                <label class="block text-[11px] font-bold text-slate-700 mb-1.5">Tingkat Transparansi Latar Kaca (Glassmorphism Opacity)</label>
-                <input type="range" id="set-canvas-opacity" min="0.55" max="0.98" step="0.01" value="${cfg.canvas_opacity || 0.88}" oninput="document.getElementById('sipps-root-wrapper').style.setProperty('--canvas-opacity', this.value)" class="w-full accent-[#223845] cursor-pointer" />
+              <!-- TINGKAT TRANSPARANSI LATAR KACA (GLASSMORPHISM OPACITY) -->
+              <div class="pt-2 p-3.5 rounded-2xl bg-slate-50/80 border border-slate-200/80">
+                <div class="flex items-center justify-between mb-2">
+                  <div>
+                    <label class="block text-xs font-extrabold text-slate-800">Tingkat Transparansi Latar Kaca (Glassmorphism Opacity)</label>
+                    <p class="text-[10px] text-slate-400">Atur intensitas efek tembus pandang dan blur pada seluruh panel kaca & dashboard</p>
+                  </div>
+                  <span id="opacity-val-badge" class="px-2.5 py-1 rounded-full bg-[#6B8E9B] text-white font-extrabold text-[11px] shadow-xs">
+                    ${Math.round((cfg.canvas_opacity || 0.88) * 100)}%
+                  </span>
+                </div>
+                <input type="range" id="set-canvas-opacity" min="0.40" max="0.98" step="0.01" value="${cfg.canvas_opacity || 0.88}" oninput="window.app.handleOpacitySliderChange(this.value)" class="w-full accent-[#223845] cursor-pointer" />
+                <div class="flex justify-between text-[9px] text-slate-400 mt-1 font-semibold">
+                  <span>Transparan Tinggi (40%)</span>
+                  <span>Standar Rekomendasi (88%)</span>
+                  <span>Solid / Tebal (98%)</span>
+                </div>
+              </div>
+
+              <!-- MENU PILIHAN TEMA (LIGHT MODE & DARK MODE) -->
+              <div class="pt-2 p-3.5 rounded-2xl bg-slate-50/80 border border-slate-200/80">
+                <div class="flex items-center justify-between mb-2.5">
+                  <div>
+                    <label class="block text-xs font-extrabold text-slate-800">Tema Tampilan Aplikasi (Theme)</label>
+                    <p class="text-[10px] text-slate-400">Ganti tema aplikasi secara instan ke mode terang atau mode gelap yang nyaman</p>
+                  </div>
+                  <span id="theme-active-indicator" class="px-2.5 py-1 rounded-full bg-slate-200 text-slate-700 font-extrabold text-[10px] uppercase tracking-wide">
+                    ${(localStorage.getItem('SIPPS_71_THEME') || 'light') === 'dark' ? '🌙 Dark Mode' : (localStorage.getItem('SIPPS_71_THEME') || 'light') === 'system' ? '🖥️ Sistem' : '☀️ Light Mode'}
+                  </span>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                  <!-- Option 1: Light Mode -->
+                  <div onclick="window.app.setAppTheme('light')" data-theme-choice="light" class="theme-choice-card cursor-pointer p-3 rounded-2xl border-2 transition flex items-center justify-between shadow-xs ${(localStorage.getItem('SIPPS_71_THEME') || 'light') === 'light' ? 'border-[#6B8E9B] ring-2 ring-[#6B8E9B]/30 bg-white' : 'border-slate-200 hover:border-slate-300 bg-white/70'}">
+                    <div class="flex items-center gap-2.5">
+                      <div class="w-8 h-8 rounded-xl bg-amber-100 text-amber-600 flex items-center justify-center shrink-0 shadow-xs">
+                        <i data-lucide="sun" class="w-4 h-4"></i>
+                      </div>
+                      <div>
+                        <div class="text-xs font-extrabold text-slate-800">Tema Terang</div>
+                        <div class="text-[10px] text-slate-500 font-medium">Light Mode</div>
+                      </div>
+                    </div>
+                    <i data-lucide="check-circle-2" class="theme-check-icon w-4 h-4 text-[#6B8E9B] ${(localStorage.getItem('SIPPS_71_THEME') || 'light') === 'light' ? '' : 'hidden'}"></i>
+                  </div>
+
+                  <!-- Option 2: Dark Mode -->
+                  <div onclick="window.app.setAppTheme('dark')" data-theme-choice="dark" class="theme-choice-card cursor-pointer p-3 rounded-2xl border-2 transition flex items-center justify-between shadow-xs ${(localStorage.getItem('SIPPS_71_THEME') || 'light') === 'dark' ? 'border-[#6B8E9B] ring-2 ring-[#6B8E9B]/30 bg-slate-800 text-white' : 'border-slate-200 hover:border-slate-300 bg-white/70'}">
+                    <div class="flex items-center gap-2.5">
+                      <div class="w-8 h-8 rounded-xl bg-slate-900 text-sky-300 flex items-center justify-center shrink-0 shadow-xs">
+                        <i data-lucide="moon" class="w-4 h-4"></i>
+                      </div>
+                      <div>
+                        <div class="text-xs font-extrabold text-slate-800">Tema Gelap</div>
+                        <div class="text-[10px] text-slate-500 font-medium">Dark Mode</div>
+                      </div>
+                    </div>
+                    <i data-lucide="check-circle-2" class="theme-check-icon w-4 h-4 text-[#6B8E9B] ${(localStorage.getItem('SIPPS_71_THEME') || 'light') === 'dark' ? '' : 'hidden'}"></i>
+                  </div>
+
+                  <!-- Option 3: System Default -->
+                  <div onclick="window.app.setAppTheme('system')" data-theme-choice="system" class="theme-choice-card cursor-pointer p-3 rounded-2xl border-2 transition flex items-center justify-between shadow-xs ${(localStorage.getItem('SIPPS_71_THEME') || 'light') === 'system' ? 'border-[#6B8E9B] ring-2 ring-[#6B8E9B]/30 bg-sky-50/50' : 'border-slate-200 hover:border-slate-300 bg-white/70'}">
+                    <div class="flex items-center gap-2.5">
+                      <div class="w-8 h-8 rounded-xl bg-slate-200 text-slate-700 flex items-center justify-center shrink-0 shadow-xs">
+                        <i data-lucide="laptop" class="w-4 h-4"></i>
+                      </div>
+                      <div>
+                        <div class="text-xs font-extrabold text-slate-800">Ikuti Sistem</div>
+                        <div class="text-[10px] text-slate-500 font-medium">Auto Perangkat</div>
+                      </div>
+                    </div>
+                    <i data-lucide="check-circle-2" class="theme-check-icon w-4 h-4 text-[#6B8E9B] ${(localStorage.getItem('SIPPS_71_THEME') || 'light') === 'system' ? '' : 'hidden'}"></i>
+                  </div>
+                </div>
               </div>
 
               <button type="submit" class="w-full py-3 rounded-full bg-[#223845] hover:bg-[#182832] text-white text-xs font-extrabold flex items-center justify-center gap-2 shadow-md transition">
@@ -3195,6 +3468,107 @@
           console.warn("Sync settings gagal:", err);
         });
       }
+    }
+
+    function handleOpacitySliderChange(val) {
+      const num = parseFloat(val) || 0.88;
+      const badge = document.getElementById('opacity-val-badge');
+      if (badge) badge.textContent = Math.round(num * 100) + '%';
+      const rootWrapper = document.getElementById('sipps-root-wrapper');
+      if (rootWrapper) {
+        rootWrapper.style.setProperty('--canvas-opacity', num);
+      }
+      state.db.settings = state.db.settings || {};
+      state.db.settings.canvas_opacity = num;
+      savePreviewLocal();
+      try {
+        const rawVisual = safeStorage.getItem('SIPPS_71_VISUAL_CACHE_V3');
+        let vObj = rawVisual ? JSON.parse(rawVisual) : {};
+        vObj.canvas_opacity = num;
+        safeStorage.setItem('SIPPS_71_VISUAL_CACHE_V3', JSON.stringify(vObj));
+      } catch(e) {}
+      if (supabase) {
+        supabaseDebouncedSync();
+      }
+    }
+
+    function getAppTheme() {
+      return localStorage.getItem('SIPPS_71_THEME') || 'light';
+    }
+
+    function setAppTheme(theme, skipToast) {
+      localStorage.setItem('SIPPS_71_THEME', theme);
+      state.theme = theme;
+
+      let isDark = false;
+      if (theme === 'dark') {
+        isDark = true;
+      } else if (theme === 'system') {
+        isDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      }
+
+      if (isDark) {
+        document.documentElement.classList.add('dark-theme');
+        document.body.classList.add('dark-theme');
+      } else {
+        document.documentElement.classList.remove('dark-theme');
+        document.body.classList.remove('dark-theme');
+      }
+
+      // Update header toggle icon
+      const icon = document.getElementById('header-theme-icon');
+      if (icon) {
+        icon.setAttribute('data-lucide', isDark ? 'moon' : 'sun');
+      }
+
+      // Update active theme indicator if on settings page
+      const activeInd = document.getElementById('theme-active-indicator');
+      if (activeInd) {
+        activeInd.textContent = theme === 'dark' ? '🌙 Dark Mode' : theme === 'system' ? '🖥️ Sistem' : '☀️ Light Mode';
+      }
+
+      const settingsThemeCards = document.querySelectorAll('.theme-choice-card');
+      settingsThemeCards.forEach(card => {
+        const t = card.getAttribute('data-theme-choice');
+        const checkIcon = card.querySelector('.theme-check-icon');
+        if (t === theme) {
+          card.classList.add('border-[#6B8E9B]', 'ring-2', 'ring-[#6B8E9B]/30');
+          if (theme === 'dark') {
+            card.classList.add('bg-slate-800', 'text-white');
+            card.classList.remove('bg-white', 'bg-white/70', 'bg-sky-50/50');
+          } else if (theme === 'system') {
+            card.classList.add('bg-sky-50/50');
+            card.classList.remove('bg-white/70', 'bg-slate-800', 'text-white');
+          } else {
+            card.classList.add('bg-white');
+            card.classList.remove('bg-white/70', 'bg-slate-800', 'text-white');
+          }
+          if (checkIcon) checkIcon.classList.remove('hidden');
+        } else {
+          card.classList.remove('border-[#6B8E9B]', 'ring-2', 'ring-[#6B8E9B]/30', 'bg-white', 'bg-slate-800', 'text-white', 'bg-sky-50/50');
+          card.classList.add('border-slate-200', 'bg-white/70');
+          if (checkIcon) checkIcon.classList.add('hidden');
+        }
+      });
+
+      refreshIconsFast();
+
+      if (!skipToast) {
+        const label = theme === 'dark' ? 'Tema Gelap (Dark Mode)' : theme === 'system' ? 'Tema Default Sistem' : 'Tema Terang (Light Mode)';
+        showToast(`${label} berhasil diaktifkan!`, "info");
+      }
+    }
+
+    function toggleThemeQuick() {
+      const current = getAppTheme();
+      let next = 'dark';
+      if (current === 'dark') next = 'light';
+      else if (current === 'light') next = 'dark';
+      else {
+        const isSysDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        next = isSysDark ? 'light' : 'dark';
+      }
+      setAppTheme(next);
     }
 
     async function handleSaveSiswaProfile(e) {
@@ -4151,27 +4525,116 @@
       }
     }
 
+    function getFilteredNotificationsForCurrentUser() {
+      const u = state.currentUser;
+      const allNotifs = state.db.notifikasi || [];
+      if (!u) return allNotifs;
+
+      // Administrator and Guru BK have administrative access to view all notification records
+      if (u.role === 'admin' || u.role === 'bk') {
+        return allNotifs;
+      }
+
+      // PRIVASI KETAT SISWA & WALI MURID:
+      // Hanya menampilkan notifikasi pelanggaran & pembinaan siswa tersebut saja!
+      const userNisn = String(u.nisn || '').trim();
+      const userKelas = String(u.kelas || '').trim();
+      const studentName = String(u.nama_siswa || (u.role === 'siswa' ? u.nama : '') || '').trim().toLowerCase();
+
+      return allNotifs.filter(n => {
+        const judul = String(n.judul || '').toLowerCase();
+        const isi = String(n.isi_pesan || '').toLowerCase();
+        const tipe = String(n.tipe || '');
+
+        const isPelanggaranAtauPembinaan =
+          tipe === 'Pelanggaran Otomatis' ||
+          judul.includes('pelanggaran') ||
+          judul.includes('pembinaan') ||
+          judul.includes('poin') ||
+          isi.includes('pelanggaran') ||
+          isi.includes('pembinaan') ||
+          isi.includes('tercatat melakukan');
+
+        if (isPelanggaranAtauPembinaan) {
+          // Hanya izinkan jika secara spesifik ditujukan ke NISN siswa bersangkutan
+          if (n.target_nisn && userNisn) {
+            return String(n.target_nisn).trim() === userNisn;
+          }
+          // Atau jika nama target cocok dengan nama siswa bersangkutan
+          if (n.target_nama && studentName) {
+            const targetNamaLower = String(n.target_nama).toLowerCase().trim();
+            return targetNamaLower === studentName || targetNamaLower.includes(studentName) || studentName.includes(targetNamaLower);
+          }
+          // Jika notifikasi pelanggaran/pembinaan milik siswa lain, SEMBUNYIKAN (TIDAK DITAMPILKAN SAMA SEKALI)
+          return false;
+        }
+
+        // Untuk Pesan Chatting atau Pengumuman:
+        // Jika ditujukan khusus ke NISN tertentu, harus sesuai
+        if (n.target_nisn) {
+          return String(n.target_nisn).trim() === userNisn;
+        }
+
+        // Jika pesan dikirim oleh siswa/wali ini sendiri
+        if (n.pengirim_id && userNisn && String(n.pengirim_id).trim() === userNisn) {
+          return true;
+        }
+
+        // Filter berdasarkan peran penerima
+        if (u.role === 'siswa') {
+          if (n.target_role === 'Wali Murid' || n.target_role === 'Wali' || n.target_role === 'BK' || n.target_role === 'Admin') {
+            return false;
+          }
+        } else if (u.role === 'wali') {
+          if (n.target_role === 'Siswa' || n.target_role === 'BK' || n.target_role === 'Admin') {
+            return false;
+          }
+        }
+
+        // Filter berdasarkan target kelas
+        if (n.target_kelas && n.target_kelas !== 'Semua' && userKelas) {
+          if (n.target_kelas !== userKelas) return false;
+        }
+
+        // Pengumuman umum ('Semua', 'Semua Siswa', 'Semua Wali')
+        if (!n.target_role || n.target_role === 'Semua' || n.target_role === 'Semua Siswa' || n.target_role === 'Semua Wali') {
+          return true;
+        }
+
+        return false;
+      });
+    }
+
     function renderNotifDrawerItems() {
       const itemsContainer = document.getElementById('notif-drawer-items');
       if (!itemsContainer) return;
-      const notifs = state.db.notifikasi || [];
+      const notifs = getFilteredNotificationsForCurrentUser();
 
       itemsContainer.innerHTML = notifs.map(n => `
-        <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80 shadow-xs">
-          <div class="flex items-center justify-between mb-1">
-            <span class="text-xs font-extrabold text-[#2A4756]">${n.judul}</span>
-            <span class="text-[10px] text-slate-400">${new Date(n.created_at).toLocaleDateString('id-ID')}</span>
+        <div class="p-3.5 rounded-2xl ${n.is_read ? 'bg-slate-50/80 border-slate-200/70' : 'bg-sky-50/50 border-sky-200/80 ring-1 ring-sky-300/30'} border shadow-xs transition">
+          <div class="flex items-center justify-between mb-1.5">
+            <span class="text-xs font-extrabold text-[#2A4756] flex items-center gap-1.5">
+              ${!n.is_read ? '<span class="w-2 h-2 rounded-full bg-[#EB8A5E] shrink-0"></span>' : ''}
+              ${n.judul}
+            </span>
+            <span class="text-[10px] text-slate-400 font-semibold">${new Date(n.created_at).toLocaleDateString('id-ID')}</span>
           </div>
           <p class="text-xs text-slate-600 leading-relaxed">${n.isi_pesan}</p>
-          <div class="mt-2 text-[10px] font-bold text-[#EB8A5E]">Dari: ${n.pengirim} (${n.pengirim_role || 'Admin'})</div>
+          <div class="mt-2.5 pt-2 border-t border-slate-200/50 flex items-center justify-between text-[10px] font-bold">
+            <span class="text-[#EB8A5E]">Dari: ${n.pengirim} (${n.pengirim_role || 'Admin'})</span>
+            ${n.target_nisn ? `<span class="px-1.5 py-0.5 rounded bg-slate-100 text-slate-500 font-mono text-[9.5px]">NISN: ${n.target_nisn}</span>` : ''}
+          </div>
         </div>
-      `).join('') || '<div class="text-center py-10 text-slate-400 text-xs">Belum ada notifikasi.</div>';
+      `).join('') || '<div class="text-center py-12 text-slate-400 text-xs flex flex-col items-center gap-2"><i data-lucide="bell-off" class="w-8 h-8 opacity-40"></i><span>Belum ada notifikasi untuk Anda.</span></div>';
+
+      refreshIconsFast();
     }
 
     function updateUnreadNotifBadge() {
       const badge = document.getElementById('notif-unread-badge');
       if (!badge) return;
-      const unread = (state.db.notifikasi || []).filter(n => !n.is_read).length;
+      const userNotifs = getFilteredNotificationsForCurrentUser();
+      const unread = userNotifs.filter(n => !n.is_read).length;
       if (unread > 0) {
         badge.textContent = unread;
         badge.classList.remove('hidden');
@@ -4181,7 +4644,8 @@
     }
 
     function markAllNotifRead() {
-      (state.db.notifikasi || []).forEach(n => n.is_read = true);
+      const userNotifs = getFilteredNotificationsForCurrentUser();
+      userNotifs.forEach(n => n.is_read = true);
       savePreviewLocal();
       updateUnreadNotifBadge();
       renderNotifDrawerItems();
@@ -4467,6 +4931,10 @@
       downloadA4Pdf,
       handleImageUpload,
       handleSaveSystemSettings,
+      handleOpacitySliderChange,
+      getAppTheme,
+      setAppTheme,
+      toggleThemeQuick,
       handleSaveSiswaProfile,
       handleSaveWaliProfile,
       handleSaveBkProfile,
@@ -4484,10 +4952,19 @@
       initSupabaseConnection();
       setupPreviewOrProductionEnvironment();
       updateGlobalVisualSettings();
+      setAppTheme(localStorage.getItem('SIPPS_71_THEME') || 'light', true);
       setLoginRole('siswa');
       checkMaintenanceRedirect();
       syncAllData(false);
       refreshIconsFast();
+
+      if (window.matchMedia) {
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+          if (localStorage.getItem('SIPPS_71_THEME') === 'system') {
+            setAppTheme('system', true);
+          }
+        });
+      }
     });
   </script>
 </body>
