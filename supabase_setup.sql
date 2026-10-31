@@ -11,7 +11,7 @@ CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 -- ============================================================================
 CREATE TABLE IF NOT EXISTS public.sipps_settings (
   id int8 PRIMARY KEY DEFAULT 1,
-  app_name text NOT NULL DEFAULT 'SIPPS SMPN 71 Bandung',
+  app_name text NOT NULL DEFAULT 'SIPPS SMPN 71 Bdg',
   school_name text NOT NULL DEFAULT 'SMP Negeri 71 Bandung',
   school_address text DEFAULT 'Jl. Manglayang 1 No.1, Pasir Biru, Kec. Cibiru, Kota Bandung, Jawa Barat 40615',
   kepsek_name text DEFAULT 'Nur''aeni Puspitasari, S.S., M.Ak.',
@@ -42,7 +42,7 @@ INSERT INTO public.sipps_settings (
 )
 VALUES (
   1,
-  'SIPPS SMPN 71 Bandung',
+  'SIPPS SMPN 71 Bdg',
   'SMP Negeri 71 Bandung',
   'Jl. Manglayang 1 No.1, Pasir Biru, Kec. Cibiru, Kota Bandung, Jawa Barat 40615',
   'Nur''aeni Puspitasari, S.S., M.Ak.',
